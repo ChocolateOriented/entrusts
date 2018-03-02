@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+    "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    
+    <context id="mysql" targetRuntime="MyBatis3Simple" defaultModelType="flat">
+        <property name="javaFileEncoding" value="UTF-8"/>
+        <property name="javaFormatter" value="org.mybatis.generator.api.dom.DefaultJavaFormatter"/>
+        <property name="xmlFormatter" value="org.mybatis.generator.api.dom.DefaultXmlFormatter"/>
+        <!-- beginningDelimiter和endingDelimiter：指明数据库的用于标记数据库对象名的符号，比如ORACLE就是双引号，MYSQL默认是`反引号； -->
+        <property name="beginningDelimiter" value="`"/>
+        <property name="endingDelimiter" value="`"/>
+        
+        <commentGenerator>
+            <property name="suppressAllComments" value="true"/>
+            <property name="suppressDate" value="true"/>
+        </commentGenerator>
+        
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://127.0.0.1:3306/entrusts" userId="root" password="root">
+        </jdbcConnection>
+        
+        <!-- <javaTypeResolver type="org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl">
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver> -->
+        
+        <javaModelGenerator targetPackage="com.entrusts.module.entity" targetProject="src/main/java">
+            <!-- 自动为每一个生成的类创建一个构造方法，构造方法包含了所有的field -->
+            <property name="constructorBased" value="false"/>
+            <property name="enableSubPackages" value="true"/>
+        </javaModelGenerator>
+        
+        <sqlMapGenerator targetPackage="com.entrusts.resources.mapping" targetProject="src/main/resources">
+            <!-- 在targetPackage的基础上，根据数据库的schema再生成一层package，最终生成的类放在这个package下，默认为false -->
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+        
+        <!-- ANNOTATEDMAPPER/XMLMAPPER 生成mapper注解或xml -->
+        <javaClientGenerator targetPackage="mapping" type="XMLMAPPER" targetProject="src/main/resources">
+            <!-- 在targetPackage的基础上，根据数据库的schema再生成一层package，最终生成的类放在这个package下，默认为false -->
+            <property name="enableSubPackages" value="true"/>
+    
+            <!-- 可以为所有生成的接口添加一个父接口
+            <property name="rootInterface" value=""/>
+             -->
+        </javaClientGenerator>
+        
+        <table schema="entrusts" tableName="t_entrusts_dict" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
+            enableSelectByExample="false" selectByExampleQueryId="false">
+            
+            
+            <!-- <property name="rootClass" value=""/> 
+            <property name="rootInterface" value=""/> -->
+    
+            <!-- 如果设置为true，生成的model类会直接使用column本身的名字，而不会再使用驼峰命名方法，比如BORN_DATE，生成的属性名字就是BORN_DATE,而不会是bornDate -->
+            <property name="useActualColumnNames" value="false"/>
+
+            <!-- 替换生成实体类的固定前缀 -->
+            <domainObjectRenamingRule searchString="^Tentrusts" replaceString=""/>
+            
+            <!-- <columnRenamingRule searchString="" replaceString=""/> -->
+            
+            <!-- <ignoreColumn column="" delimitedColumnName=""/> -->
+             
+        </table>
+    </context>
+
+</generatorConfiguration>

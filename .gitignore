@@ -1,0 +1,39 @@
+.mymetadata
+.checkstyle
+.classpath
+.project
+.class
+.war
+.zip
+.rar
+.idea
+*.iml
+.settings/*
+/indexes/*
+/target/*
+/src/main/webapp/WEB-INF/classes/*
+/src/main/webapp/userfiles/*
+/target/
+# 忽略svn的版本
+.svn/
+
+# 忽略Idea生成的项目文件
+*.iml
+.idea/
+
+# 忽略eclipse的项目文件
+.project
+.classpath
+.settings/
+.metadata/
+Servers/
+
+# 忽略所有target
+target/
+
+# 生成的jar包全部忽略
+war/
+
+# 忽略war工程下的lib与class文件
+src/main/webapp/WEB-INF/lib/
+src/main/webapp/WEB-INF/classes

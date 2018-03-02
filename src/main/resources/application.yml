@@ -1,0 +1,97 @@
+server:
+  port: 80
+
+logging:
+  config: classpath:logback-spring.xml
+
+spring:
+  datasource:
+    name: datasource
+    url: jdbc:mysql://192.168.3.227:3306/entrusts?useUnicode=true&characterEncoding=utf-8
+    username: entrusts
+    password: 4WHvcqdNhraZ0dvU
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    maxActive: 50
+    initialSize: 10
+    maxWait: 10000
+    minIdle: 10
+    timeBetweenEvictionRunsMillis: 300000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+  application:
+    name: entrusts-service
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8000/eureka/
+
+redis:
+  database: 11
+  host: 192.168.3.31
+  password: dev@Mo9.com
+
+  database2: 6
+  host2: 192.168.3.31
+  password2: dev@Mo9.com
+
+  port: 6379
+  timeout: 20000
+  maxTotal: 50
+  maxWait: 10000
+  maxIdle: 10
+  minIdle: 0
+
+mq:
+  consumerId: CID_MO9_CLONE_entrusts
+  riskConsumerId: CID_MO9_CLONE_entrusts_RISK
+  productId: PID_MO9_CLONE_MIS
+  accessKey: LTAIyDR4k37NBuJu
+  secretKey: XRDykcat39ONcoCi1OZ7cpfohm1Yyk
+  onsAddr: http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet
+  sendMsgTimeoutMillis: 3000
+  messageModelString: CLUSTERING
+  consumeThreadNums: 10
+  dandelionTopic: TOPIC_MO9_DEV_DANDELION_UNORDER
+  riskTopic: Topic_Mo9_91koin_Call_Risk_Test
+  dandelionUserTag: TAG_MO9_DEV_DANDELION_USER_REGISTER_INFO
+  dandelionOrderTag: TAG_MO9_DEV_DANDELION_ORDER_EVENT
+  dandelionRiskTag: riskidcard
+
+datacenterId: 1
+machineId: 1
+
+## 用户中心配置
+#nest.url=http://192.168.1.33:8180/nestApi/
+#nest.url=http://d-eoc-0038.mo9.com:8180/
+## 用户中心配置
+#nest.url=http://nest.alpha.mo9.com/nestApi/
+#nest.url=http://d-eoc-0038.mo9.com:8180/
+#nest.mode=ALONE
+#nest.exclude.urls=/api/dandelion/v1/auth/**,/error
+#nest.exclude.urls=${container.name}/api/dandelion/v1/auth/**,/error
+#nest.exclude.urls=${container.name}/api/dandelion/v1/auth/**,${container.name}/bk/api/dandelion/v1/**,/error
+#nest.secret=9a1c4351260c460596357f0b4f1a894d
+#nest.key=5c94b03fedbe43e1a1f2822a91a5143f
+#nest.code=Dandelion
+#nest.group=DandelionGroup
+
+nest:
+  url: http://nest.alpha.mo9.com/nestApi/
+  key: 5c94b03fedbe43e1a1f2822a91a5143f
+  secret: 9a1c4351260c460596357f0b4f1a894d
+  code: Dandelion
+  group: DandelionGroup
+  mode: ALONE
+  exclude:
+    urls: /auth/**,/error,/captcha/**,/newUserGift/listNewMemberGiftRecord,/newUserGift/detailBonusPoolInfo
+
+mybatis:
+  mapper-locations: classpath:mapping/*.xml
+
+url:
+
