@@ -4,7 +4,7 @@ import com.entrusts.module.dto.BaseResponse;
 import com.entrusts.module.dto.Delegate;
 import com.entrusts.module.dto.DelegateEvent;
 import com.lmax.disruptor.EventTranslatorOneArg;
-import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.dsl.Disruptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "order")
 public class OrderController {
 	@Autowired
-	private RingBuffer<DelegateEvent> delegateEventBuffer;
+	Disruptor<DelegateEvent> delegateDisruptor;
 
 	private static final EventTranslatorOneArg<DelegateEvent, Delegate> DELEGATE_TRANSLATOR =
 			(event, sequence, delegate) -> {
@@ -32,7 +32,7 @@ public class OrderController {
 	@RequestMapping(value = "delegate", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public BaseResponse delegate(@RequestHeader("Account-Code") String userCode, @RequestBody Delegate delegate) {
-		delegateEventBuffer.publishEvent(DELEGATE_TRANSLATOR, delegate);
+		delegateDisruptor.publishEvent(DELEGATE_TRANSLATOR, delegate);
 		return null;
 	}
 }
