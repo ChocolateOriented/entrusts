@@ -2,24 +2,27 @@ package com.entrusts.config;
 
 import com.entrusts.module.dto.DelegateEvent;
 import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * Created by jxli on 2018/3/5.
  */
+@Configuration
 public class DisruptorConfig {
+
 	@Value("${delegateEventBufferSize}")
 	private int delegateEventBufferSize;
 
-	@Bean("delegateEventBuffer")
-	public RingBuffer<DelegateEvent> delegateEventDisruptor(){
+	@Bean(name = "delegateDisruptor", autowire = Autowire.BY_NAME, initMethod = "start", destroyMethod = "shutdown")
+	public Disruptor delegateEventDisruptor(){
 		//配置线程池
 		Executor executor = Executors.newCachedThreadPool();
 		EventHandler storeHandler = (EventHandler<DelegateEvent>) (delegateEvent, sequence, endOfBatch) -> {
@@ -42,8 +45,7 @@ public class DisruptorConfig {
 
 		disruptor.handleEventsWith(storeHandler).then(lockCoinHandler).then(mqHandler,successLogHandler);
 		disruptor.handleEventsWith(logHandler);
-
-		disruptor.start();
-		return disruptor.getRingBuffer();
+		return disruptor;
 	}
+
 }
