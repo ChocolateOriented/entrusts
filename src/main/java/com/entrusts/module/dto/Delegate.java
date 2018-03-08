@@ -1,19 +1,26 @@
 package com.entrusts.module.dto;
 
 import java.util.Date;
+import javax.validation.constraints.NotNull;
 
 /**
  * Created by jxli on 2018/3/5.
  */
 public class Delegate {
 
+	@NotNull(message = "下单时间不能为空")
 	private Date clientTime;
+	@NotNull(message = "交易对不能为空")
 	private Long tradePairId;
+	@NotNull(message = "价格不能为空")
 	private Double convertRate;
+	@NotNull(message = "买卖方向不能为空")
 	private Long direction;
+	@NotNull(message = "交易数量不能为空")
 	private Double quantity;
+	@NotNull(message = "交易金额不能为空")
 	private Double amount;
-
+	@NotNull(message = "交易模式不能为空")
 	private Long mode;
 
 	public Date getClientTime() {

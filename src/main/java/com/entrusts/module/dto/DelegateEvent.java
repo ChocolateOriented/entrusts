@@ -1,5 +1,7 @@
 package com.entrusts.module.dto;
 
+import com.entrusts.module.entity.Order.OrderMode;
+import com.entrusts.module.entity.Order.TradeType;
 import java.util.Date;
 
 /**
@@ -13,10 +15,10 @@ public class DelegateEvent {
 	private Date orderTime;
 	private Long tradePairId;
 	private Double convertRate;
-	private Long direction;
+	private TradeType tradeType;//买卖方向
 	private Double quantity;
 	private Double amount;
-	private Long mode;
+	private OrderMode mode;//交易模式
 
 	public Long getOrderCode() {
 		return orderCode;
@@ -66,14 +68,6 @@ public class DelegateEvent {
 		this.convertRate = convertRate;
 	}
 
-	public Long getDirection() {
-		return direction;
-	}
-
-	public void setDirection(Long direction) {
-		this.direction = direction;
-	}
-
 	public Double getQuantity() {
 		return quantity;
 	}
@@ -90,11 +84,19 @@ public class DelegateEvent {
 		this.amount = amount;
 	}
 
-	public Long getMode() {
+	public TradeType getTradeType() {
+		return tradeType;
+	}
+
+	public void setTradeType(TradeType tradeType) {
+		this.tradeType = tradeType;
+	}
+
+	public OrderMode getMode() {
 		return mode;
 	}
 
-	public void setMode(Long mode) {
+	public void setMode(OrderMode mode) {
 		this.mode = mode;
 	}
 }
