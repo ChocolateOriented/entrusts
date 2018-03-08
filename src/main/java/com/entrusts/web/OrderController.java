@@ -42,21 +42,12 @@ public class OrderController {
 			};
 
 
-	@RequestMapping(value = "delegate", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "delegateLimit", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public BaseResponse delegate(@RequestHeader("Account-Code") String userCode, @RequestBody@Validated Delegate delegate) {
+	public BaseResponse delegateLimit(@RequestHeader("Account-Code") String userCode, @RequestBody@Validated Delegate delegate) {
 		//TODO 检查request是否处理过, 建议前端生成requestId
 		//TODO 数据校验
 		delegateDisruptor.publishEvent(DELEGATE_TRANSLATOR, delegate,userCode);
 		return null;
-	}
-
-	public void test(DelegateEvent o, long l, boolean b) throws Exception {
-
-	}
-
-	public static void main(String[] args) {
-		System.out.println(System.currentTimeMillis());
-		System.out.println(Long.MAX_VALUE);
 	}
 }
