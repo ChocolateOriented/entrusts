@@ -1,19 +1,26 @@
 package com.entrusts.module.dto;
 
-public class Page<T>{
+import java.io.Serializable;
+import java.util.List;
+
+public class Page<T> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private T list;
-	private Integer pageNum ;
-	private Integer pageSize ;
+
+	private List<T> entities;
+
+	private Integer pageNum;
+
+	private Integer pageSize;
+
 	private Long total ;
 
-	public T getList() {
-		return list;
+	public List<T> getEntities() {
+		return entities;
 	}
 
-	public void setList(T list) {
-		this.list = list;
+	public void setEntities(List<T> entities) {
+		this.entities = entities;
 	}
 
 	public Integer getPageNum() {
@@ -40,5 +47,4 @@ public class Page<T>{
 		this.total = total;
 	}
 
-	
 }

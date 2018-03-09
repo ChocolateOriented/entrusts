@@ -17,7 +17,7 @@
             <property name="suppressDate" value="true"/>
         </commentGenerator>
         
-        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://127.0.0.1:3306/entrusts" userId="root" password="root">
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://192.168.3.54:3306/entrusts" userId="root" password="rootroot">
         </jdbcConnection>
         
         <!-- <javaTypeResolver type="org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl">
@@ -30,13 +30,13 @@
             <property name="enableSubPackages" value="true"/>
         </javaModelGenerator>
         
-        <sqlMapGenerator targetPackage="com.entrusts.resources.mapping" targetProject="src/main/resources">
+        <sqlMapGenerator targetPackage="mapping" targetProject="src/main/resources">
             <!-- 在targetPackage的基础上，根据数据库的schema再生成一层package，最终生成的类放在这个package下，默认为false -->
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         
         <!-- ANNOTATEDMAPPER/XMLMAPPER 生成mapper注解或xml -->
-        <javaClientGenerator targetPackage="mapping" type="XMLMAPPER" targetProject="src/main/resources">
+        <javaClientGenerator targetPackage="com.entrusts.mapper" type="XMLMAPPER" targetProject="src/main/java">
             <!-- 在targetPackage的基础上，根据数据库的schema再生成一层package，最终生成的类放在这个package下，默认为false -->
             <property name="enableSubPackages" value="true"/>
     
@@ -45,7 +45,7 @@
              -->
         </javaClientGenerator>
         
-        <table schema="entrusts" tableName="t_entrusts_dict" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
+        <table schema="entrusts" tableName="order" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
             enableSelectByExample="false" selectByExampleQueryId="false">
             
             
