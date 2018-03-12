@@ -7,9 +7,9 @@ logging:
 spring:
   datasource:
     name: datasource
-    url: jdbc:mysql://192.168.3.227:3306/entrusts?useUnicode=true&characterEncoding=utf-8
-    username: entrusts
-    password: 4WHvcqdNhraZ0dvU
+    url: jdbc:mysql://192.168.3.54:3306/entrusts?useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: rootroot
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.jdbc.Driver
     maxActive: 50
@@ -32,8 +32,8 @@ eureka:
 
 redis:
   database: 11
-  host: 192.168.3.31
-  password: dev@Mo9.com
+  host: 127.0.0.1
+  password: 123456
 
   database2: 6
   host2: 192.168.3.31

@@ -118,4 +118,32 @@ public class OrderQuery {
 		
 		return true;
 	}
+
+	public boolean matchConditionsByCurrent(CurrentEntrusts currentEntrusts) {
+		if (currentEntrusts == null) {
+			return false;
+		}
+
+		if (baseCurrency != null && !baseCurrency.equals(currentEntrusts.getBaseCurrency())) {
+			return false;
+		}
+
+		if (targetCurrency != null && !targetCurrency.equals(currentEntrusts.getTargetCurrency())) {
+			return false;
+		}
+
+		if (tradeType != null && !tradeType.equals(currentEntrusts.getTradeType())) {
+			return false;
+		}
+
+		if (startTime != null && (currentEntrusts.getDate() == null || startTime > currentEntrusts.getDate())) {
+			return false;
+		}
+
+		if (endTime != null && (currentEntrusts.getDate() == null || endTime < currentEntrusts.getDate())) {
+			return false;
+		}
+
+		return true;
+	}
 }

@@ -1,6 +1,7 @@
 package com.entrusts.mapper;
 
 import com.entrusts.module.entity.Order;
+import com.entrusts.module.vo.CurrentEntrusts;
 import com.entrusts.module.vo.HistoryOrderView;
 import com.entrusts.module.vo.OrderQuery;
 
@@ -17,4 +18,12 @@ public interface OrderMapper {
 	int totalHistoryOrder(String userCode);
 	
 	HistoryOrderView getHistoryOrder(Order order);
+
+	List<CurrentEntrusts> findCurrentOrder(OrderQuery orderQuery);
+
+	List<CurrentEntrusts> findLimitCurrentOrder(@Param("userCode") String userCode, @Param("limit") int limit);
+
+	int totalCurrentOrder(String userCode);
+
+	CurrentEntrusts getCurrentOrder(Order order);
 }

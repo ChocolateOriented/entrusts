@@ -23,18 +23,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "order")
 public class OrderController {
-	@Autowired
+/*	@Autowired
 	Disruptor<DelegateEvent> delegateDisruptor;
 
 	private static final EventTranslatorTwoArg<DelegateEvent, Delegate, String> DELEGATE_TRANSLATOR =
 			(event, sequence, delegate, userCode) -> {
 				//TODO 生成ordercode
-				/**
+				*//**
 				 数字货币类型（数字编号）
 				 买卖类型（B买，C卖）
 				 成交模式（主要是限价交易和市价交易）
 				 预留字段（默认为0）
-				 */
+				 *//*
 //				event.setOrderCode();
 				event.setOrderTime(new Date());
 				event.setUserCode(userCode);
@@ -49,5 +49,5 @@ public class OrderController {
 		//TODO 数据校验
 		delegateDisruptor.publishEvent(DELEGATE_TRANSLATOR, delegate,userCode);
 		return null;
-	}
+	}*/
 }
