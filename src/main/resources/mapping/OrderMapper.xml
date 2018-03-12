@@ -38,4 +38,54 @@
 			and c2.alias = #{targetCurrency}
 		</if>
 	</select>
+	
+	<select id="findHistoryOrder" resultType="com.entrusts.module.vo.OrderPageView">
+		select
+			o.order_code as orderCode,
+			o.created_time as date,
+			c1.alias as baseCurrency,
+			c2.alias as targetCurrency,
+			if(o.trade_type = 1, 'buy', 'sell') as tradeType,
+			o.convert_rate as orderPrice,
+			o.deal_quantity as dealTargetQuantity,
+			o.deal_amout as dealBaseAmount,
+			o.deal_amout * sevice_fee_rate as serviceFee,
+			status
+		from `order` o
+		left join trade_pair p on o.trade_pair_id = p.id
+		left join digital_currency c1 on c1.id = p.base_currency_id
+		left join digital_currency c2 on c2.id = p.target_currency_id 
+		where user_code = #{userCode}
+		and status in (2, 3)
+		order by o.created_time desc
+		limit #{limit}
+	</select>
+	
+	<select id="getHistoryOrder" resultType="com.entrusts.module.vo.OrderPageView">
+		select
+			o.order_code as orderCode,
+			o.created_time as date,
+			c1.alias as baseCurrency,
+			c2.alias as targetCurrency,
+			if(o.trade_type = 1, 'buy', 'sell') as tradeType,
+			o.convert_rate as orderPrice,
+			o.deal_quantity as dealTargetQuantity,
+			o.deal_amout as dealBaseAmount,
+			o.deal_amout * sevice_fee_rate as serviceFee,
+			status
+		from `order` o
+		left join trade_pair p on o.trade_pair_id = p.id
+		left join digital_currency c1 on c1.id = p.base_currency_id
+		left join digital_currency c2 on c2.id = p.target_currency_id 
+		where order_code = #{orderCode}
+		and status in (2, 3)
+	</select>
+	
+	<select id="totalHistoryOrder">
+		select
+			count(o.order_code)
+		from `order` o
+		where user_code = #{userCode}
+		and status in (2, 3)
+	</select>
 </mapper>

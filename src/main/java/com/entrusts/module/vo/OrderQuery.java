@@ -91,7 +91,7 @@ public class OrderQuery {
 				|| startTime != null || endTime != null;
 	}
 	
-	public boolean matchConditions(OrderView orderView) {
+	public boolean matchConditions(HistoryOrderView orderView) {
 		if (orderView == null) {
 			return false;
 		}

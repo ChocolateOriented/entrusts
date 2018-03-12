@@ -2,7 +2,9 @@ package com.entrusts.module.vo;
 
 import java.math.BigDecimal;
 
-public class OrderView {
+import com.aliyun.openservices.shade.com.alibaba.fastjson.JSON;
+
+public class HistoryOrderView {
 
 	private String orderCode;
 
@@ -94,4 +96,8 @@ public class OrderView {
 		this.status = status;
 	}
 
+	@Override
+	public String toString() {
+		return JSON.toJSONString(this);
+	}
 }
