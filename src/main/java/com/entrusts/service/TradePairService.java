@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
  * Created by jxli on 2018/3/9.
  */
 @Service
-@Transactional(readOnly = true)
 @CacheConfig(cacheNames="TradePair")
 public class TradePairService extends BaseService {
 	@Autowired
