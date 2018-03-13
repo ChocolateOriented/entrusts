@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.entrusts.mapper.EntMqMessageMapper">
+
+	<sql id="messageColumns">
+		a.id AS "id",
+		a.msg_id AS "msgId",
+		a.`key` AS "key",
+		a.topic AS "topic",
+		a.tag AS "tag",
+		a.body AS "body",
+		a.created_time AS "createdTime",
+		a.updated_time AS "updatedTime"
+	</sql>
+
+	<select id="findResendMessages" resultType="EntMqMessage">
+		SELECT
+			<include refid="messageColumns"/>
+		FROM mq_message a
+		<where>
+			a.msg_id IS NULL
+		</where>
+	</select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO mq_message(
+			topic,
+			tag,
+			`key`,
+			body,
+			created_time,
+			updated_time
+		) VALUES (
+			#{topic},
+			#{tag},
+			#{key},
+			#{body},
+			now(),
+			now()
+		)
+	</insert>
+	
+    <update id="update">
+		UPDATE mq_message SET
+			msg_id = #{msgId},
+			updated_time = now()
+		WHERE id = #{id}
+	</update>	
+	
+</mapper>
