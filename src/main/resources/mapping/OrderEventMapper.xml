@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.entrusts.mapper.OrderEventMapper">
+  <resultMap id="BaseResultMap" type="com.entrusts.module.entity.OrderEvent">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="order_code" jdbcType="BIGINT" property="orderCode" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="deal_amout" jdbcType="DECIMAL" property="dealAmout" />
+    <result column="deal_quantity" jdbcType="DECIMAL" property="dealQuantity" />
+    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+    <result column="lasted_deal_time" jdbcType="TIMESTAMP" property="lastedDealTime" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+
+  <insert id="insertOrderEvent" parameterType="com.entrusts.module.entity.OrderEvent">
+    insert into order_event (id, order_code, status, 
+      deal_amout, deal_quantity, created_time, 
+      lasted_deal_time, remark)
+    values (#{id,jdbcType=BIGINT}, #{orderCode,jdbcType=BIGINT}, #{status,jdbcType=TINYINT}, 
+      #{dealAmout,jdbcType=DECIMAL}, #{dealQuantity,jdbcType=DECIMAL}, #{createdTime,jdbcType=TIMESTAMP}, 
+      #{lastedDealTime,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR})
+  </insert>
+  
+  <update id="update" parameterType="com.entrusts.module.entity.OrderEvent">
+    update order_event
+    set order_code = #{orderCode,jdbcType=BIGINT},
+      status = #{status,jdbcType=TINYINT},
+      deal_amout = #{dealAmout,jdbcType=DECIMAL},
+      deal_quantity = #{dealQuantity,jdbcType=DECIMAL},
+      created_time = #{createdTime,jdbcType=TIMESTAMP},
+      lasted_deal_time = #{lastedDealTime,jdbcType=TIMESTAMP},
+      remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <select id="get" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select id, order_code, status, deal_amout, deal_quantity, created_time, lasted_deal_time, 
+    remark
+    from order_event
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, order_code, status, deal_amout, deal_quantity, created_time, lasted_deal_time, 
+    remark
+    from order_event
+  </select>
+</mapper>

@@ -3,19 +3,21 @@
  */
 package com.entrusts.util;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringEscapeUtils;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringEscapeUtils;
+
+import com.google.common.collect.Lists;
+
 /**
  * 字符串工具类, 继承org.apache.commons.lang3.StringUtils类
- * @author ThinkGem
- * @version 2013-05-22
+ * @author sxu
+ * @version 2018-03-09
  */
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	
@@ -41,6 +43,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     
     /**
      * 转换为字节数组
+     * @param str
      * @return
      */
     public static String toString(byte[] bytes){
@@ -94,7 +97,17 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return html.replaceAll("<([a-z]+?)\\s+?.*?>", "<$1>");
 	}
 	
-
+	/**
+	 * 替换为手机识别的HTML，去掉样式及属性，保留回车。
+	 * @param txt
+	 * @return
+	 */
+	public static String toHtml(String txt){
+		if (txt == null){
+			return "";
+		}
+		return replace(replace(Encodes.escapeHtml(txt), "\n", "<br/>"), "\t", "&nbsp; &nbsp; ");
+	}
 
 	/**
 	 * 缩略字符串（不区分中英文字符）
@@ -222,7 +235,6 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	public static Integer toInteger(Object val){
 		return toLong(val).intValue();
 	}
-
 	
 	/**
 	 * 获得用户远程地址

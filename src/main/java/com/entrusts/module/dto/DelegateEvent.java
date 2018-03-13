@@ -1,8 +1,12 @@
 package com.entrusts.module.dto;
 
-import com.entrusts.module.entity.Order.OrderMode;
-import com.entrusts.module.entity.Order.TradeType;
 import java.util.Date;
+
+import com.entrusts.module.enums.DelegateEventstatus;
+import com.entrusts.module.enums.OrderMode;
+import com.entrusts.module.enums.OrderStatus;
+import com.entrusts.module.enums.TradeType;
+
 
 /**
  * Created by jxli on 2018/3/5.
@@ -15,10 +19,17 @@ public class DelegateEvent {
 	private Date orderTime;
 	private Long tradePairId;
 	private Double convertRate;
-	private TradeType tradeType;//买卖方向
+	private TradeType tradeType;// 买卖方向
 	private Double quantity;
 	private Double amount;
-	private OrderMode mode;//交易模式
+	private OrderMode mode;// 交易模式
+	private OrderStatus status;// 状态
+	private Integer targetCurrencyId; //数字货币
+	private Integer baseCurrencyId;  //流通货币
+	
+	private DelegateEventstatus delegateEventstatus; // 队列执行状态
+	
+	
 
 	public Long getOrderCode() {
 		return orderCode;
@@ -84,6 +95,30 @@ public class DelegateEvent {
 		this.amount = amount;
 	}
 
+//	public String getDelegateEventstatus() {
+//		return delegateEventstatus;
+//	}
+//
+//	public void setDelegateEventstatus(String delegateEventstatus) {
+//		this.delegateEventstatus = delegateEventstatus;
+//	}
+
+	public Integer getTargetCurrencyId() {
+		return targetCurrencyId;
+	}
+
+	public void setTargetCurrencyId(Integer targetCurrencyId) {
+		this.targetCurrencyId = targetCurrencyId;
+	}
+
+	public Integer getBaseCurrencyId() {
+		return baseCurrencyId;
+	}
+
+	public void setBaseCurrencyId(Integer baseCurrencyId) {
+		this.baseCurrencyId = baseCurrencyId;
+	}
+
 	public TradeType getTradeType() {
 		return tradeType;
 	}
@@ -99,4 +134,24 @@ public class DelegateEvent {
 	public void setMode(OrderMode mode) {
 		this.mode = mode;
 	}
+
+	public OrderStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(OrderStatus status) {
+		this.status = status;
+	}
+
+	public DelegateEventstatus getDelegateEventstatus() {
+		return delegateEventstatus;
+	}
+
+	public void setDelegateEventstatus(DelegateEventstatus delegateEventstatus) {
+		this.delegateEventstatus = delegateEventstatus;
+	}
+
+	
+	
+
 }

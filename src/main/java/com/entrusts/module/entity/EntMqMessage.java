@@ -4,7 +4,7 @@ package com.entrusts.module.entity;
 import java.util.Date;
 
 /**
- * Created by jxli on 2017/11/10.
+ * Created by yuanchao
  * 消息队列实体类
  */
 public class EntMqMessage {
