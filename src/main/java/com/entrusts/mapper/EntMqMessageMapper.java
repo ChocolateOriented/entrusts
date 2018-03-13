@@ -4,7 +4,7 @@ import com.entrusts.module.entity.EntMqMessage;
 import java.util.List;
 
 /**
- * Created by jxli on 2017/11/10.
+ * Created by yuanchao  
  */
 
 public interface EntMqMessageMapper  {

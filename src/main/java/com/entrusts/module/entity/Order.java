@@ -4,6 +4,10 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.entrusts.module.enums.OrderMode;
+import com.entrusts.module.enums.OrderStatus;
+import com.entrusts.module.enums.TradeType;
+
 /**
  * Created by jxli on 2018/3/5.
  */
@@ -27,6 +31,63 @@ public class Order implements Serializable {
 	private Date createdTime;
 	private Date updatedTime;
 	private Long isDeleted;
+
+
+	public Order() {
+		super();
+	}
+
+
+	public Order(Long orderCode, String userCode, Date clientTime, Date orderTime, Long tradePairId, Double convertRate,
+			TradeType tradeType, Double quantity, Double amount, OrderMode mode, OrderStatus status,
+			Double serviceFeeRate, Double dealAmout, Double dealQuantity, Date lastedDealTime, Date createdTime,
+			Date updatedTime, Long isDeleted) {
+		super();
+		this.orderCode = orderCode;
+		this.userCode = userCode;
+		this.clientTime = clientTime;
+		this.orderTime = orderTime;
+		this.tradePairId = tradePairId;
+		this.convertRate = convertRate;
+		this.tradeType = tradeType;
+		this.quantity = quantity;
+		this.amount = amount;
+		this.mode = mode;
+		this.status = status;
+		this.serviceFeeRate = serviceFeeRate;
+		this.dealAmout = dealAmout;
+		this.dealQuantity = dealQuantity;
+		this.lastedDealTime = lastedDealTime;
+		this.createdTime = createdTime;
+		this.updatedTime = updatedTime;
+		this.isDeleted = isDeleted;
+	}
+
+
+
+
+	public Order(Long orderCode, String userCode, Date clientTime, Date orderTime, Long tradePairId, Double convertRate,
+			TradeType tradeType, Double quantity, Double amount, OrderMode mode, OrderStatus status, Date createdTime,
+			Date updatedTime, Long isDeleted) {
+		super();
+		this.orderCode = orderCode;
+		this.userCode = userCode;
+		this.clientTime = clientTime;
+		this.orderTime = orderTime;
+		this.tradePairId = tradePairId;
+		this.convertRate = convertRate;
+		this.tradeType = tradeType;
+		this.quantity = quantity;
+		this.amount = amount;
+		this.mode = mode;
+		this.status = status;
+		this.createdTime = createdTime;
+		this.updatedTime = updatedTime;
+		this.isDeleted = isDeleted;
+	}
+
+
+
 
 	public String getOrderCode() {
 		return orderCode;
@@ -68,51 +129,52 @@ public class Order implements Serializable {
 		this.tradePairId = tradePairId;
 	}
 
-	public BigDecimal getConvertRate() {
+	public Double getConvertRate() {
 		return convertRate;
 	}
 
-	public void setConvertRate(BigDecimal convertRate) {
+	public void setConvertRate(Double convertRate) {
 		this.convertRate = convertRate;
 	}
 
-	public BigDecimal getQuantity() {
+	public Double getQuantity() {
 		return quantity;
 	}
 
-	public void setQuantity(BigDecimal quantity) {
+	public void setQuantity(Double quantity) {
 		this.quantity = quantity;
 	}
 
-	public BigDecimal getAmount() {
+	public Double getAmount() {
 		return amount;
 	}
 
-	public void setAmount(BigDecimal amount) {
+	public void setAmount(Double amount) {
 		this.amount = amount;
 	}
 
-	public BigDecimal getServiceFeeRate() {
+	public Double getServiceFeeRate() {
 		return serviceFeeRate;
 	}
 
-	public void setServiceFeeRate(BigDecimal serviceFeeRate) {
+	public void setServiceFeeRate(Double serviceFeeRate) {
 		this.serviceFeeRate = serviceFeeRate;
 	}
 
-	public BigDecimal getDealAmount() {
-		return dealAmount;
+	public Double getDealAmout() {
+		return dealAmout;
 	}
 
-	public void setDealAmount(BigDecimal dealAmount) {
-		this.dealAmount = dealAmount;
+	public void setDealAmout(Double dealAmout) {
+		this.dealAmout = dealAmout;
 	}
 
-	public BigDecimal getDealQuantity() {
+
+	public Double getDealQuantity() {
 		return dealQuantity;
 	}
 
-	public void setDealQuantity(BigDecimal dealQuantity) {
+	public void setDealQuantity(Double dealQuantity) {
 		this.dealQuantity = dealQuantity;
 	}
 
@@ -172,54 +234,8 @@ public class Order implements Serializable {
 		this.status = status;
 	}
 
-	//买卖方向
-	public enum TradeType {
-		buy(1), sell(2);
 
-		TradeType(int value) {
-			this.value = value;
-		}
 
-		private int value;
 
-		public int getValue() {
-			return value;
-		}
-	}
-
-	//交易模式
-	public enum OrderMode {
-		LIMIT_PRICE_DEAL(1),//限价交易
-		MARKET_PRICE_DEAL(2);//市价交易
-
-		OrderMode(int value) {
-			this.value = value;
-		}
-
-		private int value;
-
-		public int getValue() {
-			return value;
-		}
-	}
-
-	//托单状态
-	public enum OrderStatus {
-		DELEGATING(10),//托单中
-		DELEGATE_FAILED(11),//托单失败
-		TRADING(20),//交易中
-		COMPLETE(30),//完成交易
-		WITHDRAW(40);//撤销
-
-		OrderStatus(int value) {
-			this.value = value;
-		}
-
-		private int value;
-
-		public int getValue() {
-			return value;
-		}
-	}
 }
 

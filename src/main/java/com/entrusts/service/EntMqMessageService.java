@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Created by jxli on 2017/11/10.
+ * Created by yuanchao
  * 消息队列服务
  */
 @Service
