@@ -116,7 +116,7 @@ public class OrderManageService extends BaseService {
 			total = orderMapper.totalHistoryOrder(userCode);
 		}
 		
-		
+
 		String userKey = historyOrderUserKey + userCode;
 		String userTotalKey = totalHistoryOrderUserKey + userCode;
 		Map<String, String> cacheMap = new HashMap<>();;
