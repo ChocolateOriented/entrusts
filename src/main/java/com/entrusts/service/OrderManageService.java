@@ -34,11 +34,11 @@ public class OrderManageService extends BaseService {
 
 	private static final String historyOrderUserKey = historyOrderPrefix + ".userData.";
 
-	private static final String currentOrderUserKey = currentOrderPrefix + ".userDate.";
+	private static final String currentOrderUserKey = currentOrderPrefix + ".currentuserDate.";
 	
 	private static final String totalHistoryOrderUserKey = historyOrderPrefix + ".userTotalData.";
 
-	private static final String totalCurrentOrderUserKey = currentOrderPrefix + ".userTotalData.";
+	private static final String totalCurrentOrderUserKey = currentOrderPrefix + ".currentuserTotalData.";
 	
 	private static final int perUserOrderCacheLimit = 50;
 
@@ -115,6 +115,7 @@ public class OrderManageService extends BaseService {
 		if (size >= perUserOrderCacheLimit) {
 			total = orderMapper.totalHistoryOrder(userCode);
 		}
+		
 		
 		String userKey = historyOrderUserKey + userCode;
 		String userTotalKey = totalHistoryOrderUserKey + userCode;
@@ -240,11 +241,11 @@ public class OrderManageService extends BaseService {
 			total = orderMapper.totalCurrentOrder(userCode);
 		}
 
-		String userKey = historyOrderUserKey + userCode;
-		String userTotalKey = totalHistoryOrderUserKey + userCode;
+		String userKey = currentOrderUserKey + userCode;
+		String userTotalKey = totalCurrentOrderUserKey + userCode;
 		Map<String, String> cacheMap = new HashMap<>();;
 		for (CurrentEntrusts orderView : limitOrders) {
-			cacheMap.put(orderView.getOrderCode(), orderView.toString());
+			cacheMap.put(orderView.getOrderCode(), JSON.toJSONString(orderView));
 		}
 		Jedis jedis = null;
 		try {
