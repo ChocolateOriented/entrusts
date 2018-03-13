@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.entrusts.mapper.TradePairMapper">
+  <resultMap id="BaseResultMap" type="com.entrusts.module.entity.TradePair">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="base_currency_id" jdbcType="INTEGER" property="baseCurrencyId" />
+    <result column="target_currency_id" jdbcType="INTEGER" property="targetCurrencyId" />
+    <result column="min_trade_quantity" jdbcType="DECIMAL" property="minTradeQuantity" />
+    <result column="is_deleted" jdbcType="TINYINT" property="isDeleted" />
+  </resultMap>
+
+  <select id="findTradePairByCoinName" resultMap="BaseResultMap">
+    select a.id, a.base_currency_id, a.target_currency_id, a.min_trade_quantity, a.is_deleted
+    from trade_pair a
+     LEFT JOIN digital_currency bc ON bc.id = a.base_currency_id
+     LEFT JOIN digital_currency tc ON tc.id = a.target_currency_id
+    where bc.alias = #{baseCurrencyAlias}
+     AND tc.alias = #{targetCurrencyAlias}
+  </select>
+
+</mapper>
