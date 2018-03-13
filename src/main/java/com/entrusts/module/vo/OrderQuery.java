@@ -16,6 +16,8 @@ public class OrderQuery {
 
 	private Long endTime;
 
+	private Long toCreatedTime;
+
 	public String getUserCode() {
 		return userCode;
 	}
@@ -86,9 +88,17 @@ public class OrderQuery {
 		this.endTime = endTime;
 	}
 
+	public Long getToCreatedTime() {
+		return toCreatedTime;
+	}
+
+	public void setToCreatedTime(Long toCreatedTime) {
+		this.toCreatedTime = toCreatedTime;
+	}
+
 	public boolean hasCondition() {
 		return baseCurrency != null || targetCurrency != null || tradeType != null
-				|| startTime != null || endTime != null;
+				|| startTime != null || endTime != null || toCreatedTime != null;
 	}
 	
 	public boolean matchConditions(HistoryOrderView orderView) {
@@ -113,6 +123,10 @@ public class OrderQuery {
 		}
 		
 		if (endTime != null && (orderView.getDate() == null || endTime < orderView.getDate())) {
+			return false;
+		}
+		
+		if (toCreatedTime != null && (orderView.getDate() == null || toCreatedTime <= orderView.getDate())) {
 			return false;
 		}
 		

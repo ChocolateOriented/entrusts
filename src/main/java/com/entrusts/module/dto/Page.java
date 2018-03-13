@@ -13,7 +13,7 @@ public class Page<T> implements Serializable {
 
 	private Integer pageSize;
 
-	private Long total ;
+	private Long total;
 
 	public List<T> getEntities() {
 		return entities;
