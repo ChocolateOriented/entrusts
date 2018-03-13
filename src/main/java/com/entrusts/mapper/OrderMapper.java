@@ -11,15 +11,23 @@ import org.apache.ibatis.annotations.Param;
 
 public interface OrderMapper {
 
-	List<HistoryOrderView> findHistoryOrder(OrderQuery orderQuery);
-    
+	List<HistoryOrderView> findHistoryOrderByPage(OrderQuery orderQuery);
+
+	long countHistoryOrderByTime(OrderQuery orderQuery);
+
+	List<HistoryOrderView> findHistoryOrderByTime(OrderQuery orderQuery, @Param("limit") int limit);
+
 	List<HistoryOrderView> findLimitHistoryOrder(@Param("userCode") String userCode, @Param("limit") int limit);
 
 	int totalHistoryOrder(String userCode);
-	
+
 	HistoryOrderView getHistoryOrder(Order order);
 
-	List<CurrentEntrusts> findCurrentOrder(OrderQuery orderQuery);
+	List<CurrentEntrusts> findCurrentOrderByPage(OrderQuery orderQuery);
+
+	long countCurrentOrderByTime(OrderQuery orderQuery);
+
+	List<CurrentEntrusts> findCurrentOrderByTime(OrderQuery orderQuery, @Param("limit") int limit);
 
 	List<CurrentEntrusts> findLimitCurrentOrder(@Param("userCode") String userCode, @Param("limit") int limit);
 

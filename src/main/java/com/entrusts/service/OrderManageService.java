@@ -3,7 +3,9 @@ package com.entrusts.service;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.entrusts.module.dto.TimePage;
 import com.entrusts.module.vo.CurrentEntrusts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -35,31 +37,31 @@ public class OrderManageService extends BaseService {
 	private static final String historyOrderUserKey = historyOrderPrefix + ".userData.";
 
 	private static final String currentOrderUserKey = currentOrderPrefix + ".currentuserDate.";
-	
+
 	private static final String totalHistoryOrderUserKey = historyOrderPrefix + ".userTotalData.";
 
 	private static final String totalCurrentOrderUserKey = currentOrderPrefix + ".currentuserTotalData.";
-	
+
 	private static final int perUserOrderCacheLimit = 50;
 
-	public Page<HistoryOrderView> findHistoryOrder(OrderQuery orderQuery, int pageNum, int PageSize) {
+	public Page<HistoryOrderView> findHistoryOrderByPage(OrderQuery orderQuery, int pageNum, int PageSize) {
 		String userCode = orderQuery.getUserCode();
 		String userTotalKey = totalHistoryOrderUserKey + userCode;
 		String totalValue = RedisUtil.get(userTotalKey);
 		int requireNum = pageNum * PageSize;
 		if (totalValue == null) {
 			if (requireNum > perUserOrderCacheLimit) { //若需要的数据量大于缓存上限，则直接从数据库获取
-				return findHistoryOrderFromDB(orderQuery, pageNum, PageSize);
+				return findHistoryOrderByPageFromDB(orderQuery, pageNum, PageSize);
 			} else if (!orderQuery.hasCondition()) { //若需要的数据量不大于缓存上限，且不含查询条件，则获取上限数据并缓存
 				return findAndCacheLimitHistoryOrder(userCode, pageNum, PageSize);
 			} else { //有查询条件无缓存时，直接从数据库获取
-				return findHistoryOrderFromDB(orderQuery, pageNum, PageSize);
+				return findHistoryOrderByPageFromDB(orderQuery, pageNum, PageSize);
 			}
 		}
 		
 		int total = Integer.parseInt(totalValue);
 		//缓存的为全量数据，或者不含查询条件且需要的数据量不大于缓存上限时，从缓存获取，否则从数据库获取
-		if (total < perUserOrderCacheLimit || (requireNum <= perUserOrderCacheLimit && !orderQuery.hasCondition())) {
+		if (total <= perUserOrderCacheLimit || (requireNum <= perUserOrderCacheLimit && !orderQuery.hasCondition())) {
 			List<HistoryOrderView> orders = findHistoryOrderFromRedis(orderQuery);
 			Page<HistoryOrderView> page = new Page<>();
 			page.setEntities(orders.subList((pageNum - 1) * PageSize, pageNum * PageSize));
@@ -68,15 +70,45 @@ public class OrderManageService extends BaseService {
 			page.setPageSize(PageSize);
 			return page;
 		} else {
-			return findHistoryOrderFromDB(orderQuery, pageNum, PageSize);
+			return findHistoryOrderByPageFromDB(orderQuery, pageNum, PageSize);
 		}
 		
 	}
 	
-	private Page<HistoryOrderView> findHistoryOrderFromDB(OrderQuery orderQuery, int pageNum, int PageSize) {
+	public TimePage<HistoryOrderView> findHistoryOrderByTime(OrderQuery orderQuery, int limit) {
+		String userCode = orderQuery.getUserCode();
+		String userTotalKey = totalHistoryOrderUserKey + userCode;
+		String totalValue = RedisUtil.get(userTotalKey);
+		//无缓存时
+		if (totalValue == null) {
+			if (limit > perUserOrderCacheLimit) { //若需要的数据量大于缓存上限，则直接从数据库获取
+				return findHistoryOrderByTimeFromDB(orderQuery, limit);
+			} else if (!orderQuery.hasCondition()) { //若需要的数据量不大于缓存上限，且不含查询条件，则获取上限数据并缓存
+				return findAndCacheLimitHistoryOrder(userCode, limit);
+			} else { //有查询条件无缓存时，直接从数据库获取
+				return findHistoryOrderByTimeFromDB(orderQuery, limit);
+			}
+		}
+
+		int total = Integer.parseInt(totalValue);
+		//缓存的为全量数据，或者不含查询条件且需要的数据量不大于缓存上限时，从缓存获取，否则从数据库获取
+		if (total <= perUserOrderCacheLimit || (limit <= perUserOrderCacheLimit && !orderQuery.hasCondition())) {
+			List<HistoryOrderView> orders = findHistoryOrderFromRedis(orderQuery);
+			TimePage<HistoryOrderView> page = new TimePage<>();
+			page.setEntities(orders.subList(0, limit));
+			page.setTotal((long) orders.size());
+			page.setLimit(limit);
+			return page;
+		} else {
+			return findHistoryOrderByTimeFromDB(orderQuery, limit);
+		}
+
+	}
+
+	private Page<HistoryOrderView> findHistoryOrderByPageFromDB(OrderQuery orderQuery, int pageNum, int PageSize) {
 		Page<HistoryOrderView> page = new Page<>();
 		PageHelper.startPage(pageNum, PageSize);
-		List<HistoryOrderView> orders = orderMapper.findHistoryOrder(orderQuery);
+		List<HistoryOrderView> orders = orderMapper.findHistoryOrderByPage(orderQuery);
 		PageInfo<HistoryOrderView> pageInfo = new PageInfo<>(orders);
 		page.setEntities(orders);
 		page.setTotal(pageInfo.getTotal());
@@ -85,6 +117,21 @@ public class OrderManageService extends BaseService {
 		return page;
 	}
 	
+	private TimePage<HistoryOrderView> findHistoryOrderByTimeFromDB(OrderQuery orderQuery, int limit) {
+		TimePage<HistoryOrderView> page = new TimePage<>();
+		long total = orderMapper.countHistoryOrderByTime(orderQuery);
+		List<HistoryOrderView> orders = null;
+		if (total > 0) {
+			orders = orderMapper.findHistoryOrderByTime(orderQuery, limit);
+		} else {
+			orders = new ArrayList<>();
+		}
+		page.setEntities(orders);
+		page.setTotal(total);
+		page.setLimit(limit);
+		return page;
+	}
+
 	private List<HistoryOrderView> findHistoryOrderFromRedis(OrderQuery orderQuery) {
 		String userCode = orderQuery.getUserCode();
 		String userKey = historyOrderUserKey + userCode;
@@ -100,8 +147,12 @@ public class OrderManageService extends BaseService {
 			historyOrders.add(order);
 		}
 		
-		historyOrders = historyOrders.stream().filter(order -> orderQuery.matchConditions(order))
-			.sorted((HistoryOrderView o1, HistoryOrderView o2) -> o1.getDate() == null ? 1 :
+		Stream<HistoryOrderView> stream = historyOrders.stream();
+		if (orderQuery.hasCondition()) {
+			stream = stream.filter(order -> orderQuery.matchConditions(order));
+		}
+
+		historyOrders = stream.sorted((HistoryOrderView o1, HistoryOrderView o2) -> o1.getDate() == null ? 1 :
 				o2.getDate() == null ? -1 : o2.getDate().compareTo(o2.getDate()))
 					.collect(Collectors.toList());
 		
@@ -116,7 +167,32 @@ public class OrderManageService extends BaseService {
 			total = orderMapper.totalHistoryOrder(userCode);
 		}
 		
+		cacheLimitHistoryOrder(userCode, total, limitOrders);
 
+		Page<HistoryOrderView> page = new Page<>();
+		page.setEntities(limitOrders.subList((pageNum - 1) * PageSize, pageNum * PageSize));
+		page.setTotal((long) total);
+		page.setPageNum(pageNum);
+		return page;
+	}
+
+	private TimePage<HistoryOrderView> findAndCacheLimitHistoryOrder(String userCode, int limit) {
+		List<HistoryOrderView> limitOrders = orderMapper.findLimitHistoryOrder(userCode, perUserOrderCacheLimit);
+		int size = limitOrders.size();
+		int total = size;
+		if (size >= perUserOrderCacheLimit) {
+			total = orderMapper.totalHistoryOrder(userCode);
+		}
+
+		cacheLimitHistoryOrder(userCode, total, limitOrders);
+
+		TimePage<HistoryOrderView> page = new TimePage<>();
+		page.setEntities(limitOrders.subList(0, limit));
+		page.setTotal((long) total);
+		return page;
+	}
+
+	private void cacheLimitHistoryOrder(String userCode, int total, List<HistoryOrderView> limitOrders) {
 		String userKey = historyOrderUserKey + userCode;
 		String userTotalKey = totalHistoryOrderUserKey + userCode;
 		Map<String, String> cacheMap = new HashMap<>();;
@@ -129,19 +205,13 @@ public class OrderManageService extends BaseService {
 			jedis.watch(userKey);
 			Transaction trans = jedis.multi();
 			jedis.hmset(userKey, cacheMap);
-			jedis.set(userTotalKey, String.valueOf(size));
+			jedis.set(userTotalKey, String.valueOf(total));
 			trans.exec();
 		} catch (Exception e) {
 			if (jedis != null) {
 				jedis.close();
 			}
 		}
-		
-		Page<HistoryOrderView> page = new Page<>();
-		page.setEntities(limitOrders.subList((pageNum - 1) * PageSize, pageNum * PageSize));
-		page.setTotal((long) total);
-		page.setPageNum(pageNum);
-		return page;
 	}
 
 
@@ -177,11 +247,11 @@ public class OrderManageService extends BaseService {
 		int requireNum = pageNum * PageSize;
 		if (totalValue == null) {
 			if (requireNum > perUserOrderCacheLimit) { //若需要的数据量大于缓存上限，则直接从数据库获取
-				return findCurrentOrderFromDB(orderQuery, pageNum, PageSize);
+				return findCurrentOrderByPageFromDB(orderQuery, pageNum, PageSize);
 			} else if (!orderQuery.hasCondition()) { //若需要的数据量不大于缓存上限，且不含查询条件，则获取上限数据并缓存
-				//return findAndCacheLimitHistoryOrder(userCode, pageNum, PageSize);
+				return findAndCacheLimitCurrentOrder(userCode, pageNum, PageSize);
 			} else { //有查询条件无缓存时，直接从数据库获取
-				return findCurrentOrderFromDB(orderQuery, pageNum, PageSize);
+				return findCurrentOrderByPageFromDB(orderQuery, pageNum, PageSize);
 			}
 		}
 
@@ -196,35 +266,71 @@ public class OrderManageService extends BaseService {
 			page.setPageSize(PageSize);
 			return page;
 		} else {
-			return findCurrentOrderFromDB(orderQuery, pageNum, PageSize);
+			return findCurrentOrderByPageFromDB(orderQuery, pageNum, PageSize);
+		}
+
+	}
+
+	public TimePage<CurrentEntrusts> findCurrentOrderByTime(OrderQuery orderQuery, int limit) {
+		String userCode = orderQuery.getUserCode();
+		String userTotalKey = totalCurrentOrderUserKey + userCode;
+		String totalValue = RedisUtil.get(userTotalKey);
+		//无缓存时
+		if (totalValue == null) {
+			if (limit > perUserOrderCacheLimit) { //若需要的数据量大于缓存上限，则直接从数据库获取
+				return findCurrentOrderByTimeFromDB(orderQuery, limit);
+			} else if (!orderQuery.hasCondition()) { //若需要的数据量不大于缓存上限，且不含查询条件，则获取上限数据并缓存
+				return findAndCacheLimitCurrentOrder(userCode, limit);
+			} else { //有查询条件无缓存时，直接从数据库获取
+				return findCurrentOrderByTimeFromDB(orderQuery, limit);
+			}
+		}
+
+		int total = Integer.parseInt(totalValue);
+		//缓存的为全量数据，或者不含查询条件且需要的数据量不大于缓存上限时，从缓存获取，否则从数据库获取
+		if (total <= perUserOrderCacheLimit || (limit <= perUserOrderCacheLimit && !orderQuery.hasCondition())) {
+			List<CurrentEntrusts> orders = findCurrentOrderFromRedis(orderQuery);
+			TimePage<CurrentEntrusts> page = new TimePage<>();
+			page.setEntities(orders.subList(0, limit));
+			page.setTotal((long) orders.size());
+			page.setLimit(limit);
+			return page;
+		} else {
+			return findCurrentOrderByTimeFromDB(orderQuery, limit);
 		}
 
 	}
 
 
 	public void updateUserCurrentCache(Order order) {
-		Map<String,String> cacheMap = new HashMap<String, String>();
-		for (int i=0; i<20; i++){
-			CurrentEntrusts entrusts = new CurrentEntrusts();
-			entrusts.setBaseCurrency("BTC");
-			entrusts.setOrderCode(String.valueOf(generateId()));
-			entrusts.setDate(System.currentTimeMillis());
-			entrusts.setDealTargetQuantity(new BigDecimal("0.00000201"));
-			entrusts.setOrderTargetQuantity(new BigDecimal("0.00002001"));
-			entrusts.setOrderPrice(new BigDecimal("0.00000001"));
-			entrusts.setTargetCurrency("BTC");
-			entrusts.setTradeType("1");
-			entrusts.setStatus("sell");
-			cacheMap.put(entrusts.getOrderCode()+"",JSON.toJSONString(entrusts));
+		String userCode = order.getUserCode();
+		String userTotalKey = totalCurrentOrderUserKey + userCode;
+		String userKey = currentOrderUserKey + userCode;
+		String totalValue = RedisUtil.get(userTotalKey);
+
+		if (totalValue == null) {
+			return;
 		}
-		RedisUtil.setMap("testentrsts", cacheMap, 0);
+
+		CurrentEntrusts orderView = orderMapper.getCurrentOrder(order);
+		Jedis jedis = null;
+		try {
+			jedis = RedisUtil.getResource();
+			if (jedis.hsetnx(userKey, orderView.getOrderCode(), JSON.toJSONString(orderView)) == 1) {
+				jedis.incr(userTotalKey);
+			}
+		} catch (Exception e) {
+			if (jedis != null) {
+				jedis.close();
+			}
+		}
 	}
 
 
-	private Page<CurrentEntrusts> findCurrentOrderFromDB(OrderQuery orderQuery, int pageNum, int PageSize) {
+	private Page<CurrentEntrusts> findCurrentOrderByPageFromDB(OrderQuery orderQuery, int pageNum, int PageSize) {
 		Page<CurrentEntrusts> page = new Page<>();
 		PageHelper.startPage(pageNum, PageSize);
-		List<CurrentEntrusts> orders = orderMapper.findCurrentOrder(orderQuery);
+		List<CurrentEntrusts> orders = orderMapper.findCurrentOrderByPage(orderQuery);
 		PageInfo<CurrentEntrusts> pageInfo = new PageInfo<>(orders);
 		page.setEntities(orders);
 		page.setTotal(pageInfo.getTotal());
@@ -233,19 +339,61 @@ public class OrderManageService extends BaseService {
 		return page;
 	}
 
+
+	private TimePage<CurrentEntrusts> findCurrentOrderByTimeFromDB(OrderQuery orderQuery, int limit) {
+		TimePage<CurrentEntrusts> page = new TimePage<>();
+		long total = orderMapper.countCurrentOrderByTime(orderQuery);
+		List<CurrentEntrusts> orders = null;
+		if (total > 0) {
+			orders = orderMapper.findCurrentOrderByTime(orderQuery, limit);
+		} else {
+			orders = new ArrayList<>();
+		}
+		page.setEntities(orders);
+		page.setTotal(total);
+		page.setLimit(limit);
+		return page;
+	}
+
 	private Page<CurrentEntrusts> findAndCacheLimitCurrentOrder(String userCode, int pageNum, int PageSize) {
 		List<CurrentEntrusts> limitOrders = orderMapper.findLimitCurrentOrder(userCode, perUserOrderCacheLimit);
 		int size = limitOrders.size();
 		int total = size;
 		if (size >= perUserOrderCacheLimit) {
-			total = orderMapper.totalCurrentOrder(userCode);
+			total = orderMapper.totalHistoryOrder(userCode);
 		}
 
+		cacheLimitCurrentOrder(userCode, total, limitOrders);
+
+		Page<CurrentEntrusts> page = new Page<>();
+		page.setEntities(limitOrders.subList((pageNum - 1) * PageSize, pageNum * PageSize));
+		page.setTotal((long) total);
+		page.setPageNum(pageNum);
+		return page;
+	}
+
+	private TimePage<CurrentEntrusts> findAndCacheLimitCurrentOrder(String userCode, int limit) {
+		List<CurrentEntrusts> limitOrders = orderMapper.findLimitCurrentOrder(userCode, perUserOrderCacheLimit);
+		int size = limitOrders.size();
+		int total = size;
+		if (size >= perUserOrderCacheLimit) {
+			total = orderMapper.totalHistoryOrder(userCode);
+		}
+
+		cacheLimitCurrentOrder(userCode, total, limitOrders);
+
+		TimePage<CurrentEntrusts> page = new TimePage<>();
+		page.setEntities(limitOrders.subList(0, limit));
+		page.setTotal((long) total);
+		return page;
+	}
+
+	private void cacheLimitCurrentOrder(String userCode, int total, List<CurrentEntrusts> limitOrders) {
 		String userKey = currentOrderUserKey + userCode;
 		String userTotalKey = totalCurrentOrderUserKey + userCode;
 		Map<String, String> cacheMap = new HashMap<>();;
-		for (CurrentEntrusts orderView : limitOrders) {
-			cacheMap.put(orderView.getOrderCode(), JSON.toJSONString(orderView));
+		for (CurrentEntrusts currentEntrusts : limitOrders) {
+			cacheMap.put(currentEntrusts.getOrderCode(), JSON.toJSONString(currentEntrusts));
 		}
 		Jedis jedis = null;
 		try {
@@ -253,19 +401,13 @@ public class OrderManageService extends BaseService {
 			jedis.watch(userKey);
 			Transaction trans = jedis.multi();
 			jedis.hmset(userKey, cacheMap);
-			jedis.set(userTotalKey, String.valueOf(size));
+			jedis.set(userTotalKey, String.valueOf(total));
 			trans.exec();
 		} catch (Exception e) {
 			if (jedis != null) {
 				jedis.close();
 			}
 		}
-
-		Page<CurrentEntrusts> page = new Page<>();
-		page.setEntities(limitOrders.subList((pageNum - 1) * PageSize, pageNum * PageSize));
-		page.setTotal((long) total);
-		page.setPageNum(pageNum);
-		return page;
 	}
 
 	public List<CurrentEntrusts> findCurrentOrderFromRedis(OrderQuery orderQuery) {
