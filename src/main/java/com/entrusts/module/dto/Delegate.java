@@ -1,6 +1,6 @@
 package com.entrusts.module.dto;
 
-import com.entrusts.module.entity.Order.TradeType;
+import com.entrusts.module.enums.TradeType;
 import java.math.BigDecimal;
 import java.util.Date;
 import javax.validation.constraints.Min;

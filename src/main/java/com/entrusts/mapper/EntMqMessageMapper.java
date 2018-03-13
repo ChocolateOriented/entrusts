@@ -19,4 +19,6 @@ public interface EntMqMessageMapper  {
 	void insert(EntMqMessage entMqMessage);
 
 	void update(EntMqMessage entMqMessage);
+
+	void updateByKey(EntMqMessage entMqMessage);
 }

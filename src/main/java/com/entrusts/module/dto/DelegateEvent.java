@@ -1,13 +1,10 @@
 package com.entrusts.module.dto;
 
-import com.entrusts.module.entity.Order.OrderMode;
-import com.entrusts.module.entity.Order.TradeType;
-import java.util.Date;
-
 import com.entrusts.module.enums.DelegateEventstatus;
 import com.entrusts.module.enums.OrderMode;
-import com.entrusts.module.enums.OrderStatus;
 import com.entrusts.module.enums.TradeType;
+import java.math.BigDecimal;
+import java.util.Date;
 
 
 /**
@@ -27,14 +24,14 @@ public class DelegateEvent {
 	private BigDecimal quantity;
 	private BigDecimal amount;
 	private OrderMode mode;//交易模式
-	private OrderStatus status;// 状态
+
 	private DelegateEventstatus delegateEventstatus; // 队列执行状态
 
-	public Long getOrderCode() {
+	public String getOrderCode() {
 		return orderCode;
 	}
 
-	public void setOrderCode(Long orderCode) {
+	public void setOrderCode(String orderCode) {
 		this.orderCode = orderCode;
 	}
 
@@ -62,36 +59,36 @@ public class DelegateEvent {
 		this.orderTime = orderTime;
 	}
 
-	public Long getTradePairId() {
+	public Integer getBaseCurrencyId() {
+		return baseCurrencyId;
+	}
+
+	public void setBaseCurrencyId(Integer baseCurrencyId) {
+		this.baseCurrencyId = baseCurrencyId;
+	}
+
+	public Integer getTargetCurrencyId() {
+		return targetCurrencyId;
+	}
+
+	public void setTargetCurrencyId(Integer targetCurrencyId) {
+		this.targetCurrencyId = targetCurrencyId;
+	}
+
+	public Integer getTradePairId() {
 		return tradePairId;
 	}
 
-	public void setTradePairId(Long tradePairId) {
+	public void setTradePairId(Integer tradePairId) {
 		this.tradePairId = tradePairId;
 	}
 
-	public Double getConvertRate() {
+	public BigDecimal getConvertRate() {
 		return convertRate;
 	}
 
-	public void setConvertRate(Double convertRate) {
+	public void setConvertRate(BigDecimal convertRate) {
 		this.convertRate = convertRate;
-	}
-
-	public Double getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(Double quantity) {
-		this.quantity = quantity;
-	}
-
-	public Double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(Double amount) {
-		this.amount = amount;
 	}
 
 	public TradeType getTradeType() {
@@ -102,11 +99,35 @@ public class DelegateEvent {
 		this.tradeType = tradeType;
 	}
 
+	public BigDecimal getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(BigDecimal quantity) {
+		this.quantity = quantity;
+	}
+
+	public BigDecimal getAmount() {
+		return amount;
+	}
+
+	public void setAmount(BigDecimal amount) {
+		this.amount = amount;
+	}
+
 	public OrderMode getMode() {
 		return mode;
 	}
 
 	public void setMode(OrderMode mode) {
 		this.mode = mode;
+	}
+
+	public DelegateEventstatus getDelegateEventstatus() {
+		return delegateEventstatus;
+	}
+
+	public void setDelegateEventstatus(DelegateEventstatus delegateEventstatus) {
+		this.delegateEventstatus = delegateEventstatus;
 	}
 }

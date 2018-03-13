@@ -8,41 +8,42 @@ import com.entrusts.module.enums.OrderStatus;
 
 
 public class OrderEvent {
-    private Long id;
 
-    private Long orderCode;
+	private Long id;
 
-    private OrderStatus status;
+	private String orderCode;
 
-    private BigDecimal dealAmout;
+	private OrderStatus status;
 
-    private BigDecimal dealQuantity;
+	private BigDecimal dealAmout;
 
-    private Date createdTime;
+	private BigDecimal dealQuantity;
 
-    private Date lastedDealTime;
+	private Date createdTime;
 
-    private String remark;
-    
-    private DelegateEventstatus delegateEventstatus; // 队列执行状态
+	private Date lastedDealTime;
 
-    public Long getId() {
-        return id;
-    }
+	private String remark;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	private DelegateEventstatus delegateEventstatus; // 队列执行状态
 
-    public Long getOrderCode() {
-        return orderCode;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setOrderCode(Long orderCode) {
-        this.orderCode = orderCode;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public OrderStatus getStatus() {
+	public String getOrderCode() {
+		return orderCode;
+	}
+
+	public void setOrderCode(String orderCode) {
+		this.orderCode = orderCode;
+	}
+
+	public OrderStatus getStatus() {
 		return status;
 	}
 
@@ -51,44 +52,44 @@ public class OrderEvent {
 	}
 
 	public BigDecimal getDealAmout() {
-        return dealAmout;
-    }
+		return dealAmout;
+	}
 
-    public void setDealAmout(BigDecimal dealAmout) {
-        this.dealAmout = dealAmout;
-    }
+	public void setDealAmout(BigDecimal dealAmout) {
+		this.dealAmout = dealAmout;
+	}
 
-    public BigDecimal getDealQuantity() {
-        return dealQuantity;
-    }
+	public BigDecimal getDealQuantity() {
+		return dealQuantity;
+	}
 
-    public void setDealQuantity(BigDecimal dealQuantity) {
-        this.dealQuantity = dealQuantity;
-    }
+	public void setDealQuantity(BigDecimal dealQuantity) {
+		this.dealQuantity = dealQuantity;
+	}
 
-    public Date getCreatedTime() {
-        return createdTime;
-    }
+	public Date getCreatedTime() {
+		return createdTime;
+	}
 
-    public void setCreatedTime(Date createdTime) {
-        this.createdTime = createdTime;
-    }
+	public void setCreatedTime(Date createdTime) {
+		this.createdTime = createdTime;
+	}
 
-    public Date getLastedDealTime() {
-        return lastedDealTime;
-    }
+	public Date getLastedDealTime() {
+		return lastedDealTime;
+	}
 
-    public void setLastedDealTime(Date lastedDealTime) {
-        this.lastedDealTime = lastedDealTime;
-    }
+	public void setLastedDealTime(Date lastedDealTime) {
+		this.lastedDealTime = lastedDealTime;
+	}
 
-    public String getRemark() {
-        return remark;
-    }
+	public String getRemark() {
+		return remark;
+	}
 
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
 
 	public DelegateEventstatus getDelegateEventstatus() {
 		return delegateEventstatus;
@@ -98,6 +99,5 @@ public class OrderEvent {
 		this.delegateEventstatus = delegateEventstatus;
 	}
 
-    
-    
+
 }

@@ -13,7 +13,7 @@
 		a.updated_time AS "updatedTime"
 	</sql>
 
-	<select id="findResendMessages" resultType="EntMqMessage">
+	<select id="findResendMessages" resultType="com.entrusts.module.entity.EntMqMessage">
 		SELECT
 			<include refid="messageColumns"/>
 		FROM mq_message a
@@ -45,6 +45,14 @@
 			msg_id = #{msgId},
 			updated_time = now()
 		WHERE id = #{id}
-	</update>	
-	
+	</update>
+
+	<update id="updateByKey">
+		UPDATE mq_message SET
+		msg_id = #{msgId},
+		updated_time = now()
+		WHERE key = #{key}
+		AND topic = #{topic}
+	</update>
+
 </mapper>

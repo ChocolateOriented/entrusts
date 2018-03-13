@@ -17,7 +17,7 @@ public class Order implements Serializable {
 	private String userCode;
 	private Date clientTime;//下单时客户端时间
 	private Date orderTime;//下单时服务器端时间
-	private Long tradePairId;//交易对id
+	private Integer tradePairId;//交易对id
 	private BigDecimal convertRate;//基准货币兑换目标货币的比率
 	private TradeType tradeType;//买卖方向
 	private BigDecimal quantity;//数量
@@ -31,63 +31,6 @@ public class Order implements Serializable {
 	private Date createdTime;
 	private Date updatedTime;
 	private Long isDeleted;
-
-
-	public Order() {
-		super();
-	}
-
-
-	public Order(Long orderCode, String userCode, Date clientTime, Date orderTime, Long tradePairId, Double convertRate,
-			TradeType tradeType, Double quantity, Double amount, OrderMode mode, OrderStatus status,
-			Double serviceFeeRate, Double dealAmout, Double dealQuantity, Date lastedDealTime, Date createdTime,
-			Date updatedTime, Long isDeleted) {
-		super();
-		this.orderCode = orderCode;
-		this.userCode = userCode;
-		this.clientTime = clientTime;
-		this.orderTime = orderTime;
-		this.tradePairId = tradePairId;
-		this.convertRate = convertRate;
-		this.tradeType = tradeType;
-		this.quantity = quantity;
-		this.amount = amount;
-		this.mode = mode;
-		this.status = status;
-		this.serviceFeeRate = serviceFeeRate;
-		this.dealAmout = dealAmout;
-		this.dealQuantity = dealQuantity;
-		this.lastedDealTime = lastedDealTime;
-		this.createdTime = createdTime;
-		this.updatedTime = updatedTime;
-		this.isDeleted = isDeleted;
-	}
-
-
-
-
-	public Order(Long orderCode, String userCode, Date clientTime, Date orderTime, Long tradePairId, Double convertRate,
-			TradeType tradeType, Double quantity, Double amount, OrderMode mode, OrderStatus status, Date createdTime,
-			Date updatedTime, Long isDeleted) {
-		super();
-		this.orderCode = orderCode;
-		this.userCode = userCode;
-		this.clientTime = clientTime;
-		this.orderTime = orderTime;
-		this.tradePairId = tradePairId;
-		this.convertRate = convertRate;
-		this.tradeType = tradeType;
-		this.quantity = quantity;
-		this.amount = amount;
-		this.mode = mode;
-		this.status = status;
-		this.createdTime = createdTime;
-		this.updatedTime = updatedTime;
-		this.isDeleted = isDeleted;
-	}
-
-
-
 
 	public String getOrderCode() {
 		return orderCode;
@@ -105,77 +48,36 @@ public class Order implements Serializable {
 		this.userCode = userCode;
 	}
 
-	public java.util.Date getClientTime() {
+	public Date getClientTime() {
 		return clientTime;
 	}
 
-	public void setClientTime(java.util.Date clientTime) {
+	public void setClientTime(Date clientTime) {
 		this.clientTime = clientTime;
 	}
 
-	public java.util.Date getOrderTime() {
+	public Date getOrderTime() {
 		return orderTime;
 	}
 
-	public void setOrderTime(java.util.Date orderTime) {
+	public void setOrderTime(Date orderTime) {
 		this.orderTime = orderTime;
 	}
 
-	public Long getTradePairId() {
+	public Integer getTradePairId() {
 		return tradePairId;
 	}
 
-	public void setTradePairId(Long tradePairId) {
+	public void setTradePairId(Integer tradePairId) {
 		this.tradePairId = tradePairId;
 	}
 
-	public Double getConvertRate() {
+	public BigDecimal getConvertRate() {
 		return convertRate;
 	}
 
-	public void setConvertRate(Double convertRate) {
+	public void setConvertRate(BigDecimal convertRate) {
 		this.convertRate = convertRate;
-	}
-
-	public Double getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(Double quantity) {
-		this.quantity = quantity;
-	}
-
-	public Double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(Double amount) {
-		this.amount = amount;
-	}
-
-	public Double getServiceFeeRate() {
-		return serviceFeeRate;
-	}
-
-	public void setServiceFeeRate(Double serviceFeeRate) {
-		this.serviceFeeRate = serviceFeeRate;
-	}
-
-	public Double getDealAmout() {
-		return dealAmout;
-	}
-
-	public void setDealAmout(Double dealAmout) {
-		this.dealAmout = dealAmout;
-	}
-
-
-	public Double getDealQuantity() {
-		return dealQuantity;
-	}
-
-	public void setDealQuantity(Double dealQuantity) {
-		this.dealQuantity = dealQuantity;
 	}
 
 	public TradeType getTradeType() {
@@ -186,6 +88,22 @@ public class Order implements Serializable {
 		this.tradeType = tradeType;
 	}
 
+	public BigDecimal getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(BigDecimal quantity) {
+		this.quantity = quantity;
+	}
+
+	public BigDecimal getAmount() {
+		return amount;
+	}
+
+	public void setAmount(BigDecimal amount) {
+		this.amount = amount;
+	}
+
 	public OrderMode getMode() {
 		return mode;
 	}
@@ -194,19 +112,51 @@ public class Order implements Serializable {
 		this.mode = mode;
 	}
 
-	public java.util.Date getLastedDealTime() {
+	public OrderStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(OrderStatus status) {
+		this.status = status;
+	}
+
+	public BigDecimal getServiceFeeRate() {
+		return serviceFeeRate;
+	}
+
+	public void setServiceFeeRate(BigDecimal serviceFeeRate) {
+		this.serviceFeeRate = serviceFeeRate;
+	}
+
+	public BigDecimal getDealAmount() {
+		return dealAmount;
+	}
+
+	public void setDealAmount(BigDecimal dealAmount) {
+		this.dealAmount = dealAmount;
+	}
+
+	public BigDecimal getDealQuantity() {
+		return dealQuantity;
+	}
+
+	public void setDealQuantity(BigDecimal dealQuantity) {
+		this.dealQuantity = dealQuantity;
+	}
+
+	public Date getLastedDealTime() {
 		return lastedDealTime;
 	}
 
-	public void setLastedDealTime(java.util.Date lastedDealTime) {
+	public void setLastedDealTime(Date lastedDealTime) {
 		this.lastedDealTime = lastedDealTime;
 	}
 
-	public java.util.Date getCreatedTime() {
+	public Date getCreatedTime() {
 		return createdTime;
 	}
 
-	public void setCreatedTime(java.util.Date createdTime) {
+	public void setCreatedTime(Date createdTime) {
 		this.createdTime = createdTime;
 	}
 
@@ -225,17 +175,5 @@ public class Order implements Serializable {
 	public void setIsDeleted(Long isDeleted) {
 		this.isDeleted = isDeleted;
 	}
-
-	public OrderStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(OrderStatus status) {
-		this.status = status;
-	}
-
-
-
-
 }
 

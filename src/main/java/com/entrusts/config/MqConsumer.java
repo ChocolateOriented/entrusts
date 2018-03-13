@@ -1,17 +1,9 @@
 package com.entrusts.config;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.entrusts.listener.DefaultListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.entrusts.listener.DefaultListener;
-import com.entrusts.util.Mo9MqConsumer;
-import com.mo9.mqclient.IMqMsgListener;
-import com.mo9.mqclient.MqSubscription;
 
 @Configuration
 @ConfigurationProperties(prefix = "mq")
