@@ -7,9 +7,9 @@ logging:
 spring:
   datasource:
     name: datasource
-    url: jdbc:mysql://192.168.3.227:3306/entrusts?useUnicode=true&characterEncoding=utf-8
-    username: entrusts
-    password: 4WHvcqdNhraZ0dvU
+    url: jdbc:mysql://192.168.3.54:3306/entrusts?useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: rootroot
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.jdbc.Driver
     maxActive: 50
@@ -47,11 +47,13 @@ redis:
   minIdle: 0
 
 mq:
-  productId:PID_MO9_CLONE_ENTRUSTS
+  productId: PID_MO9_CLONE_ENTRUSTS
   accessKey: LTAIyDR4k37NBuJu
   secretKey: XRDykcat39ONcoCi1OZ7cpfohm1Yyk
   delegatePushTopic: TOPIC_MO9_CLONE_ENTRUSTS_DELEGATE_PUSH
   delegatePushTag: TAG_MO9_CLONE_ENTRUSTS_DELEGATE_PUSH
+  onsAddr: http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet
+
 
 datacenterId: 1
 machineId: 1
@@ -79,10 +81,15 @@ nest:
   group: DandelionGroup
   mode: ALONE
   exclude:
-    urls: /auth/**,/error,/captcha/**,/newUserGift/listNewMemberGiftRecord,/newUserGift/detailBonusPoolInfo
+    urls: /auth/**,/error,/captcha/**,/order/requestToken,/order/delegateLimit
 
 mybatis:
   mapper-locations: classpath:mapping/*.xml
+  type-handlers-package: com.entrusts.util
+
+disruptor:
+  delegateEventBufferSize: 1024
 
 url:
+  lockCoin: www
 

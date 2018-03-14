@@ -4,42 +4,41 @@
 
   <sql id="orderColumns">
   </sql>
-  
-  <insert id="insertOrder" >
-    insert into order(
-	     	order_code,
-	      	user_code, 
-	      	client_time,
-	       	order_time,
-	        trade_pair_id, 
-	      	convert_rate, 
-	      	trade_type, 
-	      	quantity, 
-	      	amount, 
-	      	mode,
-	      	status,
-	      	created_time,
-	      	updated_time,
-	      	isDeleted
-      )values (
-		      #{orderCode,jdbcType=BIGINT}, 
-		      #{usercode,jdbcType=VARCHAR}, 
-		      #{clientTime,jdbcType=TIMESTAMP}, 
-		      #{orderTime,jdbcType=TIMESTAMP}, 
-		      #{tradePairId,jdbcType=BIGINT}, 
-		      #{convertRate,jdbcType=DOUBLE}, 
-		      #{tradeType,jdbcType=INTEGER}, 
-		      #{quantity,jdbcType=DOUBLE}, 
-		      #{amount,jdbcType=DOUBLE},
-		      #{mode,jdbcType=INTEGER}, 
-		      #{status,jdbcType=INTEGER},
-		      now(), 
-		      now(),
-		      0
-		      )
-  </insert>
-  
-  <update id="updateOrderStatus" >
+
+	<insert id="insertOrder" parameterType="com.entrusts.module.entity.Order">
+  INSERT INTO `order` (
+    `order_code`,
+    `user_code`,
+    `client_time`,
+    `order_time`,
+    `trade_pair_id`,
+    `convert_rate`,
+    `trade_type`,
+    `quantity`,
+    `mode`,
+    `status`,
+    `created_time`,
+    `updated_time`,
+    `is_deleted`
+    )
+		values (
+			#{orderCode,jdbcType=CHAR},
+			#{userCode,jdbcType=VARCHAR},
+			#{clientTime,jdbcType=TIMESTAMP},
+			#{orderTime,jdbcType=TIMESTAMP},
+			#{tradePairId,jdbcType=INTEGER},
+			#{convertRate,jdbcType=DECIMAL},
+			#{tradeType,jdbcType=TINYINT},
+			#{quantity,jdbcType=DECIMAL},
+			#{mode,jdbcType=TINYINT},
+			#{status,jdbcType=TINYINT},
+      now(),
+      now(),
+      0
+		)
+	</insert>
+
+  <update id="updateOrderStatus">
 	    UPDATE order
 		    SET
 		    update_date = now(),
@@ -47,8 +46,6 @@
 	    WHERE 
 	    	order_code = #{orderCode}
   </update>
-  
-  
-  
+
 
 </mapper>

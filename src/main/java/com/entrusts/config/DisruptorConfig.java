@@ -42,7 +42,4 @@ public class DisruptorConfig {
 		orderEventHandlerGroup.then(eventHandler::publishOrder).then(eventHandler::savePublishOrdereEvent);
 		return disruptor;
 	}
-	
-	
-	
 }
