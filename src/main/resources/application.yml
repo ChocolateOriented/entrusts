@@ -54,7 +54,6 @@ mq:
   delegatePushTag: TAG_MO9_CLONE_ENTRUSTS_DELEGATE_PUSH
   onsAddr: http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet
 
-
 datacenterId: 1
 machineId: 1
 
@@ -92,4 +91,3 @@ disruptor:
 
 url:
   lockCoin: www
-

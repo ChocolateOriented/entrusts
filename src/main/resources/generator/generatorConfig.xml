@@ -36,7 +36,7 @@
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         
-
+        <!-- ANNOTATEDMAPPER/XMLMAPPER 生成mapper注解或xml -->
         <javaClientGenerator targetPackage="com.entrusts.mapper" type="XMLMAPPER" targetProject="src/main/java">
             <!-- 在targetPackage的基础上，根据数据库的schema再生成一层package，最终生成的类放在这个package下，默认为false -->
             <property name="enableSubPackages" value="true"/>
