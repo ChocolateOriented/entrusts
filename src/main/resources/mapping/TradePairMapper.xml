@@ -6,6 +6,8 @@
     <result column="base_currency_id" jdbcType="INTEGER" property="baseCurrencyId" />
     <result column="target_currency_id" jdbcType="INTEGER" property="targetCurrencyId" />
     <result column="min_trade_quantity" jdbcType="DECIMAL" property="minTradeQuantity" />
+    <result column="base_currency_name" jdbcType="CHAR" property="baseCurrencyName" />
+    <result column="target_currency_name" jdbcType="CHAR" property="targetCurrencyName" />
     <result column="is_deleted" jdbcType="TINYINT" property="isDeleted" />
   </resultMap>
 
@@ -20,7 +22,7 @@
 
   <select id="findTradePairById" resultMap="BaseResultMap">
     select a.id, a.base_currency_id, a.target_currency_id, a.min_trade_quantity, a.is_deleted,
-    bc.base_currency_name, tc.target_currency_name
+    bc.alias as base_currency_name, tc.alias as target_currency_name
     from trade_pair a
      LEFT JOIN digital_currency bc ON bc.id = a.base_currency_id
      LEFT JOIN digital_currency tc ON tc.id = a.target_currency_id

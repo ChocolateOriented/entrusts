@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.entrusts.mapper.OrderMapper">
+
+	<resultMap id="BaseResultMap" type="com.entrusts.module.entity.Order">
+		<id column="order_code" jdbcType="BIGINT" property="orderCode" />
+		<result column="user_code" jdbcType="CHAR" property="userCode" />
+		<result column="client_time" jdbcType="TIMESTAMP" property="clientTime" />
+		<result column="order_time" jdbcType="TIMESTAMP" property="orderTime" />
+		<result column="trade_pair_id" jdbcType="INTEGER" property="tradePairId" />
+		<result column="convert_rate" jdbcType="DECIMAL" property="convertRate" />
+		<result column="trade_type" jdbcType="TINYINT"  property="tradeType" />
+		<result column="quantity" jdbcType="DECIMAL" property="quantity" />
+		<result column="amount" jdbcType="DECIMAL" property="amount" />
+		<result column="mode" jdbcType="TINYINT"   property="mode" />
+		<result column="status" jdbcType="TINYINT"  property="status" />
+		<result column="service_fee_rate" jdbcType="DECIMAL" property="serviceFeeRate" />
+		<result column="deal_amout" jdbcType="DECIMAL" property="dealAmout" />
+		<result column="deal_quantity" jdbcType="DECIMAL" property="dealQuantity" />
+		<result column="lasted_deal_time" jdbcType="TIMESTAMP" property="lastedDealTime" />
+		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+		<result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+		<result column="is_deleted" jdbcType="TINYINT" property="isDeleted" />
+	</resultMap>
 	<select id="findHistoryOrderByPage" resultType="com.entrusts.module.vo.HistoryOrderView">
 		select
 			o.order_code as orderCode,
@@ -257,7 +278,7 @@
 		</if>
 	</select>
 
-	<select id="findCurrentOrderByTime" resultType="com.entrusts.module.vo.HistoryOrderView">
+	<select id="findCurrentOrderByTime" resultType="com.entrusts.module.vo.CurrentEntrusts">
 		select
 		o.order_code as orderCode,
 		o.created_time as date,
@@ -332,7 +353,7 @@
     <sql id="orderColumns">
     </sql>
 
-    <insert id="insertOrder" >
+    <insert id="insertOrder">
         insert into order(
         order_code,
         user_code,
@@ -350,7 +371,7 @@
         isDeleted
         )values (
         #{orderCode,jdbcType=BIGINT},
-        #{usercode,jdbcType=VARCHAR},
+        #{userCode,jdbcType=VARCHAR},
         #{clientTime,jdbcType=TIMESTAMP},
         #{orderTime,jdbcType=TIMESTAMP},
         #{tradePairId,jdbcType=BIGINT},

@@ -47,7 +47,8 @@ public class OrderService extends BaseService {
 	public void saveNewOrderByEvent(DelegateEvent delegateEvent) {
 		Order order = new Order();
 		BeanUtils.copyProperties(delegateEvent, order);
-		order.setStatus(OrderStatus.DELEGATING); orderMapper.insertOrder(order);
+		order.setStatus(OrderStatus.DELEGATING);
+		//orderMapper.insertOrder(order);
 		this.save(order);
 	}
 
@@ -56,7 +57,7 @@ public class OrderService extends BaseService {
 	 */
 	@Transactional
 	public void save(Order order) {
-		orderMapper.insertOrder(order);
+		//orderMapper.insertOrder(order);
 		orderManageService.addUserCurrentOrderListFromRedis(order);
 	}
 

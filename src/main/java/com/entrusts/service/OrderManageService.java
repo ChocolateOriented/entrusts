@@ -256,7 +256,7 @@ public class OrderManageService extends BaseService {
 		}
 		List<CurrentEntrusts> orders = findCurrentOrderFromRedis(orderQuery);
 		Page<CurrentEntrusts> page = new Page<>();
-		page.setEntities(orders.subList((pageNum - 1) * PageSize, pageNum * PageSize));
+		page.setEntities(orders.subList((pageNum - 1) * PageSize, pageNum * PageSize > orders.size() ? orders.size() :pageNum * PageSize));
 		page.setTotal((long) orders.size());
 		page.setPageNum(pageNum);
 		page.setPageSize(PageSize);
@@ -383,8 +383,8 @@ public class OrderManageService extends BaseService {
 			jedis = RedisUtil.getResource();
 			jedis.watch(userKey);
 			Transaction trans = jedis.multi();
-			jedis.hmset(userKey, cacheMap);
-			jedis.set(userTotalKey, String.valueOf(total));
+			trans.hmset(userKey, cacheMap);
+			trans.set(userTotalKey, String.valueOf(total));
 			trans.exec();
 		} catch (Exception e) {
 			if (jedis != null) {
@@ -420,20 +420,24 @@ public class OrderManageService extends BaseService {
 		String userKey = currentOrderUserKey + order.getUserCode();
 		String userTotalKey = totalCurrentOrderUserKey + order.getUserCode();
 		Map<String, String> currentOrders = RedisUtil.getMap(userKey);
+		if (currentOrders == null){
+			currentOrders = new HashMap<String, String>();
+		}
 		currentOrders.put(currentEntrusts.getOrderCode(), JSON.toJSONString(currentEntrusts));
-		int total = Integer.valueOf(RedisUtil.get(userTotalKey));
+		int total = Integer.valueOf(RedisUtil.get(userTotalKey) == null? "0" : RedisUtil.get(userTotalKey));
 		Jedis jedis = null;
 		try {
 			jedis = RedisUtil.getResource();
 			jedis.watch(userKey);
 			Transaction trans = jedis.multi();
-			jedis.hmset(userKey, currentOrders);
-			jedis.set(userTotalKey, String.valueOf(total+1));
+			trans.hmset(userKey, currentOrders);
+			trans.set(userTotalKey, String.valueOf(total+1));
 			trans.exec();
 		} catch (Exception e) {
 			if (jedis != null) {
 				jedis.close();
 			}
+			return false;
 		}
 		return true;
 	}
@@ -481,7 +485,7 @@ public class OrderManageService extends BaseService {
 		currentEntrusts.setDate(order.getOrderTime().getTime());
 		currentEntrusts.setTradeType(order.getTradeType().name());
 		currentEntrusts.setStatus(order.getStatus().getValue()+"");
-		currentEntrusts.setDealTargetQuantity(order.getDealQuantity());
+		currentEntrusts.setDealTargetQuantity(order.getDealQuantity() == null ? new BigDecimal(0):order.getDealQuantity());
 		currentEntrusts.setOrderTargetQuantity(order.getQuantity());
 		TradePair tradePair = tradePairService.findTradePairById(order.getTradePairId());
 		currentEntrusts.setTargetCurrency(tradePair.getTargetCurrencyName());

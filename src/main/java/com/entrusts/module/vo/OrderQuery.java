@@ -167,7 +167,7 @@ public class OrderQuery {
 		if (endTime != null && (currentEntrusts.getDate() == null || endTime < currentEntrusts.getDate())) {
 			return false;
 		}
-		if (status != null && currentEntrusts.getStatus() == null || status != Integer.valueOf(currentEntrusts.getStatus())){
+		if (status != null && (currentEntrusts.getStatus() == null || status != Integer.valueOf(currentEntrusts.getStatus()))){
 			return false;
 		}
 
