@@ -1,7 +1,7 @@
 package com.entrusts.module.entity;
 
-import com.alibaba.fastjson.JSON;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -9,30 +9,30 @@ import java.util.Date;
  */
 public class Order implements Serializable {
 
-	private Long orderCode;
+	private String orderCode;
 	private String userCode;
 	private Date clientTime;//下单时客户端时间
 	private Date orderTime;//下单时服务器端时间
 	private Long tradePairId;//交易对id
-	private Double convertRate;//基准货币兑换目标货币的比率
+	private BigDecimal convertRate;//基准货币兑换目标货币的比率
 	private TradeType tradeType;//买卖方向
-	private Double quantity;//数量
-	private Double amount;//金额(基于基准货币)
+	private BigDecimal quantity;//数量
+	private BigDecimal amount;//金额(基于基准货币)
 	private OrderMode mode;//交易模式
 	private OrderStatus status;//状态
-	private Double serviceFeeRate;//交易费率
-	private Double dealAmout;//已成交金额
-	private Double dealQuantity;//已成交数量
+	private BigDecimal serviceFeeRate;//交易费率
+	private BigDecimal dealAmount;//已成交金额
+	private BigDecimal dealQuantity;//已成交数量
 	private Date lastedDealTime;
 	private Date createdTime;
 	private Date updatedTime;
 	private Long isDeleted;
 
-	public Long getOrderCode() {
+	public String getOrderCode() {
 		return orderCode;
 	}
 
-	public void setOrderCode(Long orderCode) {
+	public void setOrderCode(String orderCode) {
 		this.orderCode = orderCode;
 	}
 
@@ -68,52 +68,51 @@ public class Order implements Serializable {
 		this.tradePairId = tradePairId;
 	}
 
-	public Double getConvertRate() {
+	public BigDecimal getConvertRate() {
 		return convertRate;
 	}
 
-	public void setConvertRate(Double convertRate) {
+	public void setConvertRate(BigDecimal convertRate) {
 		this.convertRate = convertRate;
 	}
 
-	public Double getQuantity() {
+	public BigDecimal getQuantity() {
 		return quantity;
 	}
 
-	public void setQuantity(Double quantity) {
+	public void setQuantity(BigDecimal quantity) {
 		this.quantity = quantity;
 	}
 
-	public Double getAmount() {
+	public BigDecimal getAmount() {
 		return amount;
 	}
 
-	public void setAmount(Double amount) {
+	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
 
-	public Double getServiceFeeRate() {
+	public BigDecimal getServiceFeeRate() {
 		return serviceFeeRate;
 	}
 
-	public void setServiceFeeRate(Double serviceFeeRate) {
+	public void setServiceFeeRate(BigDecimal serviceFeeRate) {
 		this.serviceFeeRate = serviceFeeRate;
 	}
 
-	public Double getDealAmout() {
-		return dealAmout;
+	public BigDecimal getDealAmount() {
+		return dealAmount;
 	}
 
-	public void setDealAmout(Double dealAmout) {
-		this.dealAmout = dealAmout;
+	public void setDealAmount(BigDecimal dealAmount) {
+		this.dealAmount = dealAmount;
 	}
 
-
-	public Double getDealQuantity() {
+	public BigDecimal getDealQuantity() {
 		return dealQuantity;
 	}
 
-	public void setDealQuantity(Double dealQuantity) {
+	public void setDealQuantity(BigDecimal dealQuantity) {
 		this.dealQuantity = dealQuantity;
 	}
 
@@ -175,7 +174,7 @@ public class Order implements Serializable {
 
 	//买卖方向
 	public enum TradeType {
-		BUY(1), SELL(2);
+		buy(1), sell(2);
 
 		TradeType(int value) {
 			this.value = value;

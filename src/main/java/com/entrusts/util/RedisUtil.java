@@ -945,12 +945,10 @@ public class RedisUtil {
 	public static boolean tryLock(String lockKey, String requestId, int lockTimeout, int keyExpire) {
 		Jedis jedis = null;
 		try {
-			jedis = getResource();
 			long current = System.currentTimeMillis();
 			long end = current + lockTimeout;
 			while (System.currentTimeMillis() < end) {
-				String result = jedis.set(lockKey, requestId, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, keyExpire);
-				if (LOCK_SUCCESS.equals(result)) {
+				if (setIfNotExist(lockKey,requestId,keyExpire)){
 					return true;
 				}
 				try {
@@ -960,11 +958,11 @@ public class RedisUtil {
 				}
 			}
 		} catch (Exception e) {
-			logger.warn("获取redis锁失败:" + e);
+			logger.warn("获取redis锁失败:" , e);
 			return false;
 		} finally {
 			if (jedis != null) {
-				jedis.close();
+				returnResource(jedis);
 			}
 		}
 		return false;
@@ -987,12 +985,30 @@ public class RedisUtil {
 			}
 			return false;
 		} catch (Exception e) {
-			logger.warn("释放redis锁失败:" + e);
+			logger.warn("释放redis锁失败:" , e);
 			return false;
 		} finally {
 			if (jedis != null) {
-				jedis.close();
+				returnResource(jedis);
 			}
+		}
+	}
+
+	/**
+	 * @Description 如果不存在key则存储
+	 * @param key
+	 * @param value
+	 * @param keyExpire
+	 * @return boolean 是否成功
+	 */
+	public static boolean setIfNotExist(String key, String value, int keyExpire){
+		Jedis jedis = null;
+		try {
+			jedis =	getResource();
+			String result = jedis.set(key, value, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, keyExpire);
+			return LOCK_SUCCESS.equals(result) ;
+		}finally {
+			returnResource(jedis);
 		}
 	}
 }

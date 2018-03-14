@@ -411,7 +411,7 @@ public class OrderManageService extends BaseService {
 	}
 
 	public List<CurrentEntrusts> findCurrentOrderFromRedis(OrderQuery orderQuery) {
-		Map<String, String> currentOrders = RedisUtil.getMap("testentrsts");
+		Map<String, String> currentOrders = RedisUtil.getMap(currentOrderUserKey + orderQuery.getUserCode());
 		if (currentOrders == null || currentOrders.isEmpty()) {
 			return null;
 		}
