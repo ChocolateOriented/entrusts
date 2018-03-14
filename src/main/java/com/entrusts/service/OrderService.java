@@ -48,7 +48,6 @@ public class OrderService extends BaseService {
 		Order order = new Order();
 		BeanUtils.copyProperties(delegateEvent, order);
 		order.setStatus(OrderStatus.DELEGATING);
-		//orderMapper.insertOrder(order);
 		this.save(order);
 	}
 
@@ -57,7 +56,7 @@ public class OrderService extends BaseService {
 	 */
 	@Transactional
 	public void save(Order order) {
-		//orderMapper.insertOrder(order);
+		orderMapper.insertOrder(order);
 		orderManageService.addUserCurrentOrderListFromRedis(order);
 	}
 
@@ -74,12 +73,14 @@ public class OrderService extends BaseService {
 	 * 推送订单至撮合
 	 */
 	@Transactional
-	public void push2match(DelegateEvent delegateEvent) {
+	public void push2Match(DelegateEvent delegateEvent) {
 		EntMqMessage entMqMessage = insertMqPush(delegateEvent);
 		this.updateOrderStatus(OrderStatus.TRADING, delegateEvent.getOrderCode(), delegateEvent.getUserCode());
+
+		//更改MQ状态与新增MQ在同一事务中, 保证重发任务不会读到未尝试发送的信息
 		try {
-			push2match(entMqMessage);
-		} catch (Exception e) {
+			sendMatchMq(entMqMessage);
+		}catch (Exception e){
 			logger.info(delegateEvent.getOrderCode() + "推送至撮合失败", e);
 		}
 	}
@@ -106,7 +107,7 @@ public class OrderService extends BaseService {
 	/**
 	 * 推送mq更新托单状态
 	 */
-	private void push2match(EntMqMessage entMqMessage) {
+	public void sendMatchMq(EntMqMessage entMqMessage) {
 		MqMessage message = new MqMessage(entMqMessage.getTopic(), entMqMessage.getTag(), entMqMessage.getKey(), entMqMessage.getBody());
 		MqSendResult result = mqProducer.send(message);
 		message.setMsgId(result.getMessageId());

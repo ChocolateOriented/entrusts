@@ -3,7 +3,7 @@ package com.entrusts.module.enums;
 /**
  * Created by sxu
  */
-public enum TradeType {
+public enum TradeType implements BaseCodeEnum {
 	buy(1), sell(2);
 
 	TradeType(int value) {

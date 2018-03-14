@@ -24,17 +24,13 @@ public interface OrderMapper {
 
 	HistoryOrderView getHistoryOrder(Order order);
 
-	List<CurrentEntrusts> findCurrentOrderByPage(OrderQuery orderQuery);
+	/**
+	 * 查询全量当前数据
+	 * @param userCode
+	 * @return
+	 */
+	List<CurrentEntrusts> findCurrentOrder(@Param("userCode") String userCode);
 
-	long countCurrentOrderByTime(OrderQuery orderQuery);
-
-	List<CurrentEntrusts> findCurrentOrderByTime(OrderQuery orderQuery, @Param("limit") int limit);
-
-	List<CurrentEntrusts> findLimitCurrentOrder(@Param("userCode") String userCode, @Param("limit") int limit);
-
-	int totalCurrentOrder(String userCode);
-
-	CurrentEntrusts getCurrentOrder(Order order);
 
     /**
      * 插入被邀请码数据

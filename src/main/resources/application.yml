@@ -54,6 +54,7 @@ mq:
   delegatePushTag: TAG_MO9_CLONE_ENTRUSTS_DELEGATE_PUSH
   onsAddr: http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet
 
+
 datacenterId: 1
 machineId: 1
 
@@ -80,16 +81,15 @@ nest:
   group: DandelionGroup
   mode: ALONE
   exclude:
-    urls: /auth/**,/error,/captcha/**,/newUserGift/listNewMemberGiftRecord,/newUserGift/detailBonusPoolInfo
+    urls: /auth/**,/error,/captcha/**,/order/requestToken,/order/delegateLimit
 
 mybatis:
   mapper-locations: classpath:mapping/*.xml
-  type-handlers-package: com.entrusts.module.enums
-
-url:
-  lockCoin: HTTPASDADSASD
-
+  type-handlers-package: com.entrusts.util
 
 disruptor:
-  delegateEventBufferSize: 1
+  delegateEventBufferSize: 1024
+
+url:
+  lockCoin: www
 

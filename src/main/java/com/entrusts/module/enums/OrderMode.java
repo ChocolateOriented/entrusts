@@ -4,7 +4,7 @@ package com.entrusts.module.enums;
  * Created by sxu  
  */
 //交易模式
-public enum OrderMode {
+public enum OrderMode implements BaseCodeEnum {
 	limit(1),//限价交易
 	market(2);//市价交易
 

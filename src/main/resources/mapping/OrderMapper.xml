@@ -185,45 +185,8 @@
 		and status in (2, 3)
 	</select>
 
-	<select id="findCurrentOrderByPage" resultType="com.entrusts.module.vo.CurrentEntrusts">
-		select
-		o.order_code as orderCode,
-		o.created_time as date,
-		c1.alias as baseCurrency,
-		c2.alias as targetCurrency,
-		if(o.trade_type = 1, 'buy', 'sell') as tradeType,
-		o.convert_rate as orderPrice,
-		o.deal_quantity as dealTargetQuantity,
-		o.deal_amount as dealBaseAmount,
-		o.deal_amount * sevice_fee_rate as serviceFee,
-		status
-		from `order` o
-		left join trade_pair p on o.trade_pair_id = p.id
-		left join digital_currency c1 on c1.id = p.base_currency_id
-		left join digital_currency c2 on c2.id = p.target_currency_id
-		where user_code = #{userCode}
-		and status in (10, 20)
-		<if test="startTime != null">
-			<![CDATA[ and o.created_time >= #{startTime} ]]>
-		</if>
-		<if test="endTime != null">
-			<![CDATA[ and o.created_time <= #{endTime} ]]>
-		</if>
-		<if test="direction != null">
-			and o.trade_type = #{direction}
-		</if>
-		<if test="direction != null">
-			and o.trade_type = #{direction}
-		</if>
-		<if test="baseCurrency != null and baseCurrency != ''">
-			and c1.alias = #{baseCurrency}
-		</if>
-		<if test="targetCurrency != null and targetCurrency != ''">
-			and c2.alias = #{targetCurrency}
-		</if>
-	</select>
 
-	<select id="findLimitCurrentOrder" resultType="com.entrusts.module.vo.CurrentEntrusts">
+	<select id="findCurrentOrder" resultType="com.entrusts.module.vo.CurrentEntrusts">
 		select
 		o.order_code as orderCode,
 		o.created_time as date,
@@ -233,7 +196,6 @@
 		o.convert_rate as orderPrice,
 		o.deal_quantity as dealTargetQuantity,
 		o.deal_amount as dealBaseAmount,
-		o.deal_amount * sevice_fee_rate as serviceFee,
 		status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
@@ -241,114 +203,11 @@
 		left join digital_currency c2 on c2.id = p.target_currency_id
 		where user_code = #{userCode}
 		and status in (10, 20)
-		AND is_deleted ='0'
+		AND o.is_deleted ='0'
 		order by o.created_time desc
-		limit #{limit}
 	</select>
 
-	<select id="countCurrentOrderByTime" resultType="long">
-		select
-		count(o.order_code)
-		from `order` o
-		left join trade_pair p on o.trade_pair_id = p.id
-		left join digital_currency c1 on c1.id = p.base_currency_id
-		left join digital_currency c2 on c2.id = p.target_currency_id
-		where user_code = #{userCode}
-		and status in (10, 20)
-		<if test="toCreatedTime != null">
-			<![CDATA[ and o.created_time < #{toCreatedTime} ]]>
-		</if>
-		<if test="startTime != null">
-			<![CDATA[ and o.created_time >= #{startTime} ]]>
-		</if>
-		<if test="endTime != null">
-			<![CDATA[ and o.created_time <= #{endTime} ]]>
-		</if>
-		<if test="direction != null">
-			and o.trade_type = #{direction}
-		</if>
-		<if test="direction != null">
-			and o.trade_type = #{direction}
-		</if>
-		<if test="baseCurrency != null and baseCurrency != ''">
-			and c1.alias = #{baseCurrency}
-		</if>
-		<if test="targetCurrency != null and targetCurrency != ''">
-			and c2.alias = #{targetCurrency}
-		</if>
-	</select>
 
-	<select id="findCurrentOrderByTime" resultType="com.entrusts.module.vo.CurrentEntrusts">
-		select
-		o.order_code as orderCode,
-		o.created_time as date,
-		c1.alias as baseCurrency,
-		c2.alias as targetCurrency,
-		if(o.trade_type = 1, 'buy', 'sell') as tradeType,
-		o.convert_rate as orderPrice,
-		o.deal_quantity as dealTargetQuantity,
-		o.deal_amount as dealBaseAmount,
-		o.deal_amount * sevice_fee_rate as serviceFee,
-		status
-		from `order` o
-		left join trade_pair p on o.trade_pair_id = p.id
-		left join digital_currency c1 on c1.id = p.base_currency_id
-		left join digital_currency c2 on c2.id = p.target_currency_id
-		where user_code = #{userCode}
-		and status in (10, 20)
-		<if test="toCreatedTime != null">
-			<![CDATA[ and o.created_time < #{toCreatedTime} ]]>
-		</if>
-		<if test="startTime != null">
-			<![CDATA[ and o.created_time >= #{startTime} ]]>
-		</if>
-		<if test="endTime != null">
-			<![CDATA[ and o.created_time <= #{endTime} ]]>
-		</if>
-		<if test="direction != null">
-			and o.trade_type = #{direction}
-		</if>
-		<if test="direction != null">
-			and o.trade_type = #{direction}
-		</if>
-		<if test="baseCurrency != null and baseCurrency != ''">
-			and c1.alias = #{baseCurrency}
-		</if>
-		<if test="targetCurrency != null and targetCurrency != ''">
-			and c2.alias = #{targetCurrency}
-		</if>
-		order by o.created_time desc
-		limit #{limit}
-	</select>
-
-	<select id="getCurrentOrder" resultType="com.entrusts.module.vo.CurrentEntrusts">
-		select
-		o.order_code as orderCode,
-		o.created_time as date,
-		c1.alias as baseCurrency,
-		c2.alias as targetCurrency,
-		if(o.trade_type = 1, 'buy', 'sell') as tradeType,
-		o.convert_rate as orderPrice,
-		o.deal_quantity as dealTargetQuantity,
-		o.deal_amount as dealBaseAmount,
-		status
-		from `order` o
-		left join trade_pair p on o.trade_pair_id = p.id
-		left join digital_currency c1 on c1.id = p.base_currency_id
-		left join digital_currency c2 on c2.id = p.target_currency_id
-		where order_code = #{orderCode}
-		AND is_deleted ='0'
-		and status in (10, 20)
-	</select>
-
-	<select id="totalCurrentOrder">
-		select
-		count(o.order_code)
-		from `order` o
-		where user_code = #{userCode}
-		AND is_deleted ='0'
-		and status in (10, 20)
-	</select>
 
     <sql id="orderColumns">
     </sql>

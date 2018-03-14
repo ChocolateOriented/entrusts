@@ -256,8 +256,13 @@ public class OrderManageService extends BaseService {
 		}
 		List<CurrentEntrusts> orders = findCurrentOrderFromRedis(orderQuery);
 		Page<CurrentEntrusts> page = new Page<>();
-		page.setEntities(orders.subList((pageNum - 1) * PageSize, pageNum * PageSize > orders.size() ? orders.size() :pageNum * PageSize));
-		page.setTotal((long) orders.size());
+		if (orders != null){
+			page.setEntities(orders.subList((pageNum - 1) * PageSize, pageNum * PageSize > orders.size() ? orders.size() :pageNum * PageSize));
+			page.setTotal((long) orders.size());
+		}else {
+			page.setEntities(null);
+			page.setTotal(0L);
+		}
 		page.setPageNum(pageNum);
 		page.setPageSize(PageSize);
 		return page;
@@ -274,81 +279,27 @@ public class OrderManageService extends BaseService {
 		}
 		List<CurrentEntrusts> orders = findCurrentOrderFromRedis(orderQuery);
 		TimePage<CurrentEntrusts> page = new TimePage<>();
-		page.setEntities(orders.subList(0, limit));
-		page.setTotal((long) orders.size());
+		if (orders != null){
+			page.setEntities(orders.subList(0, limit > orders.size() ? orders.size() : limit));
+			page.setTotal((long) orders.size());
+		}else {
+			page.setEntities(null);
+			page.setTotal(0L);
+		}
 		page.setLimit(limit);
 		return page;
 
 
 	}
 
-	//更新用户当前脱单的缓存数据
-	public void updateUserCurrentCache(Order order) {
-		String userCode = order.getUserCode();
-		String userTotalKey = totalCurrentOrderUserKey + userCode;
-		String userKey = currentOrderUserKey + userCode;
-		String totalValue = RedisUtil.get(userTotalKey);
-
-		if (totalValue == null) {
-			return;
-		}
-
-		CurrentEntrusts orderView = orderMapper.getCurrentOrder(order);
-		Jedis jedis = null;
-		try {
-			jedis = RedisUtil.getResource();
-			if (jedis.hsetnx(userKey, orderView.getOrderCode(), JSON.toJSONString(orderView)) == 1) {
-				jedis.incr(userTotalKey);
-			}
-		} catch (Exception e) {
-			if (jedis != null) {
-				jedis.close();
-			}
-		}
-	}
-
-
-	private Page<CurrentEntrusts> findCurrentOrderByPageFromDB(OrderQuery orderQuery, int pageNum, int PageSize) {
-		Page<CurrentEntrusts> page = new Page<>();
-		PageHelper.startPage(pageNum, PageSize);
-		List<CurrentEntrusts> orders = orderMapper.findCurrentOrderByPage(orderQuery);
-		PageInfo<CurrentEntrusts> pageInfo = new PageInfo<>(orders);
-		page.setEntities(orders);
-		page.setTotal(pageInfo.getTotal());
-		page.setPageNum(pageInfo.getPageNum());
-		page.setPageSize(pageInfo.getPageSize());
-		return page;
-	}
-
-
-	private TimePage<CurrentEntrusts> findCurrentOrderByTimeFromDB(OrderQuery orderQuery, int limit) {
-		TimePage<CurrentEntrusts> page = new TimePage<>();
-		long total = orderMapper.countCurrentOrderByTime(orderQuery);
-		List<CurrentEntrusts> orders = null;
-		if (total > 0) {
-			orders = orderMapper.findCurrentOrderByTime(orderQuery, limit);
-		} else {
-			orders = new ArrayList<>();
-		}
-		page.setEntities(orders);
-		page.setTotal(total);
-		page.setLimit(limit);
-		return page;
-	}
 
 	//获取用户制定数量当前脱单的缓存数据
 	private Page<CurrentEntrusts> findAndCacheLimitCurrentOrder(String userCode, int pageNum, int PageSize) {
-		List<CurrentEntrusts> limitOrders = orderMapper.findLimitCurrentOrder(userCode, perUserOrderCacheLimit);
-		int size = limitOrders.size();
-		int total = size;
-		if (size >= perUserOrderCacheLimit) {
-			total = orderMapper.totalHistoryOrder(userCode);
-		}
-
+		List<CurrentEntrusts> limitOrders = orderMapper.findCurrentOrder(userCode);
+		int total = limitOrders.size();
 		cacheLimitCurrentOrder(userCode, total, limitOrders);
-
 		Page<CurrentEntrusts> page = new Page<>();
-		page.setEntities(limitOrders.subList((pageNum - 1) * PageSize, pageNum * PageSize));
+		page.setEntities(limitOrders.subList((pageNum - 1) * PageSize, pageNum * PageSize > limitOrders.size() ? limitOrders.size() :pageNum * PageSize));
 		page.setTotal((long) total);
 		page.setPageNum(pageNum);
 		return page;
@@ -356,12 +307,8 @@ public class OrderManageService extends BaseService {
 
 
 	private TimePage<CurrentEntrusts> findAndCacheLimitCurrentOrder(String userCode, int limit) {
-		List<CurrentEntrusts> limitOrders = orderMapper.findLimitCurrentOrder(userCode, perUserOrderCacheLimit);
-		int size = limitOrders.size();
-		int total = size;
-		if (size >= perUserOrderCacheLimit) {
-			total = orderMapper.totalHistoryOrder(userCode);
-		}
+		List<CurrentEntrusts> limitOrders = orderMapper.findCurrentOrder(userCode);
+		int total = limitOrders.size();
 		//更新用户当前脱单的缓存数据
 		cacheLimitCurrentOrder(userCode, total, limitOrders);
 
@@ -471,7 +418,8 @@ public class OrderManageService extends BaseService {
 		}
 		if (order.getDealQuantity().equals(order.getQuantity())){
 			currentOrders.remove(order.getOrderCode());
-			return true;
+			String result = RedisUtil.setMap(currentOrderUserKey + order.getUserCode(), currentOrders, cacheSeconds);
+			return result == null ? false : true;
 		}
 
 		currentOrders.put(order.getOrderCode(), JSON.toJSONString(copyPropertiesOrder(order, new CurrentEntrusts())));
