@@ -3,15 +3,13 @@ package com.entrusts.module.dto;
 import java.io.Serializable;
 import java.util.List;
 
-public class Page<T> implements Serializable {
+public class TimePage<T> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	private List<T> entities;
 
-	private Integer pageNum;
-
-	private Integer pageSize;
+	private Integer limit;
 
 	private Long total;
 
@@ -23,28 +21,20 @@ public class Page<T> implements Serializable {
 		this.entities = entities;
 	}
 
-	public Integer getPageNum() {
-		return pageNum;
-	}
-
-	public void setPageNum(Integer pageNum) {
-		this.pageNum = pageNum;
-	}
-
-	public Integer getPageSize() {
-		return pageSize;
-	}
-
-	public void setPageSize(Integer pageSize) {
-		this.pageSize = pageSize;
-	}
-
 	public Long getTotal() {
 		return total;
 	}
 
 	public void setTotal(Long total) {
 		this.total = total;
+	}
+
+	public Integer getLimit() {
+		return limit;
+	}
+
+	public void setLimit(Integer limit) {
+		this.limit = limit;
 	}
 
 }

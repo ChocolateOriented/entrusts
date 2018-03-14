@@ -9,7 +9,7 @@ import com.entrusts.util.SnowFlake;
 public class BaseService {
 
 	@Autowired
-	public SnowFlake snowFlake;
+	private SnowFlake snowFlake;
 
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 
