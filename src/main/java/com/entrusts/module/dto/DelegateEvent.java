@@ -1,11 +1,10 @@
 package com.entrusts.module.dto;
 
-import java.util.Date;
-
 import com.entrusts.module.enums.DelegateEventstatus;
 import com.entrusts.module.enums.OrderMode;
-import com.entrusts.module.enums.OrderStatus;
 import com.entrusts.module.enums.TradeType;
+import java.math.BigDecimal;
+import java.util.Date;
 
 
 /**
@@ -13,29 +12,26 @@ import com.entrusts.module.enums.TradeType;
  */
 public class DelegateEvent {
 
-	private Long orderCode;
+	private String orderCode;
 	private String userCode;
 	private Date clientTime;
 	private Date orderTime;
-	private Long tradePairId;
-	private Double convertRate;
-	private TradeType tradeType;// 买卖方向
-	private Double quantity;
-	private Double amount;
-	private OrderMode mode;// 交易模式
-	private OrderStatus status;// 状态
-	private Integer targetCurrencyId; //数字货币
-	private Integer baseCurrencyId;  //流通货币
-	
-	private DelegateEventstatus delegateEventstatus; // 队列执行状态
-	
-	
+	private Integer baseCurrencyId;
+	private Integer targetCurrencyId;
+	private Integer tradePairId;
+	private BigDecimal convertRate;
+	private TradeType tradeType;//买卖方向
+	private BigDecimal quantity;
+	private BigDecimal amount;
+	private OrderMode mode;//交易模式
 
-	public Long getOrderCode() {
+	private DelegateEventstatus delegateEventstatus; // 队列执行状态
+
+	public String getOrderCode() {
 		return orderCode;
 	}
 
-	public void setOrderCode(Long orderCode) {
+	public void setOrderCode(String orderCode) {
 		this.orderCode = orderCode;
 	}
 
@@ -63,45 +59,13 @@ public class DelegateEvent {
 		this.orderTime = orderTime;
 	}
 
-	public Long getTradePairId() {
-		return tradePairId;
+	public Integer getBaseCurrencyId() {
+		return baseCurrencyId;
 	}
 
-	public void setTradePairId(Long tradePairId) {
-		this.tradePairId = tradePairId;
+	public void setBaseCurrencyId(Integer baseCurrencyId) {
+		this.baseCurrencyId = baseCurrencyId;
 	}
-
-	public Double getConvertRate() {
-		return convertRate;
-	}
-
-	public void setConvertRate(Double convertRate) {
-		this.convertRate = convertRate;
-	}
-
-	public Double getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(Double quantity) {
-		this.quantity = quantity;
-	}
-
-	public Double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(Double amount) {
-		this.amount = amount;
-	}
-
-//	public String getDelegateEventstatus() {
-//		return delegateEventstatus;
-//	}
-//
-//	public void setDelegateEventstatus(String delegateEventstatus) {
-//		this.delegateEventstatus = delegateEventstatus;
-//	}
 
 	public Integer getTargetCurrencyId() {
 		return targetCurrencyId;
@@ -111,12 +75,20 @@ public class DelegateEvent {
 		this.targetCurrencyId = targetCurrencyId;
 	}
 
-	public Integer getBaseCurrencyId() {
-		return baseCurrencyId;
+	public Integer getTradePairId() {
+		return tradePairId;
 	}
 
-	public void setBaseCurrencyId(Integer baseCurrencyId) {
-		this.baseCurrencyId = baseCurrencyId;
+	public void setTradePairId(Integer tradePairId) {
+		this.tradePairId = tradePairId;
+	}
+
+	public BigDecimal getConvertRate() {
+		return convertRate;
+	}
+
+	public void setConvertRate(BigDecimal convertRate) {
+		this.convertRate = convertRate;
 	}
 
 	public TradeType getTradeType() {
@@ -127,20 +99,28 @@ public class DelegateEvent {
 		this.tradeType = tradeType;
 	}
 
+	public BigDecimal getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(BigDecimal quantity) {
+		this.quantity = quantity;
+	}
+
+	public BigDecimal getAmount() {
+		return amount;
+	}
+
+	public void setAmount(BigDecimal amount) {
+		this.amount = amount;
+	}
+
 	public OrderMode getMode() {
 		return mode;
 	}
 
 	public void setMode(OrderMode mode) {
 		this.mode = mode;
-	}
-
-	public OrderStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(OrderStatus status) {
-		this.status = status;
 	}
 
 	public DelegateEventstatus getDelegateEventstatus() {
@@ -150,8 +130,4 @@ public class DelegateEvent {
 	public void setDelegateEventstatus(DelegateEventstatus delegateEventstatus) {
 		this.delegateEventstatus = delegateEventstatus;
 	}
-
-	
-	
-
 }

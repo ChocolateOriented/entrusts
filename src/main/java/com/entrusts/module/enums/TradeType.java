@@ -4,7 +4,7 @@ package com.entrusts.module.enums;
  * Created by sxu
  */
 public enum TradeType {
-	BUY(1), SELL(2);
+	buy(1), sell(2);
 
 	TradeType(int value) {
 		this.value = value;
