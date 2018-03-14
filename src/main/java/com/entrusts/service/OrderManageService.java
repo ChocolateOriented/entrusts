@@ -4,18 +4,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
 import com.entrusts.mapper.OrderMapper;
 import com.entrusts.module.dto.Page;
 import com.entrusts.module.dto.TimePage;
 import com.entrusts.module.entity.Order;
+import com.entrusts.module.entity.Trade;
 import com.entrusts.module.vo.HistoryOrderView;
 import com.entrusts.util.RedisUtil;
 import com.entrusts.module.vo.OrderQuery;
@@ -24,6 +27,7 @@ import com.github.pagehelper.PageInfo;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
+import redis.clients.jedis.Tuple;
 
 @Service
 public class OrderManageService extends BaseService {
@@ -33,12 +37,21 @@ public class OrderManageService extends BaseService {
 
 	private static final String historyOrderPrefix = "com.entrusts.service.OrderManageService";
 
-	private static final String historyOrderUserKey = historyOrderPrefix + ".userData.";
+	private static final String historyOrderUserKey = historyOrderPrefix + ".userData-";
 	
-	private static final String totalHistoryOrderUserKey = historyOrderPrefix + ".userTotalData.";
+	private static final String totalHistoryOrderUserKey = historyOrderPrefix + ".userTotalData-";
+
+	private static final String historyCacheUserHitCountKey = historyOrderPrefix + ".userCacheHitCount";
 	
 	private static final int perUserOrderCacheLimit = 50;
 
+	private static final int userCacheLimit = 20000;
+
+	public Order get(Long orderCode) {
+		return orderMapper.get(orderCode);
+	}
+
+	@Transactional(readOnly = true)
 	public Page<HistoryOrderView> findHistoryOrderByPage(OrderQuery orderQuery, int pageNum, int PageSize) {
 		String userCode = orderQuery.getUserCode();
 		String userTotalKey = totalHistoryOrderUserKey + userCode;
@@ -69,7 +82,8 @@ public class OrderManageService extends BaseService {
 		}
 		
 	}
-	
+
+	@Transactional(readOnly = true)
 	public TimePage<HistoryOrderView> findHistoryOrderByTime(OrderQuery orderQuery, int limit) {
 		String userCode = orderQuery.getUserCode();
 		String userTotalKey = totalHistoryOrderUserKey + userCode;
@@ -99,7 +113,7 @@ public class OrderManageService extends BaseService {
 		}
 		
 	}
-	
+
 	private Page<HistoryOrderView> findHistoryOrderByPageFromDB(OrderQuery orderQuery, int pageNum, int PageSize) {
 		Page<HistoryOrderView> page = new Page<>();
 		PageHelper.startPage(pageNum, PageSize);
@@ -130,6 +144,17 @@ public class OrderManageService extends BaseService {
 	private List<HistoryOrderView> findHistoryOrderFromRedis(OrderQuery orderQuery) {
 		String userCode = orderQuery.getUserCode();
 		String userKey = historyOrderUserKey + userCode;
+		String hitCountKey = historyCacheUserHitCountKey;
+		Jedis jedis = null;
+		try {
+			jedis = RedisUtil.getResource();
+			jedis.zincrby(hitCountKey, 1, userCode);
+		} catch (Exception e) {
+			if (jedis != null) {
+				jedis.close();
+			}
+		}
+		
 		Map<String, String> cache = RedisUtil.getMap(userKey);
 		List<HistoryOrderView> historyOrders = new ArrayList<>();
 		
@@ -190,6 +215,8 @@ public class OrderManageService extends BaseService {
 	private void cacheLimitHistoryOrder(String userCode, int total, List<HistoryOrderView> limitOrders) {
 		String userKey = historyOrderUserKey + userCode;
 		String userTotalKey = totalHistoryOrderUserKey + userCode;
+		String hitCountKey = historyCacheUserHitCountKey + userCode;
+		
 		Map<String, String> cacheMap = new HashMap<>();;
 		for (HistoryOrderView orderView : limitOrders) {
 			cacheMap.put(orderView.getOrderCode(), orderView.toString());
@@ -201,6 +228,7 @@ public class OrderManageService extends BaseService {
 			Transaction trans = jedis.multi();
 			jedis.hmset(userKey, cacheMap);
 			jedis.set(userTotalKey, String.valueOf(total));
+			jedis.zincrby(hitCountKey, 1, userCode);
 			trans.exec();
 		} catch (Exception e) {
 			if (jedis != null) {
@@ -233,8 +261,53 @@ public class OrderManageService extends BaseService {
 		}
 	}
 	
+	public void updateOrderNewDeal(Trade trade) {
+		orderMapper.updateOrderNewDeal(trade);
+	}
+	
+	public boolean completeOrder(Order order) {
+		return orderMapper.completeOrder(order) != 0;
+	}
+	
+	/**
+	 * 清除历史订单缓存
+	 * LFU缓存淘汰策略
+	 */
 	@Scheduled(cron = "0 0 0 * * ?")
 	public void clearUserHistoryOrderCache() {
+		Jedis jedis = null;
+		jedis = RedisUtil.getResource();
+		Set<String> users = jedis.zrange(historyCacheUserHitCountKey, userCacheLimit + 1, -1);
+		for (String userCode : users) {
+			deleteUserHistoryOrderCache(userCode, jedis);
+		}
 		
+		Set<Tuple> tuples = jedis.zrangeWithScores(historyCacheUserHitCountKey, 0, -1);
+		
+		//缩减过去的访问计数
+		for (Tuple tuple : tuples) {
+			String userCode = tuple.getElement();
+			long score = (long) tuple.getScore();
+			score = score / 2;
+			jedis.zadd(historyCacheUserHitCountKey, score, userCode);
+		}
+	}
+	
+	private void deleteUserHistoryOrderCache(String userCode, Jedis jedis) {
+		String userKey = historyOrderUserKey + userCode;
+		String userTotalKey = totalHistoryOrderUserKey + userCode;
+		String hitCountKey = historyCacheUserHitCountKey + userCode;
+		List<String> keys = new ArrayList<>();
+		keys.add(userKey);
+		keys.add(userTotalKey);
+		keys.add(hitCountKey);
+		
+		List<String> args = new ArrayList<>();
+		args.add(userCode);
+		
+		String script = "redis.call('del', KEYS[1]);"
+				+ "redis.call('del', KEYS[2]);"
+				+ "redis.call('zrem', KEYS[3], ARGV[1]);";
+		jedis.eval(script, keys, args);
 	}
 }

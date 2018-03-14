@@ -11,7 +11,7 @@
 		<result column="deal_time" jdbcType="TIMESTAMP" property="dealTime" />
 	</resultMap>
 	<insert id="insert" parameterType="com.entrusts.module.entity.Trade">
-		insert into trade (trade_code, order_code, deal_price, 
+		insert ignore into trade (trade_code, order_code, deal_price, 
 			deal_quantity, deal_amount, service_fee, 
 			deal_time)
 		values (#{tradeCode,jdbcType=BIGINT}, #{orderCode,jdbcType=BIGINT}, #{dealPrice,jdbcType=DECIMAL}, 

@@ -7,9 +7,9 @@ logging:
 spring:
   datasource:
     name: datasource
-    url: jdbc:mysql://192.168.3.227:3306/entrusts?useUnicode=true&characterEncoding=utf-8
-    username: entrusts
-    password: 4WHvcqdNhraZ0dvU
+    url: jdbc:mysql://192.168.3.54:3306/entrusts?useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: rootroot
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.jdbc.Driver
     maxActive: 50
@@ -88,10 +88,8 @@ nest:
   group: DandelionGroup
   mode: ALONE
   exclude:
-    urls: /auth/**,/error,/captcha/**,/newUserGift/listNewMemberGiftRecord,/newUserGift/detailBonusPoolInfo
+    urls: /**
 
 mybatis:
   mapper-locations: classpath:mapping/*.xml
-
-url:
 
