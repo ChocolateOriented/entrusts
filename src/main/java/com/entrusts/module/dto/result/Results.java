@@ -1,6 +1,11 @@
 package com.entrusts.module.dto.result;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by sxu on 2018/2/28.
@@ -8,55 +13,48 @@ import com.alibaba.fastjson.JSONObject;
 public class Results {
 
     public static final int BASE = 10100000;
+
     private Long code;
+
     private String message;
-    private Object data = new JSONObject();
-    //private Long timestamp;
+
+    @JsonInclude(Include.NON_NULL)
+    private JSONObject data;
 
     public Results() {
     }
 
-    private Results(Long code, String message, Object data) {
-
+    public Results(Long code, String message) {
         this.code = code;
         this.message = message;
-        if(data != null) {
-            this.data = data;
+    }
+
+    public Results(ResultConstant constant) {
+        this.code = constant.code;
+        this.message = constant.message;
+    }
+
+    /**
+     * @Description 成功默认响应
+     * @param
+     * @return com.entrusts.module.dto.result.Results
+     */
+    public static Results ok () {
+        return new Results(ResultConstant.SUCCESS );
+    }
+
+    /**
+     * @Description 添加响应结果
+     * @param key
+     * @param value
+     * @return com.entrusts.module.dto.result.Results
+     */
+    public Results putData(String key,Object value){
+        if (data ==null){
+            data = new JSONObject();
         }
-
-        //this.timestamp = Long.valueOf(Instant.now().toEpochMilli());
-    }
-
-    public static Results ok(ResultConstant c) {
-        return new Results(Long.valueOf(c.code), c.message, (Object)null);
-    }
-
-    public static Results ok(ResultConstant c, ResultDate data) {
-        return new Results(Long.valueOf(c.code), c.message, data.value());
-    }
-
-    public static Results ok(ResultConstant c, String message) {
-        return new Results(Long.valueOf(c.code), message, (Object)null);
-    }
-
-    public static Results ok(ResultConstant c, String message, ResultDate data) {
-        return new Results(Long.valueOf(c.code), message, data.value());
-    }
-
-    public static Results nok(ResultConstant c) {
-        return new Results(Long.valueOf(c.code), c.message, (Object)null);
-    }
-
-    public static Results nok(ResultConstant c, ResultDate data) {
-        return new Results(Long.valueOf(c.code), c.message, data.value());
-    }
-
-    public static Results nok(ResultConstant c, String message) {
-        return new Results(Long.valueOf(c.code), message, (Object)null);
-    }
-
-    public static Results nok(ResultConstant c, String message, ResultDate data) {
-        return new Results(Long.valueOf(c.code), message, data.value());
+        data.put(key,value);
+        return this;
     }
 
     public Long getCode() {
@@ -75,12 +73,24 @@ public class Results {
         this.message = message;
     }
 
-    public Object getData() {
-        return this.data;
+    public JSONObject getData() {
+        return data;
     }
 
-    public void setData(Object data) {
+    public void setData(JSONObject data) {
         this.data = data;
+    }
+
+    //示例
+    public static void main(String[] args) {
+        Results results1 = Results.ok();
+        System.out.println(JSON.toJSONString(results1));
+
+        List<String> ll = new ArrayList<>();
+        ll.add("1");
+        ll.add("2");
+        Results results12 = Results.ok().putData("list", ll).putData("pageSize",5);
+        System.out.println(JSON.toJSONString(results12));
     }
 
 }

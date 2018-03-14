@@ -1,27 +1,78 @@
 package com.entrusts.module.dto;
 
+import com.entrusts.module.enums.TradeType;
+import java.math.BigDecimal;
 import java.util.Date;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * Created by jxli on 2018/3/5.
  */
 public class Delegate {
 
-	@NotNull(message = "下单时间不能为空")
-	private Date clientTime;
-	@NotNull(message = "交易对不能为空")
-	private Long tradePairId;
-	@NotNull(message = "价格不能为空")
-	private Double convertRate;
 	@NotNull(message = "买卖方向不能为空")
-	private Long direction;
-	@NotNull(message = "交易数量不能为空")
-	private Double quantity;
-	@NotNull(message = "交易金额不能为空")
-	private Double amount;
-	@NotNull(message = "交易模式不能为空")
-	private Long mode;
+	private TradeType tradeType;
+	@NotBlank(message = "基准货币不能为空")
+	private String baseCurrency;
+	@NotBlank(message = "目标货币不能为空")
+	private String targetCurrency;
+	@Min(value = 0,message = "价格必须大于0")
+	private BigDecimal price;
+	@Min(value = 0,message = "交易数量必须大于0")
+	private BigDecimal quantity;
+
+	private String userCode;
+	private Date clientTime;
+
+	public TradeType getTradeType() {
+		return tradeType;
+	}
+
+	public void setTradeType(TradeType tradeType) {
+		this.tradeType = tradeType;
+	}
+
+	public String getBaseCurrency() {
+		return baseCurrency;
+	}
+
+	public void setBaseCurrency(String baseCurrency) {
+		this.baseCurrency = baseCurrency;
+	}
+
+	public String getTargetCurrency() {
+		return targetCurrency;
+	}
+
+	public void setTargetCurrency(String targetCurrency) {
+		this.targetCurrency = targetCurrency;
+	}
+
+	public BigDecimal getPrice() {
+		return price;
+	}
+
+	public void setPrice(BigDecimal price) {
+		this.price = price;
+	}
+
+	public BigDecimal getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(BigDecimal quantity) {
+		this.quantity = quantity;
+	}
+
+	public String getUserCode() {
+		return userCode;
+	}
+
+	public void setUserCode(String userCode) {
+		this.userCode = userCode;
+	}
 
 	public Date getClientTime() {
 		return clientTime;
@@ -29,53 +80,5 @@ public class Delegate {
 
 	public void setClientTime(Date clientTime) {
 		this.clientTime = clientTime;
-	}
-
-	public Long getTradePairId() {
-		return tradePairId;
-	}
-
-	public void setTradePairId(Long tradePairId) {
-		this.tradePairId = tradePairId;
-	}
-
-	public Double getConvertRate() {
-		return convertRate;
-	}
-
-	public void setConvertRate(Double convertRate) {
-		this.convertRate = convertRate;
-	}
-
-	public Long getDirection() {
-		return direction;
-	}
-
-	public void setDirection(Long direction) {
-		this.direction = direction;
-	}
-
-	public Double getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(Double quantity) {
-		this.quantity = quantity;
-	}
-
-	public Double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(Double amount) {
-		this.amount = amount;
-	}
-
-	public Long getMode() {
-		return mode;
-	}
-
-	public void setMode(Long mode) {
-		this.mode = mode;
 	}
 }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache updateCheck="false" name="defaultCache">
+
+	<!-- 默认缓存配置. jvm中允许缓存200个对象, 有效时间10分钟-->
+	<defaultCache maxEntriesLocalHeap="200" eternal="false" timeToLiveSeconds="600" overflowToDisk="false"/>
+	<!--交易对缓存-->
+	<cache name="TradePair" maxEntriesLocalHeap="200" eternal="false" timeToLiveSeconds="600" overflowToDisk="false"/>
+
+</ehcache>

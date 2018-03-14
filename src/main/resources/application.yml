@@ -47,20 +47,12 @@ redis:
   minIdle: 0
 
 mq:
-  consumerId: CID_MO9_CLONE_entrusts
-  riskConsumerId: CID_MO9_CLONE_entrusts_RISK
-  productId: PID_MO9_CLONE_MIS
+  productId: PID_MO9_CLONE_ENTRUSTS
   accessKey: LTAIyDR4k37NBuJu
   secretKey: XRDykcat39ONcoCi1OZ7cpfohm1Yyk
+  delegatePushTopic: TOPIC_MO9_CLONE_ENTRUSTS_DELEGATE_PUSH
+  delegatePushTag: TAG_MO9_CLONE_ENTRUSTS_DELEGATE_PUSH
   onsAddr: http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet
-  sendMsgTimeoutMillis: 3000
-  messageModelString: CLUSTERING
-  consumeThreadNums: 10
-  dandelionTopic: TOPIC_MO9_DEV_DANDELION_UNORDER
-  riskTopic: Topic_Mo9_91koin_Call_Risk_Test
-  dandelionUserTag: TAG_MO9_DEV_DANDELION_USER_REGISTER_INFO
-  dandelionOrderTag: TAG_MO9_DEV_DANDELION_ORDER_EVENT
-  dandelionRiskTag: riskidcard
 
 datacenterId: 1
 machineId: 1
@@ -88,8 +80,14 @@ nest:
   group: DandelionGroup
   mode: ALONE
   exclude:
-    urls: /**
+    urls: /auth/**,/error,/captcha/**,/order/requestToken,/order/delegateLimit
 
 mybatis:
   mapper-locations: classpath:mapping/*.xml
+  type-handlers-package: com.entrusts.util
 
+disruptor:
+  delegateEventBufferSize: 1024
+
+url:
+  lockCoin: www

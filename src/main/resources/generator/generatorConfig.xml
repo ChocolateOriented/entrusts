@@ -29,7 +29,8 @@
             <property name="constructorBased" value="false"/>
             <property name="enableSubPackages" value="true"/>
         </javaModelGenerator>
-        
+
+        <!-- ANNOTATEDMAPPER/XMLMAPPER 生成mapper注解或xml -->
         <sqlMapGenerator targetPackage="mapping" targetProject="src/main/resources">
             <!-- 在targetPackage的基础上，根据数据库的schema再生成一层package，最终生成的类放在这个package下，默认为false -->
             <property name="enableSubPackages" value="true"/>
@@ -45,7 +46,7 @@
              -->
         </javaClientGenerator>
         
-        <table schema="entrusts" tableName="trade" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
+        <table schema="entrusts" tableName="trade_pair" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
             enableSelectByExample="false" selectByExampleQueryId="false">
             
             

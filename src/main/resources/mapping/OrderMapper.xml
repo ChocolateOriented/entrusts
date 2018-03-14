@@ -1,6 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.entrusts.mapper.OrderMapper">
+  <sql id="orderColumns">
+  </sql>
+
+	<insert id="insertOrder" parameterType="com.entrusts.module.entity.Order">
+  INSERT INTO `order` (
+    `order_code`,
+    `user_code`,
+    `client_time`,
+    `order_time`,
+    `trade_pair_id`,
+    `convert_rate`,
+    `trade_type`,
+    `quantity`,
+    `mode`,
+    `status`,
+    `created_time`,
+    `updated_time`,
+    `is_deleted`
+    )
+		values (
+			#{orderCode,jdbcType=CHAR},
+			#{userCode,jdbcType=VARCHAR},
+			#{clientTime,jdbcType=TIMESTAMP},
+			#{orderTime,jdbcType=TIMESTAMP},
+			#{tradePairId,jdbcType=INTEGER},
+			#{convertRate,jdbcType=DECIMAL},
+			#{tradeType,jdbcType=TINYINT},
+			#{quantity,jdbcType=DECIMAL},
+			#{mode,jdbcType=TINYINT},
+			#{status,jdbcType=TINYINT},
+      now(),
+      now(),
+      0
+		)
+	</insert>
+
+  <update id="updateOrderStatus">
+	    UPDATE order
+		    SET
+		    update_date = now(),
+		    status = #{status}
+	    WHERE 
+	    	order_code = #{orderCode}
+  </update>
+
 	<select id="get">
 		select
 			o.order_code as orderCode,

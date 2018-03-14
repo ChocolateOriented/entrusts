@@ -9,6 +9,7 @@ public enum ResultConstant {
     EMPTY_PARAM(4L, "缺少参数或参数错误"),
     EMPTY_ENTITY(5L, "请求的数据不存在"),
     SYSTEM_BUSY(6L, "系统繁忙, 请重试!"),
+    REPEAT_REQUEST(7L,"重复请求, 已处理"),
     ACCOUNT_NOT_FOUND(1000L, "指定账户不存在"),
     ACCOUNT_MOBILE_NOT_SET(1001L, "此账号尚未绑定手机号"),
     ACCOUNT_OLD_PASSWORD_ERROR(1100L, "旧密码错误"),

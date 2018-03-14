@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.entrusts.mapper.TradeMapper;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.entity.Trade;
-import com.entrusts.module.entity.Order.OrderStatus;
+import com.entrusts.module.enums.OrderStatus;
 
 @Service
 public class TradeService extends BaseService {
