@@ -8,7 +8,15 @@
     <result column="min_trade_quantity" jdbcType="DECIMAL" property="minTradeQuantity" />
     <result column="is_deleted" jdbcType="TINYINT" property="isDeleted" />
   </resultMap>
-
+    <resultMap id="mapTarget" type="com.entrusts.module.dto.TargetMapCurrency">
+        <result column="baseAlias" property="baseAlias"/>
+        <collection property="targetCurrencies" ofType="com.entrusts.module.dto.TargetCurrency">
+            <result property="targetCurrencyId" column="targetCurrencyId"/>
+            <result property="name" column="name"/>
+            <result property="alias" column="alias"/>
+            <result property="todayStartPrice" column="todayStartPrice"/>
+        </collection>
+    </resultMap>
   <select id="findTradePairByCoinName" resultMap="BaseResultMap">
     select a.id, a.base_currency_id, a.target_currency_id, a.min_trade_quantity, a.is_deleted
     from trade_pair a
@@ -17,5 +25,51 @@
     where bc.alias = #{baseCurrencyAlias}
      AND tc.alias = #{targetCurrencyAlias}
   </select>
-
+    <select id="getBaseCurrency" resultType="com.entrusts.module.dto.BaseCurrency">
+        SELECT
+        p.base_currency_id AS 'baseCurrencyId',
+        c.alias as 'alias',
+        c.`name` as 'name',
+        c.unit as 'unit'
+        FROM
+        trade_pair AS p,
+        digital_currency AS c
+        WHERE
+        p.base_currency_id = c.id
+        AND p.is_deleted = '0'
+        AND c.is_deleted = '0'
+        GROUP BY
+        p.base_currency_id
+    </select>
+    <select id="updateTargetCurrency" parameterType="String" resultMap="mapTarget">
+        SELECT
+        t.baseAlias AS 'baseAlias',
+        t.targetCurrencyId AS 'targetCurrencyId',
+        t.`name`AS 'name',
+        t.alias AS 'alias',
+        t.todayStartPrice AS 'todayStartPrice'
+        FROM
+        (
+        SELECT
+        c.id AS 'baseCurrencyId',
+        c.alias AS 'baseAlias',
+        p.order_by_num AS 'order_by_num',
+        d.trade_pair_id AS 'trade_pair_id',
+        x.id AS 'targetCurrencyId',
+        x.`name` AS 'name',
+        x.alias AS 'alias',
+        d.deal_price AS 'todayStartPrice'
+        FROM
+        `deal_data` AS d
+        INNER JOIN trade_pair AS p ON d.trade_pair_id = p.id
+        INNER JOIN digital_currency AS c ON p.base_currency_id = c.id
+        INNER JOIN digital_currency AS x ON p.target_currency_id = x.id
+        ORDER BY
+        d.`timestamp` DESC
+        ) t
+        GROUP BY
+        t.trade_pair_id
+        ORDER BY
+        t.order_by_num
+    </select>
 </mapper>

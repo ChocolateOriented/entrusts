@@ -66,7 +66,47 @@ public class RedisUtil {
 		return jedis;
 	}
 
-
+	/**
+	 * 获取Map缓存
+	 * @param key 键
+	 * @return 值
+	 */
+	public static String getMap(String key,String key2) {
+		String value = null;
+		Jedis jedis = null;
+		try {
+			jedis = getResource();
+			if (jedis.exists(key)) {
+				value = jedis.hget(key,key2);
+				logger.debug("getMap {} = {}", key, value);
+			}
+		} catch (Exception e) {
+			logger.warn("getMap {} = {}", key, value, e);
+		} finally {
+			returnResource(jedis);
+		}
+		return value;
+	}
+	/**
+	 * 向Map缓存中添加值
+	 * @param key 键
+	 * @param value 值
+	 * @return
+	 */
+	public static String mapPut(String key, String key2,String value) {
+		String result = null;
+		Jedis jedis = null;
+		try {
+			jedis = getResource();
+			result = jedis.hset(key, key2,value) + "";
+			logger.debug("mapPut {} = {}", key,key2, value);
+		} catch (Exception e) {
+			logger.warn("mapPut {} = {}", key,key2, value, e);
+		} finally {
+			returnResource(jedis);
+		}
+		return result;
+	}
 	/**
 	 * 获取缓存
 	 *

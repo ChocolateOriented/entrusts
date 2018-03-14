@@ -1,7 +1,11 @@
 package com.entrusts.mapper;
 
+import com.entrusts.module.dto.BaseCurrency;
+import com.entrusts.module.dto.TargetMapCurrency;
 import com.entrusts.module.entity.TradePair;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface TradePairMapper{
 
@@ -12,4 +16,8 @@ public interface TradePairMapper{
 	 * @return java.math.BigDecimal
 	 */
 	TradePair findTradePairByCoinName(@Param("baseCurrencyAlias") String baseCurrencyAlias,@Param("targetCurrencyAlias") String targetCurrencyAlias);
+
+    List<BaseCurrency> getBaseCurrency();
+
+	List<TargetMapCurrency> updateTargetCurrency(String s);
 }
