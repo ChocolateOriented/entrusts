@@ -13,11 +13,11 @@ import com.entrusts.module.dto.CommonResponse;
 import com.entrusts.module.dto.Page;
 import com.entrusts.module.dto.TimePage;
 import com.entrusts.module.entity.Order;
-import com.entrusts.module.entity.Trade;
+import com.entrusts.module.entity.Deal;
 import com.entrusts.module.vo.HistoryOrderView;
 import com.entrusts.module.vo.OrderQuery;
 import com.entrusts.service.OrderManageService;
-import com.entrusts.service.TradeService;
+import com.entrusts.service.DealService;
 
 @RestController
 @RequestMapping(value = "order")
@@ -27,7 +27,7 @@ public class OrderManageController {
 	private OrderManageService orderManageService;
 
 	@Autowired
-	private TradeService tradeService;
+	private DealService dealService;
 
 	@RequestMapping(value = "listHistory", method = RequestMethod.GET)
 	public CommonResponse<Page<HistoryOrderView>> listHistoryOrder(OrderQuery orderQuery, Integer pageNum, Integer pageSize, HttpServletRequest request) {
@@ -59,13 +59,13 @@ public class OrderManageController {
 	}
 	
 	@RequestMapping(value = "dealNotify", method = RequestMethod.POST)
-	public BaseResponse dealNotify(@RequestBody Trade trade) {
+	public BaseResponse dealNotify(@RequestBody Deal trade) {
 		BaseResponse response = new BaseResponse();
-		if (!tradeService.save(trade)) {
+		if (!dealService.save(trade)) {
 			return response;
 		}
 		
-		Order order = tradeService.updateOrderNewDeal(trade);
+		Order order = dealService.updateOrderNewDeal(trade);
 		if (order != null) {
 			orderManageService.updateUserHistoryCache(order);
 		}

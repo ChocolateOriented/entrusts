@@ -3,7 +3,7 @@ package com.entrusts.module.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class Trade {
+public class Deal {
     private Long tradeCode;
 
     private Long orderCode;
@@ -17,6 +17,8 @@ public class Trade {
     private BigDecimal serviceFee;
 
     private Date dealTime;
+
+    private Long tradePairId;
 
     public Long getTradeCode() {
         return tradeCode;
@@ -73,4 +75,13 @@ public class Trade {
     public void setDealTime(Date dealTime) {
         this.dealTime = dealTime;
     }
+
+	public Long getTradePairId() {
+		return tradePairId;
+	}
+
+	public void setTradePairId(Long tradePairId) {
+		this.tradePairId = tradePairId;
+	}
+
 }

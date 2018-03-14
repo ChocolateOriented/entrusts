@@ -4,28 +4,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.entrusts.mapper.TradeMapper;
+import com.entrusts.mapper.DealMapper;
 import com.entrusts.module.entity.Order;
-import com.entrusts.module.entity.Trade;
+import com.entrusts.module.entity.Deal;
 import com.entrusts.module.enums.OrderStatus;
 
 @Service
-public class TradeService extends BaseService {
+public class DealService extends BaseService {
 
 	@Autowired
-	private TradeMapper tradeMapper;
+	private DealMapper dealMapper;
 	
 	@Autowired
 	private OrderManageService orderManageService;
 
-	public boolean save(Trade trade) {
-		return tradeMapper.insert(trade) != 0;
+	public boolean save(Deal trade) {
+		return dealMapper.insert(trade) != 0;
 	}
 	
 	@Transactional
-	public Order updateOrderNewDeal(Trade trade) {
-		orderManageService.updateOrderNewDeal(trade);
-		Order order = orderManageService.get(trade.getOrderCode());
+	public Order updateOrderNewDeal(Deal deal) {
+		orderManageService.updateOrderNewDeal(deal);
+		Order order = orderManageService.get(deal.getOrderCode());
 		if (order.getDealQuantity() == null || order.getQuantity() == null || !order.getDealQuantity().equals(order.getQuantity())) {
 			return null;
 		}

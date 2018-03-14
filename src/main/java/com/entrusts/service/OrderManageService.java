@@ -18,7 +18,7 @@ import com.entrusts.mapper.OrderMapper;
 import com.entrusts.module.dto.Page;
 import com.entrusts.module.dto.TimePage;
 import com.entrusts.module.entity.Order;
-import com.entrusts.module.entity.Trade;
+import com.entrusts.module.entity.Deal;
 import com.entrusts.module.vo.HistoryOrderView;
 import com.entrusts.util.RedisUtil;
 import com.entrusts.module.vo.OrderQuery;
@@ -261,7 +261,7 @@ public class OrderManageService extends BaseService {
 		}
 	}
 	
-	public void updateOrderNewDeal(Trade trade) {
+	public void updateOrderNewDeal(Deal trade) {
 		orderMapper.updateOrderNewDeal(trade);
 	}
 	

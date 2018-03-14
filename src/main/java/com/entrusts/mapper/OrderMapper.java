@@ -1,7 +1,7 @@
 package com.entrusts.mapper;
 
 import com.entrusts.module.entity.Order;
-import com.entrusts.module.entity.Trade;
+import com.entrusts.module.entity.Deal;
 import com.entrusts.module.enums.OrderStatus;
 import com.entrusts.module.vo.HistoryOrderView;
 import com.entrusts.module.vo.OrderQuery;
@@ -36,7 +36,7 @@ public interface OrderMapper {
 
 	HistoryOrderView getHistoryOrder(Order order);
 	
-	void updateOrderNewDeal(Trade trade);
+	void updateOrderNewDeal(Deal trade);
 	
 	int completeOrder(Order order);
 }
