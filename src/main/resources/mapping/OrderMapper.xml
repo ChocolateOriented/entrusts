@@ -38,10 +38,10 @@
 	</insert>
 
   <update id="updateOrderStatus">
-	    UPDATE order
+	    UPDATE `order`
 		    SET
-		    update_date = now(),
-		    status = #{status}
+		    updated_time = now(),
+		    `status` = #{status}
 	    WHERE 
 	    	order_code = #{orderCode}
   </update>
