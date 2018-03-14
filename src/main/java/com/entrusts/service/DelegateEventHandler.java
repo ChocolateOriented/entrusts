@@ -21,7 +21,7 @@ public class DelegateEventHandler extends BaseService {
 	@Autowired
 	private OrderService orderService;
 	@Autowired
-	private OrderEventMapper orderEventMapper;
+	private OrderEventService orderEventService;
 
 	@Value("${url.lockCoin}")
 	private String url;
@@ -57,7 +57,7 @@ public class DelegateEventHandler extends BaseService {
 
 		//锁币
 		try {
-			this.lockCoin(delegateEvent);
+//			this.lockCoin(delegateEvent);
 		}catch (Exception e) {
 			delegateEvent.setDelegateEventstatus(DelegateEventstatus.RREQUESTACCOUNT_ERROR);
 			logger.info("用户："+userCode+" 订单: "+orderCode+" 锁币失败:"+e.getMessage(),e);
@@ -70,7 +70,7 @@ public class DelegateEventHandler extends BaseService {
 			orderService.push2Match(delegateEvent);
 		}catch (Exception e) {
 			delegateEvent.setDelegateEventstatus(DelegateEventstatus.PUSH_MATCH_ERROR);
-			logger.info("用户：" + userCode + "订单:" + orderCode + "通知撮合系统失败");
+			logger.info("用户：" + userCode + "订单:" + orderCode + "通知撮合系统失败",e);
 			return;
 		}
 
@@ -91,8 +91,7 @@ public class DelegateEventHandler extends BaseService {
 		map.put("encryptCurrencyId", delegateEvent.getTargetCurrencyId());
 		map.put("quantity", delegateEvent.getQuantity());
 
-		Results result = null;
-		result = RestTemplateUtils.post(this.url + "/account/freeze_for_order", Results.class, null, null, JSON.toJSONString(map));
+		Results result = RestTemplateUtils.post(this.url + "/account/freeze_for_order", Results.class, null, null, JSON.toJSONString(map));
 
 		if (result.getCode() != 0) {
 			throw new ApiException(result.getMessage());
@@ -111,8 +110,7 @@ public class DelegateEventHandler extends BaseService {
 		} else {
 			orderEvent.setStatus(OrderStatus.DELEGATING);
 		}
-
-		orderEventMapper.insertOrderEvent(orderEvent);
+		orderEventService.save(orderEvent);
 	}
 
 	/**
@@ -133,7 +131,7 @@ public class DelegateEventHandler extends BaseService {
 		} else {
 			orderEvent.setStatus(OrderStatus.DELEGATE_FAILED);
 		}
-		orderEventMapper.insertOrderEvent(orderEvent);
+		orderEventService.save(orderEvent);
 		logger.info("用户：" + delegateEvent.getUserCode() + "订单:" + delegateEvent.getOrderCode() + "记录托单流程log插入成功");
 	}
 }
