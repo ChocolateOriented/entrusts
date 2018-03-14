@@ -21,7 +21,6 @@ public class Order implements Serializable {
 	private BigDecimal convertRate;//基准货币兑换目标货币的比率
 	private TradeType tradeType;//买卖方向
 	private BigDecimal quantity;//数量
-	private BigDecimal amount;//金额(基于基准货币)
 	private OrderMode mode;//交易模式
 	private OrderStatus status;//状态
 	private BigDecimal serviceFeeRate;//交易费率
@@ -94,14 +93,6 @@ public class Order implements Serializable {
 
 	public void setQuantity(BigDecimal quantity) {
 		this.quantity = quantity;
-	}
-
-	public BigDecimal getAmount() {
-		return amount;
-	}
-
-	public void setAmount(BigDecimal amount) {
-		this.amount = amount;
 	}
 
 	public OrderMode getMode() {
