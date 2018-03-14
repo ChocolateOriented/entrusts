@@ -2,10 +2,6 @@ package com.entrusts.web;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.entrusts.module.dto.result.ResultConstant;
-import com.entrusts.module.dto.result.ResultDate;
-import com.entrusts.module.dto.result.Results;
-import com.entrusts.module.entity.Order;
 import com.entrusts.module.vo.CurrentEntrusts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,17 +58,13 @@ public class OrderManageController {
 	public Object getListCurrent(OrderQuery orderQuery, Integer pageNum, Integer pageSize, HttpServletRequest request){
 		String userCode = request.getParameter("Account-Code");
 		orderQuery.setUserCode(userCode);
-		orderManageService.updateUserCurrentCache(new Order());
-		List<CurrentEntrusts> currentEntrusts = orderManageService.findCurrentOrderFromRedis(orderQuery);
-		Page<CurrentEntrusts> page = new Page<>();
-		if (currentEntrusts.size() == 0){
-			page.setEntities(null);
-		}else {
-			page.setEntities(currentEntrusts.subList((pageNum - 1) * pageSize, pageNum * pageSize));
+		if (pageNum == null) {
+			pageNum = 1;
 		}
-		page.setTotal((long) currentEntrusts.size());
-		page.setPageNum(pageNum);
-		page.setPageSize(pageSize);
+		if (pageSize == null) {
+			pageSize = 10;
+		}
+		Page<CurrentEntrusts> page = orderManageService.findCurrentOrder(orderQuery, pageNum, pageSize);
 		CommonResponse<Page<CurrentEntrusts>> response = new CommonResponse<>();
 		response.setData(page);
 		return response;

@@ -1,9 +1,11 @@
 package com.entrusts.module.dto;
 
-import com.entrusts.module.entity.Order.OrderMode;
-import com.entrusts.module.entity.Order.TradeType;
+import com.entrusts.module.enums.DelegateEventstatus;
+import com.entrusts.module.enums.OrderMode;
+import com.entrusts.module.enums.TradeType;
 import java.math.BigDecimal;
 import java.util.Date;
+
 
 /**
  * Created by jxli on 2018/3/5.
@@ -22,6 +24,8 @@ public class DelegateEvent {
 	private BigDecimal quantity;
 	private BigDecimal amount;
 	private OrderMode mode;//交易模式
+
+	private DelegateEventstatus delegateEventstatus; // 队列执行状态
 
 	public String getOrderCode() {
 		return orderCode;
@@ -55,6 +59,22 @@ public class DelegateEvent {
 		this.orderTime = orderTime;
 	}
 
+	public Integer getBaseCurrencyId() {
+		return baseCurrencyId;
+	}
+
+	public void setBaseCurrencyId(Integer baseCurrencyId) {
+		this.baseCurrencyId = baseCurrencyId;
+	}
+
+	public Integer getTargetCurrencyId() {
+		return targetCurrencyId;
+	}
+
+	public void setTargetCurrencyId(Integer targetCurrencyId) {
+		this.targetCurrencyId = targetCurrencyId;
+	}
+
 	public Integer getTradePairId() {
 		return tradePairId;
 	}
@@ -69,6 +89,14 @@ public class DelegateEvent {
 
 	public void setConvertRate(BigDecimal convertRate) {
 		this.convertRate = convertRate;
+	}
+
+	public TradeType getTradeType() {
+		return tradeType;
+	}
+
+	public void setTradeType(TradeType tradeType) {
+		this.tradeType = tradeType;
 	}
 
 	public BigDecimal getQuantity() {
@@ -87,14 +115,6 @@ public class DelegateEvent {
 		this.amount = amount;
 	}
 
-	public TradeType getTradeType() {
-		return tradeType;
-	}
-
-	public void setTradeType(TradeType tradeType) {
-		this.tradeType = tradeType;
-	}
-
 	public OrderMode getMode() {
 		return mode;
 	}
@@ -103,37 +123,11 @@ public class DelegateEvent {
 		this.mode = mode;
 	}
 
-	public Integer getBaseCurrencyId() {
-		return baseCurrencyId;
+	public DelegateEventstatus getDelegateEventstatus() {
+		return delegateEventstatus;
 	}
 
-	public void setBaseCurrencyId(Integer baseCurrencyId) {
-		this.baseCurrencyId = baseCurrencyId;
-	}
-
-	public Integer getTargetCurrencyId() {
-		return targetCurrencyId;
-	}
-
-	public void setTargetCurrencyId(Integer targetCurrencyId) {
-		this.targetCurrencyId = targetCurrencyId;
-	}
-
-	@Override
-	public String toString() {
-		return "DelegateEvent{" +
-				"orderCode='" + orderCode + '\'' +
-				", userCode='" + userCode + '\'' +
-				", clientTime=" + clientTime +
-				", orderTime=" + orderTime +
-				", baseCurrencyId=" + baseCurrencyId +
-				", targetCurrencyId=" + targetCurrencyId +
-				", tradePairId=" + tradePairId +
-				", convertRate=" + convertRate +
-				", tradeType=" + tradeType +
-				", quantity=" + quantity +
-				", amount=" + amount +
-				", mode=" + mode +
-				'}';
+	public void setDelegateEventstatus(DelegateEventstatus delegateEventstatus) {
+		this.delegateEventstatus = delegateEventstatus;
 	}
 }

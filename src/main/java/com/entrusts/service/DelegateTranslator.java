@@ -2,9 +2,9 @@ package com.entrusts.service;
 
 import com.entrusts.module.dto.Delegate;
 import com.entrusts.module.dto.DelegateEvent;
-import com.entrusts.module.entity.Order.OrderMode;
-import com.entrusts.module.entity.Order.TradeType;
 import com.entrusts.module.entity.TradePair;
+import com.entrusts.module.enums.OrderMode;
+import com.entrusts.module.enums.TradeType;
 import com.lmax.disruptor.EventTranslatorThreeArg;
 import java.text.DecimalFormat;
 import java.util.Date;
@@ -53,7 +53,7 @@ public class DelegateTranslator extends BaseService implements EventTranslatorTh
 		final int MODE_BIT = 1; //成交模式占用2进制位数
 
 		DecimalFormat format = new DecimalFormat("0000");
-		int mode = event.getMode().equals(OrderMode.LIMIT_PRICE_DEAL) ? 0 : 1;
+		int mode = event.getMode().equals(OrderMode.limit) ? 0 : 1;
 		int type = event.getTradeType().equals(TradeType.buy) ? 0 : 1;
 		int modeAndtype = type << MODE_BIT | mode;
 

@@ -16,7 +16,7 @@
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
 		left join digital_currency c1 on c1.id = p.base_currency_id
-		left join digital_currency c2 on c2.id = p.target_currency_id 
+		left join digital_currency c2 on c2.id = p.target_currency_id
 		where user_code = #{userCode}
 		and status in (2, 3)
 		<if test="startTime != null">
@@ -38,7 +38,7 @@
 			and c2.alias = #{targetCurrency}
 		</if>
 	</select>
-	
+
 	<select id="findHistoryOrderByTime" resultType="com.entrusts.module.vo.HistoryOrderView">
 		select
 			o.order_code as orderCode,
@@ -54,7 +54,7 @@
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
 		left join digital_currency c1 on c1.id = p.base_currency_id
-		left join digital_currency c2 on c2.id = p.target_currency_id 
+		left join digital_currency c2 on c2.id = p.target_currency_id
 		where user_code = #{userCode}
 		and status in (2, 3)
 		<if test="toCreatedTime != null">
@@ -81,7 +81,7 @@
 		order by o.created_time desc
 		limit #{limit}
 	</select>
-	
+
 	<select id="countHistoryOrderByTime" resultType="long">
 		select
 			count(o.order_code)
@@ -151,11 +151,11 @@
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
 		left join digital_currency c1 on c1.id = p.base_currency_id
-		left join digital_currency c2 on c2.id = p.target_currency_id 
+		left join digital_currency c2 on c2.id = p.target_currency_id
 		where order_code = #{orderCode}
 		and status in (2, 3)
 	</select>
-	
+
 	<select id="totalHistoryOrder">
 		select
 			count(o.order_code)
@@ -328,4 +328,50 @@
 		AND is_deleted ='0'
 		and status in (10, 20)
 	</select>
+
+    <sql id="orderColumns">
+    </sql>
+
+    <insert id="insertOrder" >
+        insert into order(
+        order_code,
+        user_code,
+        client_time,
+        order_time,
+        trade_pair_id,
+        convert_rate,
+        trade_type,
+        quantity,
+        amount,
+        mode,
+        status,
+        created_time,
+        updated_time,
+        isDeleted
+        )values (
+        #{orderCode,jdbcType=BIGINT},
+        #{usercode,jdbcType=VARCHAR},
+        #{clientTime,jdbcType=TIMESTAMP},
+        #{orderTime,jdbcType=TIMESTAMP},
+        #{tradePairId,jdbcType=BIGINT},
+        #{convertRate,jdbcType=DOUBLE},
+        #{tradeType,jdbcType=INTEGER},
+        #{quantity,jdbcType=DOUBLE},
+        #{amount,jdbcType=DOUBLE},
+        #{mode,jdbcType=INTEGER},
+        #{status,jdbcType=INTEGER},
+        now(),
+        now(),
+        0
+        )
+    </insert>
+
+    <update id="updateOrderStatus" >
+        UPDATE order
+        SET
+        update_date = now(),
+        status = #{status}
+        WHERE
+        order_code = #{orderCode}
+    </update>
 </mapper>

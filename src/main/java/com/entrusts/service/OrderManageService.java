@@ -6,7 +6,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.entrusts.module.dto.TimePage;
+import com.entrusts.module.entity.TradePair;
+import com.entrusts.module.enums.OrderStatus;
 import com.entrusts.module.vo.CurrentEntrusts;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -29,6 +33,9 @@ public class OrderManageService extends BaseService {
 
 	@Autowired
 	private OrderMapper orderMapper;
+
+	@Autowired
+	private TradePairService tradePairService;
 
 	private static final String historyOrderPrefix = "com.entrusts.service.OrderManageService";
 
@@ -244,30 +251,16 @@ public class OrderManageService extends BaseService {
 		String userCode = orderQuery.getUserCode();
 		String userTotalKey = totalCurrentOrderUserKey + userCode;
 		String totalValue = RedisUtil.get(userTotalKey);
-		int requireNum = pageNum * PageSize;
 		if (totalValue == null) {
-			if (requireNum > perUserOrderCacheLimit) { //若需要的数据量大于缓存上限，则直接从数据库获取
-				return findCurrentOrderByPageFromDB(orderQuery, pageNum, PageSize);
-			} else if (!orderQuery.hasCondition()) { //若需要的数据量不大于缓存上限，且不含查询条件，则获取上限数据并缓存
-				return findAndCacheLimitCurrentOrder(userCode, pageNum, PageSize);
-			} else { //有查询条件无缓存时，直接从数据库获取
-				return findCurrentOrderByPageFromDB(orderQuery, pageNum, PageSize);
-			}
+			findAndCacheLimitCurrentOrder(userCode, pageNum, PageSize);
 		}
-
-		int total = Integer.parseInt(totalValue);
-		//缓存的为全量数据，或者不含查询条件且需要的数据量不大于缓存上限时，从缓存获取，否则从数据库获取
-		if (total < perUserOrderCacheLimit || (requireNum <= perUserOrderCacheLimit && !orderQuery.hasCondition())) {
-			List<CurrentEntrusts> orders = findCurrentOrderFromRedis(orderQuery);
-			Page<CurrentEntrusts> page = new Page<>();
-			page.setEntities(orders.subList((pageNum - 1) * PageSize, pageNum * PageSize));
-			page.setTotal((long) orders.size());
-			page.setPageNum(pageNum);
-			page.setPageSize(PageSize);
-			return page;
-		} else {
-			return findCurrentOrderByPageFromDB(orderQuery, pageNum, PageSize);
-		}
+		List<CurrentEntrusts> orders = findCurrentOrderFromRedis(orderQuery);
+		Page<CurrentEntrusts> page = new Page<>();
+		page.setEntities(orders.subList((pageNum - 1) * PageSize, pageNum * PageSize));
+		page.setTotal((long) orders.size());
+		page.setPageNum(pageNum);
+		page.setPageSize(PageSize);
+		return page;
 
 	}
 
@@ -277,31 +270,19 @@ public class OrderManageService extends BaseService {
 		String totalValue = RedisUtil.get(userTotalKey);
 		//无缓存时
 		if (totalValue == null) {
-			if (limit > perUserOrderCacheLimit) { //若需要的数据量大于缓存上限，则直接从数据库获取
-				return findCurrentOrderByTimeFromDB(orderQuery, limit);
-			} else if (!orderQuery.hasCondition()) { //若需要的数据量不大于缓存上限，且不含查询条件，则获取上限数据并缓存
-				return findAndCacheLimitCurrentOrder(userCode, limit);
-			} else { //有查询条件无缓存时，直接从数据库获取
-				return findCurrentOrderByTimeFromDB(orderQuery, limit);
-			}
+			 findAndCacheLimitCurrentOrder(userCode, limit);
 		}
+		List<CurrentEntrusts> orders = findCurrentOrderFromRedis(orderQuery);
+		TimePage<CurrentEntrusts> page = new TimePage<>();
+		page.setEntities(orders.subList(0, limit));
+		page.setTotal((long) orders.size());
+		page.setLimit(limit);
+		return page;
 
-		int total = Integer.parseInt(totalValue);
-		//缓存的为全量数据，或者不含查询条件且需要的数据量不大于缓存上限时，从缓存获取，否则从数据库获取
-		if (total <= perUserOrderCacheLimit || (limit <= perUserOrderCacheLimit && !orderQuery.hasCondition())) {
-			List<CurrentEntrusts> orders = findCurrentOrderFromRedis(orderQuery);
-			TimePage<CurrentEntrusts> page = new TimePage<>();
-			page.setEntities(orders.subList(0, limit));
-			page.setTotal((long) orders.size());
-			page.setLimit(limit);
-			return page;
-		} else {
-			return findCurrentOrderByTimeFromDB(orderQuery, limit);
-		}
 
 	}
 
-
+	//更新用户当前脱单的缓存数据
 	public void updateUserCurrentCache(Order order) {
 		String userCode = order.getUserCode();
 		String userTotalKey = totalCurrentOrderUserKey + userCode;
@@ -355,6 +336,7 @@ public class OrderManageService extends BaseService {
 		return page;
 	}
 
+	//获取用户制定数量当前脱单的缓存数据
 	private Page<CurrentEntrusts> findAndCacheLimitCurrentOrder(String userCode, int pageNum, int PageSize) {
 		List<CurrentEntrusts> limitOrders = orderMapper.findLimitCurrentOrder(userCode, perUserOrderCacheLimit);
 		int size = limitOrders.size();
@@ -372,6 +354,7 @@ public class OrderManageService extends BaseService {
 		return page;
 	}
 
+
 	private TimePage<CurrentEntrusts> findAndCacheLimitCurrentOrder(String userCode, int limit) {
 		List<CurrentEntrusts> limitOrders = orderMapper.findLimitCurrentOrder(userCode, perUserOrderCacheLimit);
 		int size = limitOrders.size();
@@ -379,7 +362,7 @@ public class OrderManageService extends BaseService {
 		if (size >= perUserOrderCacheLimit) {
 			total = orderMapper.totalHistoryOrder(userCode);
 		}
-
+		//更新用户当前脱单的缓存数据
 		cacheLimitCurrentOrder(userCode, total, limitOrders);
 
 		TimePage<CurrentEntrusts> page = new TimePage<>();
@@ -410,6 +393,7 @@ public class OrderManageService extends BaseService {
 		}
 	}
 
+	//根据用户从缓存中读取当前脱单
 	public List<CurrentEntrusts> findCurrentOrderFromRedis(OrderQuery orderQuery) {
 		Map<String, String> currentOrders = RedisUtil.getMap(currentOrderUserKey + orderQuery.getUserCode());
 		if (currentOrders == null || currentOrders.isEmpty()) {
@@ -425,6 +409,84 @@ public class OrderManageService extends BaseService {
 				.collect(Collectors.toList());
 
 		return list;
+	}
+
+	//根据用户订单，添加当前脱单缓存
+	public boolean addUserCurrentOrderListFromRedis(Order order){
+		if (StringUtils.isEmpty(order.getOrderCode())){
+			return false;
+		}
+		CurrentEntrusts currentEntrusts = copyPropertiesOrder(order, new CurrentEntrusts());
+		String userKey = currentOrderUserKey + order.getUserCode();
+		String userTotalKey = totalCurrentOrderUserKey + order.getUserCode();
+		Map<String, String> currentOrders = RedisUtil.getMap(userKey);
+		currentOrders.put(currentEntrusts.getOrderCode(), JSON.toJSONString(currentEntrusts));
+		int total = Integer.valueOf(RedisUtil.get(userTotalKey));
+		Jedis jedis = null;
+		try {
+			jedis = RedisUtil.getResource();
+			jedis.watch(userKey);
+			Transaction trans = jedis.multi();
+			jedis.hmset(userKey, currentOrders);
+			jedis.set(userTotalKey, String.valueOf(total+1));
+			trans.exec();
+		} catch (Exception e) {
+			if (jedis != null) {
+				jedis.close();
+			}
+		}
+		return true;
+	}
+
+	//脱单系统状态变更：根据用户订单，更新制定脱单缓存
+	public boolean updateUserCurrentOrderListFromRedis(OrderStatus trading, String orderCode, String userCode, int cacheSeconds){
+		if (StringUtils.isEmpty(orderCode)){
+			return false;
+		}
+		Map<String, String> currentOrders = RedisUtil.getMap(currentOrderUserKey + userCode);
+		String jsonString = currentOrders.get(orderCode);
+		if (StringUtils.isEmpty(jsonString)){
+			return false;
+		}
+		CurrentEntrusts currentEntrusts = JSON.parseObject(jsonString, CurrentEntrusts.class);
+		currentEntrusts.setStatus(trading.getValue()+"");
+		currentOrders.put(orderCode, JSON.toJSONString(currentEntrusts));
+		String result = RedisUtil.setMap(currentOrderUserKey + userCode, currentOrders, cacheSeconds);
+		return result == null ? false : true;
+	}
+
+	//成交系统返回，更新缓存信息
+	public boolean updateUserCurrentOrderListFromRedisByDeal(Order order, int cacheSeconds){
+		if (StringUtils.isEmpty(order.getUserCode())){
+			return false;
+		}
+		Map<String, String> currentOrders = RedisUtil.getMap(currentOrderUserKey + order.getUserCode());
+		String jsonString = currentOrders.get(order.getOrderCode());
+		if (StringUtils.isEmpty(jsonString)){
+			return false;
+		}
+		if (order.getDealQuantity().equals(order.getQuantity())){
+			currentOrders.remove(order.getOrderCode());
+			return true;
+		}
+
+		currentOrders.put(order.getOrderCode(), JSON.toJSONString(copyPropertiesOrder(order, new CurrentEntrusts())));
+		String result = RedisUtil.setMap(currentOrderUserKey + order.getUserCode(), currentOrders, cacheSeconds);
+		return result == null ? false : true;
+	}
+
+
+	private CurrentEntrusts copyPropertiesOrder(Order order, CurrentEntrusts currentEntrusts){
+		currentEntrusts.setOrderCode(order.getOrderCode());
+		currentEntrusts.setDate(order.getOrderTime().getTime());
+		currentEntrusts.setTradeType(order.getTradeType().name());
+		currentEntrusts.setStatus(order.getStatus().getValue()+"");
+		currentEntrusts.setDealTargetQuantity(order.getDealQuantity());
+		currentEntrusts.setOrderTargetQuantity(order.getQuantity());
+		TradePair tradePair = tradePairService.findTradePairById(order.getTradePairId());
+		currentEntrusts.setTargetCurrency(tradePair.getTargetCurrencyName());
+		currentEntrusts.setBaseCurrency(tradePair.getBaseCurrencyName());
+		return currentEntrusts;
 	}
 
 

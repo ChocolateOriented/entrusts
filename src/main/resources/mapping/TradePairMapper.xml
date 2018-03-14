@@ -18,4 +18,13 @@
      AND tc.alias = #{targetCurrencyAlias}
   </select>
 
+  <select id="findTradePairById" resultMap="BaseResultMap">
+    select a.id, a.base_currency_id, a.target_currency_id, a.min_trade_quantity, a.is_deleted,
+    bc.base_currency_name, tc.target_currency_name
+    from trade_pair a
+     LEFT JOIN digital_currency bc ON bc.id = a.base_currency_id
+     LEFT JOIN digital_currency tc ON tc.id = a.target_currency_id
+    where a.id = #{tradePairId}
+  </select>
+
 </mapper>

@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
  * Created by jxli on 2018/3/9.
  */
 @Service
-@Transactional(readOnly = true)
 @CacheConfig(cacheNames="TradePair")
 public class TradePairService extends BaseService {
 	@Autowired
@@ -27,5 +26,15 @@ public class TradePairService extends BaseService {
 	@Cacheable(key = "#baseCurrencyAlias+'_'+#targetCurrencyAlias")
 	public TradePair findTradePairByCoinName(String baseCurrencyAlias, String targetCurrencyAlias){
 		return tradePairMapper.findTradePairByCoinName(baseCurrencyAlias,targetCurrencyAlias);
+	}
+
+	/**
+	 * 查询交易对根据交易对
+	 * @param tradePairId
+	 * @return
+	 */
+	@Cacheable(key = "#tradePairId")
+	public TradePair findTradePairById(int tradePairId){
+		return tradePairMapper.findTradePairById(tradePairId);
 	}
 }

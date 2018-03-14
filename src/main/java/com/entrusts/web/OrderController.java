@@ -4,8 +4,8 @@ import com.entrusts.module.dto.Delegate;
 import com.entrusts.module.dto.DelegateEvent;
 import com.entrusts.module.dto.result.ResultConstant;
 import com.entrusts.module.dto.result.Results;
-import com.entrusts.module.entity.Order.OrderMode;
 import com.entrusts.module.entity.TradePair;
+import com.entrusts.module.enums.OrderMode;
 import com.entrusts.service.DelegateTranslator;
 import com.entrusts.service.TradePairService;
 import com.entrusts.util.RedisUtil;
@@ -92,7 +92,7 @@ public class OrderController extends BaseController {
 
 		delegate.setUserCode(userCode);
 		delegate.setClientTime(new Date(clientTime));
-		delegateDisruptor.publishEvent(delegateTranslator, delegate, tradePair,OrderMode.LIMIT_PRICE_DEAL);
+		delegateDisruptor.publishEvent(delegateTranslator, delegate, tradePair, OrderMode.limit);
 		return Results.ok();
 	}
 
