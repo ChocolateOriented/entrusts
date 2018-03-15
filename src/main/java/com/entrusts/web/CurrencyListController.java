@@ -31,7 +31,7 @@ public class CurrencyListController extends BaseController {
         return Results.ok().putData("entities", baseCurrencyList);
     }
     @GetMapping("/listTarget")
-    public Results getTargetCurrency(@RequestParam("baseCurrency") String currency,@RequestParam("time") String time){
+    public Results getTargetCurrency(@RequestParam("baseCurrency") String currency,@RequestParam("timeZoneOffset") Integer time){
         List<TargetCurrency> targetCurrencys = currencyListService.getTargetCurrency(currency,time);
         if(targetCurrencys == null){
             return new Results(ResultConstant.INNER_ERROR.code,"获取失败");
@@ -39,7 +39,7 @@ public class CurrencyListController extends BaseController {
         return Results.ok().putData("entities", targetCurrencys);
     }
     @GetMapping("/allListTarget")
-    public Results getAllTargetCurrency(@RequestParam("time") String time){
+    public Results getAllTargetCurrency(@RequestParam("timeZoneOffset") Integer time){
         List<TargetMapCurrency> targetMapCurrencys = currencyListService.getAllTargetCurrency(time);
         if(targetMapCurrencys == null){
             return new Results(ResultConstant.INNER_ERROR.code,"获取失败");

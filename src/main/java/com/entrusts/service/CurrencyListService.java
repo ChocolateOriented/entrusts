@@ -65,8 +65,8 @@ public class CurrencyListService extends BaseService {
      * @return
      */
     @Transactional(readOnly = false)
-    public List<TargetCurrency> getTargetCurrency(String baseCurrency,String time) {
-        String time1 = RedisKeyNameEnum.keyTarget.getValue()+time;
+    public List<TargetCurrency> getTargetCurrency(String baseCurrency,Integer time) {
+        String time1 = RedisKeyNameEnum.keyTarget.getValue()+UTCTimeEnum.getName(time);
         String currency1= RedisKeyNameEnum.fieldTarget.getValue()+baseCurrency;
         //获取目标货币
         List<TargetCurrency> currencyList = this.getCurrencyList(time1, currency1, TargetCurrency.class);
@@ -156,15 +156,37 @@ public class CurrencyListService extends BaseService {
     }
 
     /**
-     * 每小时跟新数据库的基准数据到redis
+     * 每半时跟新数据库的基准数据到redis
      */
-    @Scheduled(cron = "0 0 0/1 * * ?")
+    @Scheduled(cron = "0 0/30 * * * ?")
     public void updateTargetCurrency(){
         long l = System.currentTimeMillis();
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(l);
-        int i = c.get(Calendar.HOUR_OF_DAY);
-        String redisKey =RedisKeyNameEnum.keyTarget.getValue()+ getUTC(i);
+        int i = c.get(Calendar.HOUR_OF_DAY)*10;
+        if(c.get(Calendar.MINUTE) == 30){
+            i=i+5;
+        }else if(c.get(Calendar.MINUTE )!= 0){
+            return;
+        }
+//        long l = System.currentTimeMillis();
+//        int i = 0;
+        UTCTimeEnum[] values = UTCTimeEnum.values();
+        Boolean flag = false;
+        for (UTCTimeEnum utcTimeEnum : values){
+            if(utcTimeEnum.getTime() == i){
+                flag = true;
+            }
+        }
+        if(!flag){
+            return;
+        }
+        String redisKey =RedisKeyNameEnum.keyTarget.getValue()+ UTCTimeEnum.getNameByTime(i);
+        addTargetCurrencyToRedis(l,redisKey);
+    }
+
+    public void addTargetCurrencyToRedis(Long l ,String redisKey){
+
         logger.info("开始更新目标货币到缓存");
         List<TargetMapCurrency> targetMapCurrencies = tradePairMapper.updateTargetCurrency(l + "");
         if(targetMapCurrencies == null || targetMapCurrencies.size() ==0){
@@ -178,7 +200,6 @@ public class CurrencyListService extends BaseService {
         }
         logger.info("更新目标货币到缓存结束");
     }
-
     /**
      * 根据时间获取UTCTimerEnum中对应的名字作为redis中的key
      * @param integer
@@ -188,7 +209,7 @@ public class CurrencyListService extends BaseService {
         String UTC = null;
         UTCTimeEnum[] values = UTCTimeEnum.values();
         for(UTCTimeEnum u : values){
-            if(u.getTime()==integer){
+            if(u.getValue()==integer){
                 UTC=u.name();
             }
         }
@@ -213,7 +234,7 @@ public class CurrencyListService extends BaseService {
         }
     }
 
-    public List<TargetMapCurrency> getAllTargetCurrency(String time) {
+    public List<TargetMapCurrency> getAllTargetCurrency(Integer time) {
         List<BaseCurrency> baseCurrency = getBaseCurrency();
         if(baseCurrency == null || baseCurrency.size() == 1){
             return null;

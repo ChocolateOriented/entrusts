@@ -33,7 +33,7 @@ eureka:
 redis:
   database: 11
   host: 127.0.0.1
-  password: 123456
+  password: 123
 
   database2: 6
   host2: 192.168.3.31
