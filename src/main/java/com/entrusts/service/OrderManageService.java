@@ -403,7 +403,7 @@ public class OrderManageService extends BaseService {
 	}
 
 	//根据用户订单，添加当前脱单缓存
-	public boolean addUserCurrentOrderListFromRedis(Order order){
+	public boolean addUserCurrentOrderListFromRedis(Order order, int cacheSeconds){
 		if (StringUtils.isEmpty(order.getOrderCode())){
 			return false;
 		}
@@ -423,6 +423,10 @@ public class OrderManageService extends BaseService {
 			Transaction trans = jedis.multi();
 			trans.hmset(userKey, currentOrders);
 			trans.set(userTotalKey, String.valueOf(total+1));
+			if (cacheSeconds != 0) {
+				jedis.expire(userTotalKey, cacheSeconds);
+				jedis.expire(userKey, cacheSeconds);
+			}
 			trans.exec();
 		} catch (Exception e) {
 			if (jedis != null) {
@@ -461,8 +465,10 @@ public class OrderManageService extends BaseService {
 			return false;
 		}
 		if (order.getDealQuantity().equals(order.getQuantity())){
+			String userTotalKey = totalCurrentOrderUserKey + order.getUserCode();
 			currentOrders.remove(order.getOrderCode());
 			String result = RedisUtil.setMap(currentOrderUserKey + order.getUserCode(), currentOrders, cacheSeconds);
+			RedisUtil.set(userTotalKey, (Integer.valueOf(RedisUtil.get(userTotalKey))-1)+"", cacheSeconds);
 			return result == null ? false : true;
 		}
 
