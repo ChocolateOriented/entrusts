@@ -65,8 +65,8 @@ public class CurrencyListService extends BaseService {
      * @return
      */
     @Transactional(readOnly = false)
-    public List<TargetCurrency> getTargetCurrency(String baseCurrency,Integer time) {
-        String time1 = RedisKeyNameEnum.keyTarget.getValue()+UTCTimeEnum.getName(time);
+    public List<TargetCurrency> getTargetCurrency(String baseCurrency,Integer value) {
+        String time1 = RedisKeyNameEnum.keyTarget.getValue()+UTCTimeEnum.getName(value);
         String currency1= RedisKeyNameEnum.fieldTarget.getValue()+baseCurrency;
         //获取目标货币
         List<TargetCurrency> currencyList = this.getCurrencyList(time1, currency1, TargetCurrency.class);
@@ -160,13 +160,19 @@ public class CurrencyListService extends BaseService {
      */
     @Scheduled(cron = "0 0/30 * * * ?")
     public void updateTargetCurrency(){
-        long l = System.currentTimeMillis();
-        Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(l);
-        int i = c.get(Calendar.HOUR_OF_DAY)*10;
-        if(c.get(Calendar.MINUTE) == 30){
+        // 1、取得本地时间：
+        Calendar cal = Calendar.getInstance() ;
+        // 2、取得时间偏移量：
+        int zoneOffset = cal.get(java.util.Calendar.ZONE_OFFSET);
+        // 3、取得夏令时差：
+        int dstOffset = cal.get(java.util.Calendar.DST_OFFSET);
+        // 4、从本地时间里扣除这些差量，即可以取得UTC时间：
+        cal.add(Calendar.MILLISECOND, -(zoneOffset + dstOffset));
+        long l = cal.getTimeInMillis();
+        int i = cal.get(Calendar.HOUR_OF_DAY)*10;
+        if(cal.get(Calendar.MINUTE) == 30){
             i=i+5;
-        }else if(c.get(Calendar.MINUTE )!= 0){
+        }else if(cal.get(Calendar.MINUTE )!= 0){
             return;
         }
 //        long l = System.currentTimeMillis();
