@@ -57,7 +57,7 @@ public class OrderService extends BaseService {
 	@Transactional
 	public void save(Order order) {
 		orderMapper.insertOrder(order);
-		orderManageService.addUserCurrentOrderListFromRedis(order);
+		orderManageService.addUserCurrentOrderListFromRedis(order, 3600*12);
 	}
 
 	/**
