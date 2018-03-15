@@ -18,6 +18,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -210,5 +211,24 @@ public class CurrencyListService extends BaseService {
         if(s == null || "0".equals(s)){
             logger.info("最新价格插入缓存有误");
         }
+    }
+
+    public List<TargetMapCurrency> getAllTargetCurrency(String time) {
+        List<BaseCurrency> baseCurrency = getBaseCurrency();
+        if(baseCurrency == null || baseCurrency.size() == 1){
+            return null;
+        }
+        List<TargetMapCurrency> list = new ArrayList<>();
+        for (BaseCurrency baseCurrency1 : baseCurrency){
+            TargetMapCurrency targetMapCurrency = new TargetMapCurrency();
+            targetMapCurrency.setBaseAlias(baseCurrency1.getAlias());
+            List<TargetCurrency> targetCurrency = getTargetCurrency(baseCurrency1.getAlias(), time);
+            if(targetCurrency == null){
+                break;
+            }
+            targetMapCurrency.setTargetCurrencies(targetCurrency);
+            list.add(targetMapCurrency);
+        }
+        return list;
     }
 }

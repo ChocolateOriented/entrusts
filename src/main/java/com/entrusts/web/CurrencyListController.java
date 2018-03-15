@@ -2,6 +2,7 @@ package com.entrusts.web;
 
 import com.entrusts.module.dto.BaseCurrency;
 import com.entrusts.module.dto.TargetCurrency;
+import com.entrusts.module.dto.TargetMapCurrency;
 import com.entrusts.module.dto.result.ResultConstant;
 import com.entrusts.module.dto.result.Results;
 import com.entrusts.service.CurrencyListService;
@@ -36,5 +37,13 @@ public class CurrencyListController extends BaseController {
             return new Results(ResultConstant.INNER_ERROR.code,"获取失败");
         }
         return Results.ok().putData("entities", targetCurrencys);
+    }
+    @GetMapping("/allListTarget")
+    public Results getAllTargetCurrency(@RequestParam("time") String time){
+        List<TargetMapCurrency> targetMapCurrencys = currencyListService.getAllTargetCurrency(time);
+        if(targetMapCurrencys == null){
+            return new Results(ResultConstant.INNER_ERROR.code,"获取失败");
+        }
+        return Results.ok().putData("entities", targetMapCurrencys);
     }
 }
