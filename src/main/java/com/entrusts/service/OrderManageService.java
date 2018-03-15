@@ -424,8 +424,8 @@ public class OrderManageService extends BaseService {
 			trans.hmset(userKey, currentOrders);
 			trans.set(userTotalKey, String.valueOf(total+1));
 			if (cacheSeconds != 0) {
-				jedis.expire(userTotalKey, cacheSeconds);
-				jedis.expire(userKey, cacheSeconds);
+				trans.expire(userTotalKey, cacheSeconds);
+				trans.expire(userKey, cacheSeconds);
 			}
 			trans.exec();
 		} catch (Exception e) {
