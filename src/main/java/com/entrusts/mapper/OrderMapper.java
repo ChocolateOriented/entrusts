@@ -1,5 +1,6 @@
 package com.entrusts.mapper;
 
+import com.entrusts.module.dto.UnfreezeEntity;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.entity.Deal;
 import com.entrusts.module.enums.OrderStatus;
@@ -50,4 +51,9 @@ public interface OrderMapper {
 
 
 	int completeOrder(Order order);
+
+    UnfreezeEntity queryUnfreezeInfo(String orderCode);
+
+	List<UnfreezeEntity> queryAllUnfreezeInfo(String userCode);
+
 }

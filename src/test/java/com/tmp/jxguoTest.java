@@ -46,7 +46,7 @@ public class jxguoTest {
         delegateEvent.setOrderCode(orderServicel.generateId()+"");
         delegateEvent.setTradePairId(1);
         delegateEvent.setConvertRate(new BigDecimal(0.000012121));
-        delegateEvent.setDelegateEventstatus(DelegateEventstatus.INSERT_ORDERDB_SUCCESS);
+        //delegateEvent.setDelegateEventstatus(DelegateEventstatus.INSERT_ORDERDB_SUCCESS);
         delegateEvent.setTradeType(TradeType.sell);
         delegateEvent.setQuantity(new BigDecimal(0.000012121));
         delegateEvent.setUserCode("21231231231231231");

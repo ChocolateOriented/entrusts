@@ -9,7 +9,9 @@ public enum OrderStatus implements BaseCodeEnum {
 	DELEGATE_FAILED(11),//托单失败
 	TRADING(20),//交易中
 	COMPLETE(30),//完成交易
-	WITHDRAW(40);//撤销
+	WITHDRAW(40),//撤销
+	WITHDRAW_UNTHAWING(50);//撤销未解冻
+
 
 	OrderStatus(int value) {
 		this.value = value;
