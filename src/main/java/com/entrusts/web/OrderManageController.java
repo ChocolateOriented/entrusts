@@ -72,6 +72,7 @@ public class OrderManageController {
 		Order order = dealService.updateOrderNewDeal(trade);
 		if (order != null) {
 			orderManageService.updateUserHistoryCache(order);
+			orderManageService.updateUserCurrentOrderListFromRedisByDeal(order, 3600*12);
 		}
 
 		return response;
