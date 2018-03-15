@@ -1,7 +1,7 @@
+
 package com.entrusts.service;
 
 import java.math.BigDecimal;
-import java.util.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +15,6 @@ import com.entrusts.module.entity.TradePair;
 import com.entrusts.module.enums.OrderStatus;
 import com.entrusts.module.vo.CurrentEntrusts;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.fastjson.JSON;
 import com.entrusts.mapper.OrderMapper;
 import com.entrusts.module.dto.Page;
-import com.entrusts.module.dto.TimePage;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.entity.Deal;
 import com.entrusts.module.vo.HistoryOrderView;
@@ -54,9 +52,9 @@ public class OrderManageService extends BaseService {
 
 	private static final String totalCurrentOrderUserKey = currentOrderPrefix + ".currentuserTotalData.";
 
-	private static final String historyOrderUserKey = historyOrderPrefix + ".userData-";
+	private static final String historyOrderUserKey = historyOrderPrefix + ".userData.";
 
-	private static final String totalHistoryOrderUserKey = historyOrderPrefix + ".userTotalData-";
+	private static final String totalHistoryOrderUserKey = historyOrderPrefix + ".userTotalData.";
 
 	private static final String historyCacheUserHitCountKey = historyOrderPrefix + ".userCacheHitCount";
 
@@ -64,10 +62,17 @@ public class OrderManageService extends BaseService {
 
 	private static final int userCacheLimit = 20000;
 
-	public Order get(Long orderCode) {
+	public Order get(String orderCode) {
 		return orderMapper.get(orderCode);
 	}
 
+	/**
+	 * 查询用户历史托单分页
+	 * @param orderQuery
+	 * @param pageNum
+	 * @param PageSize
+	 * @return
+	 */
 	@Transactional(readOnly = true)
 	public Page<HistoryOrderView> findHistoryOrderByPage(OrderQuery orderQuery, int pageNum, int PageSize) {
 		String userCode = orderQuery.getUserCode();
@@ -100,6 +105,12 @@ public class OrderManageService extends BaseService {
 		
 	}
 
+	/**
+	 * 查询用户历史托单时间分页
+	 * @param orderQuery
+	 * @param limit
+	 * @return
+	 */
 	@Transactional(readOnly = true)
 	public TimePage<HistoryOrderView> findHistoryOrderByTime(OrderQuery orderQuery, int limit) {
 		String userCode = orderQuery.getUserCode();
@@ -130,7 +141,14 @@ public class OrderManageService extends BaseService {
 		}
 		
 	}
-	
+
+	/**
+	 * 从数据库查询用户历史托单分页
+	 * @param orderQuery
+	 * @param pageNum
+	 * @param PageSize
+	 * @return
+	 */
 	private Page<HistoryOrderView> findHistoryOrderByPageFromDB(OrderQuery orderQuery, int pageNum, int PageSize) {
 		Page<HistoryOrderView> page = new Page<>();
 		PageHelper.startPage(pageNum, PageSize);
@@ -142,7 +160,13 @@ public class OrderManageService extends BaseService {
 		page.setPageSize(pageInfo.getPageSize());
 		return page;
 	}
-	
+
+	/**
+	 * 从数据库查询用户历史托单时间分页
+	 * @param orderQuery
+	 * @param limit
+	 * @return
+	 */
 	private TimePage<HistoryOrderView> findHistoryOrderByTimeFromDB(OrderQuery orderQuery, int limit) {
 		TimePage<HistoryOrderView> page = new TimePage<>();
 		long total = orderMapper.countHistoryOrderByTime(orderQuery);
@@ -157,7 +181,12 @@ public class OrderManageService extends BaseService {
 		page.setLimit(limit);
 		return page;
 	}
-	
+
+	/**
+	 * 从redis查询用户历史托单分页
+	 * @param orderQuery
+	 * @return
+	 */
 	private List<HistoryOrderView> findHistoryOrderFromRedis(OrderQuery orderQuery) {
 		String userCode = orderQuery.getUserCode();
 		String userKey = historyOrderUserKey + userCode;
@@ -195,7 +224,14 @@ public class OrderManageService extends BaseService {
 		
 		return historyOrders;
 	}
-	
+
+	/**
+	 * 从数据库查询并缓存上限量的用户历史托单分页
+	 * @param userCode
+	 * @param pageNum
+	 * @param PageSize
+	 * @return
+	 */
 	private Page<HistoryOrderView> findAndCacheLimitHistoryOrder(String userCode, int pageNum, int PageSize) {
 		List<HistoryOrderView> limitOrders = orderMapper.findLimitHistoryOrder(userCode, perUserOrderCacheLimit);
 		int size = limitOrders.size();
@@ -212,7 +248,13 @@ public class OrderManageService extends BaseService {
 		page.setPageNum(pageNum);
 		return page;
 	}
-	
+
+	/**
+	 * 从数据库查询并缓存上限量的用户历史托单时间分页
+	 * @param userCode
+	 * @param limit
+	 * @return
+	 */
 	private TimePage<HistoryOrderView> findAndCacheLimitHistoryOrder(String userCode, int limit) {
 		List<HistoryOrderView> limitOrders = orderMapper.findLimitHistoryOrder(userCode, perUserOrderCacheLimit);
 		int size = limitOrders.size();
@@ -228,7 +270,13 @@ public class OrderManageService extends BaseService {
 		page.setTotal((long) total);
 		return page;
 	}
-	
+
+	/**
+	 * 缓存历史托单数据
+	 * @param userCode
+	 * @param total
+	 * @param limitOrders
+	 */
 	private void cacheLimitHistoryOrder(String userCode, int total, List<HistoryOrderView> limitOrders) {
 		String userKey = historyOrderUserKey + userCode;
 		String userTotalKey = totalHistoryOrderUserKey + userCode;
@@ -243,9 +291,9 @@ public class OrderManageService extends BaseService {
 			jedis = RedisUtil.getResource();
 			jedis.watch(userKey);
 			Transaction trans = jedis.multi();
-			jedis.hmset(userKey, cacheMap);
-			jedis.set(userTotalKey, String.valueOf(total));
-			jedis.zincrby(hitCountKey, 1, userCode);
+			trans.hmset(userKey, cacheMap);
+			trans.set(userTotalKey, String.valueOf(total));
+			trans.zincrby(hitCountKey, 1, userCode);
 			trans.exec();
 		} catch (Exception e) {
 			if (jedis != null) {
@@ -254,6 +302,10 @@ public class OrderManageService extends BaseService {
 		}
 	}
 
+	/**
+	 * 更新历史托单缓存
+	 * @param order
+	 */
 	public void updateUserHistoryCache(Order order) {
 		String userCode = order.getUserCode();
 		String userTotalKey = totalHistoryOrderUserKey + userCode;
@@ -278,18 +330,22 @@ public class OrderManageService extends BaseService {
 		}
 	}
 
-	public void updateOrderNewDeal(Deal trade) {
-		orderMapper.updateOrderNewDeal(trade);
-	}
-
-	public boolean completeOrder(Order order) {
-		return orderMapper.completeOrder(order) != 0;
+	/**
+	 * 更新托单成交信息
+	 * @param deal
+	 */
+	public void updateOrderNewDeal(Deal deal) {
+		orderMapper.updateOrderNewDeal(deal);
 	}
 
 	/**
-	 * 清除历史订单缓存
-	 * LFU缓存淘汰策略
+	 * 更新托单为完成交易
+	 * @param order
+	 * @return true 此次操作更新成功 false 此次未更新数据,表明由其他线程成功更新数据
 	 */
+	public boolean completeOrder(Order order) {
+		return orderMapper.completeOrder(order) != 0;
+	}
 
 	public Page<CurrentEntrusts> findCurrentOrder(OrderQuery orderQuery, int pageNum, int PageSize) {
 		String userCode = orderQuery.getUserCode();
@@ -336,8 +392,7 @@ public class OrderManageService extends BaseService {
 
 	}
 
-
-	//获取用户制定数量当前脱单的缓存数据
+	//获取用户制定数量当前托单的缓存数据
 	private Page<CurrentEntrusts> findAndCacheLimitCurrentOrder(String userCode, int pageNum, int PageSize) {
 		List<CurrentEntrusts> limitOrders = orderMapper.findCurrentOrder(userCode);
 		int total = limitOrders.size();
@@ -349,11 +404,10 @@ public class OrderManageService extends BaseService {
 		return page;
 	}
 
-
 	private TimePage<CurrentEntrusts> findAndCacheLimitCurrentOrder(String userCode, int limit) {
 		List<CurrentEntrusts> limitOrders = orderMapper.findCurrentOrder(userCode);
 		int total = limitOrders.size();
-		//更新用户当前脱单的缓存数据
+		//更新用户当前托单的缓存数据
 		cacheLimitCurrentOrder(userCode, total, limitOrders);
 
 		TimePage<CurrentEntrusts> page = new TimePage<>();
@@ -386,7 +440,7 @@ public class OrderManageService extends BaseService {
 		}
 	}
 
-	//根据用户从缓存中读取当前脱单
+	//根据用户从缓存中读取当前托单
 	public List<CurrentEntrusts> findCurrentOrderFromRedis(OrderQuery orderQuery) {
 		Map<String, String> currentOrders = RedisUtil.getMap(currentOrderUserKey + orderQuery.getUserCode());
 		if (currentOrders == null || currentOrders.isEmpty()) {
@@ -404,7 +458,7 @@ public class OrderManageService extends BaseService {
 		return list;
 	}
 
-	//根据用户订单，添加当前脱单缓存
+	//根据用户托单，添加当前托单缓存
 	public boolean addUserCurrentOrderListFromRedis(Order order, int cacheSeconds){
 		if (StringUtils.isEmpty(order.getOrderCode())){
 			return false;
@@ -426,8 +480,8 @@ public class OrderManageService extends BaseService {
 			trans.hmset(userKey, currentOrders);
 			trans.set(userTotalKey, String.valueOf(total+1));
 			if (cacheSeconds != 0) {
-				trans.expire(userTotalKey, cacheSeconds);
-				trans.expire(userKey, cacheSeconds);
+				jedis.expire(userTotalKey, cacheSeconds);
+				jedis.expire(userKey, cacheSeconds);
 			}
 			trans.exec();
 		} catch (Exception e) {
@@ -440,7 +494,7 @@ public class OrderManageService extends BaseService {
 		return true;
 	}
 
-	//脱单系统状态变更：根据用户订单，更新制定脱单缓存
+	//托单系统状态变更：根据用户托单，更新制定托单缓存
 	public boolean updateUserCurrentOrderListFromRedis(OrderStatus trading, String orderCode, String userCode, int cacheSeconds){
 		if (StringUtils.isEmpty(orderCode)){
 			return false;
@@ -516,27 +570,41 @@ public class OrderManageService extends BaseService {
 		return currentEntrusts;
 	}
 
-
+	/**
+	 * 清除历史托单缓存
+	 * LFU缓存淘汰策略
+	 */
 	@Scheduled(cron = "0 0 0 * * ?")
 	public void clearUserHistoryOrderCache() {
 		Jedis jedis = null;
-		jedis = RedisUtil.getResource();
-		Set<String> users = jedis.zrange(historyCacheUserHitCountKey, userCacheLimit + 1, -1);
-		for (String userCode : users) {
-			deleteUserHistoryOrderCache(userCode, jedis);
-		}
-
-		Set<Tuple> tuples = jedis.zrangeWithScores(historyCacheUserHitCountKey, 0, -1);
-
-		//缩减过去的访问计数
-		for (Tuple tuple : tuples) {
-			String userCode = tuple.getElement();
-			long score = (long) tuple.getScore();
-			score = score / 2;
-			jedis.zadd(historyCacheUserHitCountKey, score, userCode);
+		try {
+			jedis = RedisUtil.getResource();
+			Set<String> users = jedis.zrange(historyCacheUserHitCountKey, userCacheLimit + 1, -1);
+			for (String userCode : users) {
+				deleteUserHistoryOrderCache(userCode, jedis);
+			}
+			
+			Set<Tuple> tuples = jedis.zrangeWithScores(historyCacheUserHitCountKey, 0, -1);
+			
+			//缩减过去的访问计数
+			for (Tuple tuple : tuples) {
+				String userCode = tuple.getElement();
+				long score = (long) tuple.getScore();
+				score = score / 2;
+				jedis.zadd(historyCacheUserHitCountKey, score, userCode);
+			}
+		} catch (Exception e) {
+			if (jedis != null) {
+				jedis.close();
+			}
 		}
 	}
 
+	/**
+	 * 删除历史订单缓存
+	 * @param userCode
+	 * @param jedis
+	 */
 	private void deleteUserHistoryOrderCache(String userCode, Jedis jedis) {
 		String userKey = historyOrderUserKey + userCode;
 		String userTotalKey = totalHistoryOrderUserKey + userCode;

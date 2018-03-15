@@ -85,7 +85,7 @@
 	    	order_code = #{orderCode}
   </update>
 
-	<select id="get">
+	<select id="get" resultType="com.entrusts.module.entity.Order">
 		select
 			o.order_code as orderCode,
 			o.user_code as userCode,
@@ -276,7 +276,7 @@
 		update `order` set
 		deal_amount = deal_amount + #{dealAmount},
 		deal_quantity = deal_quantity + #{dealQuantity},
-		lasted_deal_time = #{dealTime}
+		lasted_deal_time = if(lasted_deal_time > #{dealTime}, lasted_deal_time, #{dealTime})
 		where order_code = #{orderCode}
 	</update>
 
