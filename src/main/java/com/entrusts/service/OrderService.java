@@ -8,6 +8,7 @@ import com.entrusts.module.dto.DelegateEvent;
 import com.entrusts.module.entity.EntMqMessage;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.enums.OrderStatus;
+import com.entrusts.util.RedisUtil;
 import com.mo9.mqclient.IMqProducer;
 import com.mo9.mqclient.MqMessage;
 import com.mo9.mqclient.MqSendResult;
@@ -29,6 +30,8 @@ public class OrderService extends BaseService {
 	private OrderEventMapper orderEventMapper;
 	@Autowired
 	private EntMqMessageMapper mqMessageMapper;
+	@Autowired
+	private OrderManageService orderManageService;
 	@Autowired
 	private IMqProducer mqProducer;
 
@@ -54,14 +57,16 @@ public class OrderService extends BaseService {
 	@Transactional
 	public void save(Order order) {
 		orderMapper.insertOrder(order);
+		orderManageService.addUserCurrentOrderListFromRedis(order);
 	}
 
 	/**
 	 * 更新托单状态(交易中)
 	 */
 	@Transactional
-	public void updateOrderStatus(OrderStatus trading, String orderCode) {
+	public void updateOrderStatus(OrderStatus trading, String orderCode, String userCode) {
 		orderMapper.updateOrderStatus(trading, orderCode);
+		orderManageService.updateUserCurrentOrderListFromRedis(trading, orderCode, userCode, 3600*12);
 	}
 
 	/**
@@ -70,7 +75,7 @@ public class OrderService extends BaseService {
 	@Transactional
 	public void push2Match(DelegateEvent delegateEvent) {
 		EntMqMessage entMqMessage = insertMqPush(delegateEvent);
-		this.updateOrderStatus(OrderStatus.TRADING, delegateEvent.getOrderCode());
+		this.updateOrderStatus(OrderStatus.TRADING, delegateEvent.getOrderCode(), delegateEvent.getUserCode());
 
 		//更改MQ状态与新增MQ在同一事务中, 保证重发任务不会读到未尝试发送的信息
 		try {

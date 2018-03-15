@@ -32,8 +32,8 @@ eureka:
 
 redis:
   database: 11
-  host: 192.168.3.31
-  password: dev@Mo9.com
+  host: 127.0.0.1
+  password: 123456
 
   database2: 6
   host2: 192.168.3.31

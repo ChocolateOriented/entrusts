@@ -18,6 +18,8 @@ public class OrderQuery {
 
 	private Long toCreatedTime;
 
+	private Integer status;
+
 	public String getUserCode() {
 		return userCode;
 	}
@@ -96,6 +98,14 @@ public class OrderQuery {
 		this.toCreatedTime = toCreatedTime;
 	}
 
+	public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
 	public boolean hasCondition() {
 		return baseCurrency != null || targetCurrency != null || tradeType != null
 				|| startTime != null || endTime != null || toCreatedTime != null;
@@ -130,6 +140,37 @@ public class OrderQuery {
 			return false;
 		}
 		
+		return true;
+	}
+
+	public boolean matchConditionsByCurrent(CurrentEntrusts currentEntrusts) {
+		if (currentEntrusts == null) {
+			return false;
+		}
+
+		if (baseCurrency != null && !baseCurrency.equals(currentEntrusts.getBaseCurrency())) {
+			return false;
+		}
+
+		if (targetCurrency != null && !targetCurrency.equals(currentEntrusts.getTargetCurrency())) {
+			return false;
+		}
+
+		if (tradeType != null && !tradeType.equals(currentEntrusts.getTradeType())) {
+			return false;
+		}
+
+		if (startTime != null && (currentEntrusts.getDate() == null || startTime > currentEntrusts.getDate())) {
+			return false;
+		}
+
+		if (endTime != null && (currentEntrusts.getDate() == null || endTime < currentEntrusts.getDate())) {
+			return false;
+		}
+		if (status != null && (currentEntrusts.getStatus() == null || status != Integer.valueOf(currentEntrusts.getStatus()))){
+			return false;
+		}
+
 		return true;
 	}
 }
