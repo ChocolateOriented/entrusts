@@ -474,7 +474,7 @@ public class OrderManageService extends BaseService {
 			String userTotalKey = totalCurrentOrderUserKey + order.getUserCode();
 			currentOrders.remove(order.getOrderCode());
 			String result = RedisUtil.setMap(currentOrderUserKey + order.getUserCode(), currentOrders, cacheSeconds);
-			RedisUtil.set(userTotalKey, (Integer.valueOf(RedisUtil.get(userTotalKey)-1)+"", cacheSeconds);
+			RedisUtil.set(userTotalKey, (Integer.valueOf(RedisUtil.get(userTotalKey)) -1)+"", cacheSeconds);
 			return result == null ? false : true;
 		}
 
