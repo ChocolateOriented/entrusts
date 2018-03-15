@@ -46,5 +46,8 @@ public interface OrderMapper {
 	List<CurrentEntrusts> findCurrentOrder(@Param("userCode") String userCode);
 
 
+    void updateOrderNewDeal(Deal trade);
 
+
+	int completeOrder(Order order);
 }

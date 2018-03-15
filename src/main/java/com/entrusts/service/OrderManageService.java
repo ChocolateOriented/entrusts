@@ -50,11 +50,7 @@ public class OrderManageService extends BaseService {
 
 	private static final String currentOrderPrefix = "com.entrusts.service.CurrentOrderManageService";
 
-	private static final String historyOrderUserKey = historyOrderPrefix + ".userData.";
-
 	private static final String currentOrderUserKey = currentOrderPrefix + ".currentuserDate.";
-
-	private static final String totalHistoryOrderUserKey = historyOrderPrefix + ".userTotalData.";
 
 	private static final String totalCurrentOrderUserKey = currentOrderPrefix + ".currentuserTotalData.";
 
