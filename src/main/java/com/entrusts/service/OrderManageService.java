@@ -378,6 +378,8 @@ public class OrderManageService extends BaseService {
 			trans.set(userTotalKey, String.valueOf(total));
 			trans.exec();
 		} catch (Exception e) {
+
+		}finally {
 			if (jedis != null) {
 				jedis.close();
 			}
@@ -429,10 +431,11 @@ public class OrderManageService extends BaseService {
 			}
 			trans.exec();
 		} catch (Exception e) {
+			return false;
+		} finally {
 			if (jedis != null) {
 				jedis.close();
 			}
-			return false;
 		}
 		return true;
 	}
@@ -443,6 +446,9 @@ public class OrderManageService extends BaseService {
 			return false;
 		}
 		Map<String, String> currentOrders = RedisUtil.getMap(currentOrderUserKey + userCode);
+		if (currentOrders == null){
+			return false;
+		}
 		String jsonString = currentOrders.get(orderCode);
 		if (StringUtils.isEmpty(jsonString)){
 			return false;
@@ -468,7 +474,7 @@ public class OrderManageService extends BaseService {
 			String userTotalKey = totalCurrentOrderUserKey + order.getUserCode();
 			currentOrders.remove(order.getOrderCode());
 			String result = RedisUtil.setMap(currentOrderUserKey + order.getUserCode(), currentOrders, cacheSeconds);
-			RedisUtil.set(userTotalKey, (Integer.valueOf(RedisUtil.get(userTotalKey))-1)+"", cacheSeconds);
+			RedisUtil.set(userTotalKey, (Integer.valueOf(RedisUtil.get(userTotalKey)) -1)+"", cacheSeconds);
 			return result == null ? false : true;
 		}
 
