@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.entrusts.mapper.DigitalCurrencyMapper">
+  <resultMap id="BaseResultMap" type="com.entrusts.module.entity.DigitalCurrency">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="alias" jdbcType="VARCHAR" property="alias" />
+    <result column="unit" jdbcType="VARCHAR" property="unit" />
+    <result column="icon" jdbcType="VARCHAR" property="icon" />
+    <result column="link" jdbcType="VARCHAR" property="link" />
+    <result column="service_charge_rate" jdbcType="DECIMAL" property="serviceChargeRate" />
+    <result column="transfer_account_charge_rate" jdbcType="DECIMAL" property="transferAccountChargeRate" />
+    <result column="blockchain_charge_rate" jdbcType="DECIMAL" property="blockchainChargeRate" />
+    <result column="min_trade_volume" jdbcType="DECIMAL" property="minTradeVolume" />
+    <result column="is_deleted" jdbcType="TINYINT" property="isDeleted" />
+    <result column="is_supported" jdbcType="TINYINT" property="isSupported" />
+    <result column="min_trade_limit_time" jdbcType="SMALLINT" property="minTradeLimitTime" />
+    <result column="max_trade_limit_time" jdbcType="SMALLINT" property="maxTradeLimitTime" />
+    <result column="created_id" jdbcType="INTEGER" property="createdId" />
+    <result column="updated_id" jdbcType="INTEGER" property="updatedId" />
+    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+    <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+    <result column="deleted_time" jdbcType="TIMESTAMP" property="deletedTime" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from digital_currency
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.entrusts.module.entity.DigitalCurrency">
+    insert into digital_currency (id, name, alias, 
+      unit, icon, link, service_charge_rate, 
+      transfer_account_charge_rate, blockchain_charge_rate, 
+      min_trade_volume, is_deleted, is_supported, 
+      min_trade_limit_time, max_trade_limit_time, 
+      created_id, updated_id, created_time, 
+      updated_time, deleted_time)
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{alias,jdbcType=VARCHAR}, 
+      #{unit,jdbcType=VARCHAR}, #{icon,jdbcType=VARCHAR}, #{link,jdbcType=VARCHAR}, #{serviceChargeRate,jdbcType=DECIMAL}, 
+      #{transferAccountChargeRate,jdbcType=DECIMAL}, #{blockchainChargeRate,jdbcType=DECIMAL}, 
+      #{minTradeVolume,jdbcType=DECIMAL}, #{isDeleted,jdbcType=TINYINT}, #{isSupported,jdbcType=TINYINT}, 
+      #{minTradeLimitTime,jdbcType=SMALLINT}, #{maxTradeLimitTime,jdbcType=SMALLINT}, 
+      #{createdId,jdbcType=INTEGER}, #{updatedId,jdbcType=INTEGER}, #{createdTime,jdbcType=TIMESTAMP}, 
+      #{updatedTime,jdbcType=TIMESTAMP}, #{deletedTime,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.entrusts.module.entity.DigitalCurrency">
+    update digital_currency
+    set name = #{name,jdbcType=VARCHAR},
+      alias = #{alias,jdbcType=VARCHAR},
+      unit = #{unit,jdbcType=VARCHAR},
+      icon = #{icon,jdbcType=VARCHAR},
+      link = #{link,jdbcType=VARCHAR},
+      service_charge_rate = #{serviceChargeRate,jdbcType=DECIMAL},
+      transfer_account_charge_rate = #{transferAccountChargeRate,jdbcType=DECIMAL},
+      blockchain_charge_rate = #{blockchainChargeRate,jdbcType=DECIMAL},
+      min_trade_volume = #{minTradeVolume,jdbcType=DECIMAL},
+      is_deleted = #{isDeleted,jdbcType=TINYINT},
+      is_supported = #{isSupported,jdbcType=TINYINT},
+      min_trade_limit_time = #{minTradeLimitTime,jdbcType=SMALLINT},
+      max_trade_limit_time = #{maxTradeLimitTime,jdbcType=SMALLINT},
+      created_id = #{createdId,jdbcType=INTEGER},
+      updated_id = #{updatedId,jdbcType=INTEGER},
+      created_time = #{createdTime,jdbcType=TIMESTAMP},
+      updated_time = #{updatedTime,jdbcType=TIMESTAMP},
+      deleted_time = #{deletedTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, name, alias, unit, icon, link, service_charge_rate, transfer_account_charge_rate, 
+    blockchain_charge_rate, min_trade_volume, is_deleted, is_supported, min_trade_limit_time, 
+    max_trade_limit_time, created_id, updated_id, created_time, updated_time, deleted_time
+    from digital_currency
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, name, alias, unit, icon, link, service_charge_rate, transfer_account_charge_rate, 
+    blockchain_charge_rate, min_trade_volume, is_deleted, is_supported, min_trade_limit_time, 
+    max_trade_limit_time, created_id, updated_id, created_time, updated_time, deleted_time
+    from digital_currency
+  </select>
+</mapper>

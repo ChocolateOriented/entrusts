@@ -1,5 +1,6 @@
 package com.entrusts.mapper;
 
+import com.entrusts.module.dto.AliasMap;
 import com.entrusts.module.dto.BaseCurrency;
 import com.entrusts.module.dto.TargetMapCurrency;
 import com.entrusts.module.entity.TradePair;
@@ -20,4 +21,6 @@ public interface TradePairMapper{
     List<BaseCurrency> getBaseCurrency();
 
 	List<TargetMapCurrency> updateTargetCurrency(String s);
+
+	AliasMap getAllAlias(Long tradePairId);
 }

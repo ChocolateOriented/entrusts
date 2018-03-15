@@ -80,7 +80,8 @@ nest:
   group: DandelionGroup
   mode: ALONE
   exclude:
-    urls: /auth/**,/error,/captcha/**,/order/requestToken,/order/delegateLimit
+    urls: /auth/**,/error,/captcha/**,/order/requestToken,/order/delegateLimit,/entrusts/currency/listBase,/entrusts/currency/listTarget,/entrusts/order/cancel,/entrusts/order/cancelAll
+
 
 mybatis:
   mapper-locations: classpath:mapping/*.xml
@@ -91,3 +92,4 @@ disruptor:
 
 url:
   lockCoin: www
+  urldealmaking: http://192.168.6.27:3000/mock/104

@@ -72,4 +72,14 @@
         ORDER BY
         t.order_by_num
     </select>
+    <select id="getAllAlias"  resultType="com.entrusts.module.dto.AliasMap">
+        SELECT
+        c.alias AS 'baseAlias',
+        x.alias AS 'targetAlias'
+        FROM
+        trade_pair AS p
+        INNER JOIN digital_currency AS c ON p.base_currency_id = c.id
+        INNER JOIN digital_currency AS x ON p.target_currency_id = x.id
+        WHERE p.id = #{tradePairId};
+    </select>
 </mapper>
