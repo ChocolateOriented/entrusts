@@ -22,8 +22,9 @@
 		</where>
 	</select>
 
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert">
 		INSERT INTO mq_message(
+			id,
 			topic,
 			tag,
 			`key`,
@@ -31,6 +32,7 @@
 			created_time,
 			updated_time
 		) VALUES (
+			#{id},
 			#{topic},
 			#{tag},
 			#{key},
@@ -45,14 +47,6 @@
 			msg_id = #{msgId},
 			updated_time = now()
 		WHERE id = #{id}
-	</update>
-
-	<update id="updateByKey">
-		UPDATE mq_message SET
-		msg_id = #{msgId},
-		updated_time = now()
-		WHERE key = #{key}
-		AND topic = #{topic}
 	</update>
 
 </mapper>

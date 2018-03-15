@@ -8,7 +8,7 @@ import java.util.Date;
  * 消息队列实体类
  */
 public class EntMqMessage {
-	private Integer id;
+	private Long id;
 	private String topic;//消息主题
 	private String tag;//消息标签(主题下的分类)
 	private String key;//业务主键
@@ -38,11 +38,11 @@ public class EntMqMessage {
 		return tag;
 	}
 
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
