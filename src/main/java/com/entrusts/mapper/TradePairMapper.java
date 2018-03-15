@@ -29,5 +29,5 @@ public interface TradePairMapper{
 
     List<TargetMapCurrency> updateTargetCurrency(String s);
 
-    AliasMap getAllAlias(Long tradePairId);
+    AliasMap getAllAlias(Integer tradePairId);
 }

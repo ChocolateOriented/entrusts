@@ -1,7 +1,10 @@
 package com.entrusts.util;
 
-import com.entrusts.module.enums.*;
-
+import com.entrusts.module.enums.BaseCodeEnum;
+import com.entrusts.module.enums.DelegateEventstatus;
+import com.entrusts.module.enums.OrderMode;
+import com.entrusts.module.enums.OrderStatus;
+import com.entrusts.module.enums.TradeType;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
