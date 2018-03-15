@@ -1,9 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.entrusts.mapper.OrderMapper">
-  <sql id="orderColumns">
-  </sql>
-
+	<resultMap id="UnfreezeEntity" type="com.entrusts.module.dto.UnfreezeEntity" autoMapping="true">
+		<association property="order" resultMap="BaseResultMap" ></association>
+	</resultMap>
+	<resultMap id="BaseResultMap" type="com.entrusts.module.entity.Order">
+		<id column="order_code" jdbcType="BIGINT" property="orderCode" />
+		<result column="user_code" jdbcType="CHAR" property="userCode" />
+		<result column="client_time" jdbcType="TIMESTAMP" property="clientTime" />
+		<result column="order_time" jdbcType="TIMESTAMP" property="orderTime" />
+		<result column="trade_pair_id" jdbcType="INTEGER" property="tradePairId" />
+		<result column="convert_rate" jdbcType="DECIMAL" property="convertRate" />
+		<result column="trade_type" jdbcType="TINYINT" property="tradeType" />
+		<result column="quantity" jdbcType="DECIMAL" property="quantity" />
+		<result column="mode" jdbcType="TINYINT"    property="mode" />
+		<result column="status" jdbcType="TINYINT"  property="status" />
+		<result column="service_fee_rate" jdbcType="DECIMAL" property="serviceFeeRate" />
+		<result column="deal_amount" jdbcType="DECIMAL" property="dealAmount" />
+		<result column="deal_quantity" jdbcType="DECIMAL" property="dealQuantity" />
+		<result column="lasted_deal_time" jdbcType="TIMESTAMP" property="lastedDealTime" />
+		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+		<result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+		<result column="is_deleted" jdbcType="TINYINT" property="isDeleted" />
+	</resultMap>
+	<sql id="orderColumns">
+		o.order_code AS "order_code",
+		o.user_code AS "user_code",
+		o.client_time AS "client_time",
+		o.order_time AS "order_time",
+		o.trade_pair_id AS "trade_pair_id",
+		o.convert_rate AS "convert_rate",
+		o.trade_type AS "trade_type",
+		o.quantity AS "quantity",
+		o.amount AS "amount",
+		o.mode AS "mode" ,
+		o.status AS "status" ,
+		o.service_fee_rate AS "service_fee_rate",
+		o.deal_amout AS "deal_amout",
+		o.deal_quantity AS "deal_quantity" ,
+		o.lasted_deal_time AS "lasted_deal_time" ,
+		o.created_time AS "created_time",
+		o.updated_time AS "updated_time",
+		o.is_deleted AS "is_deleted"
+	</sql>
 	<insert id="insertOrder" parameterType="com.entrusts.module.entity.Order">
   INSERT INTO `order` (
     `order_code`,
@@ -248,7 +287,32 @@
 		and status = 20
 	</update>
 
-
+    <select id="queryUnfreezeInfo" parameterType="String" resultMap="UnfreezeEntity">
+        SELECT
+        <include refid="orderColumns"/>,
+        c.id AS 'encryptCurrencyId',
+        p.base_currency_id AS 'baseCurrencyId',
+        p.target_currency_id AS 'targetCurrencyId',
+        (o.quantity-o.deal_quantity) AS 'residuequantity'
+        FROM
+        `order` AS o
+        INNER JOIN trade_pair AS p ON o.trade_pair_id = p.id
+        INNER JOIN digital_currency AS c ON p.base_currency_id = c.id
+        WHERE o.order_code = #{orderCode} AND o.`status`=20
+    </select>
+    <select id="queryAllUnfreezeInfo" parameterType="String" resultMap="UnfreezeEntity">
+        SELECT
+        <include refid="orderColumns"/>,
+        c.id AS 'encryptCurrencyId',
+        p.base_currency_id AS 'baseCurrencyId',
+        p.target_currency_id AS 'targetCurrencyId',
+        (o.quantity-o.deal_quantity) AS 'residuequantity'
+        FROM
+        `order` AS o
+        INNER JOIN trade_pair AS p ON o.trade_pair_id = p.id
+        INNER JOIN digital_currency AS c ON p.base_currency_id = c.id
+        WHERE o.user_code = #{userCode} AND o.`status`=20
+    </select>
 
 	<select id="findCurrentOrder" resultType="com.entrusts.module.vo.CurrentEntrusts">
 		select
