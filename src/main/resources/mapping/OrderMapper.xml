@@ -119,7 +119,7 @@
 			o.convert_rate as orderPrice,
 			o.deal_quantity as dealTargetQuantity,
 			o.deal_amount as dealBaseAmount,
-			o.deal_amount * sevice_fee_rate as serviceFee,
+			o.deal_amount * service_fee_rate as serviceFee,
 			status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
@@ -157,7 +157,7 @@
 			o.convert_rate as orderPrice,
 			o.deal_quantity as dealTargetQuantity,
 			o.deal_amount as dealBaseAmount,
-			o.deal_amount * sevice_fee_rate as serviceFee,
+			o.deal_amount * service_fee_rate as serviceFee,
 			status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
@@ -232,7 +232,7 @@
 			o.convert_rate as orderPrice,
 			o.deal_quantity as dealTargetQuantity,
 			o.deal_amount as dealBaseAmount,
-			o.deal_amount * sevice_fee_rate as serviceFee,
+			o.deal_amount * service_fee_rate as serviceFee,
 			status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
@@ -254,7 +254,7 @@
 			o.convert_rate as orderPrice,
 			o.deal_quantity as dealTargetQuantity,
 			o.deal_amount as dealBaseAmount,
-			o.deal_amount * sevice_fee_rate as serviceFee,
+			o.deal_amount * service_fee_rate as serviceFee,
 			status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
