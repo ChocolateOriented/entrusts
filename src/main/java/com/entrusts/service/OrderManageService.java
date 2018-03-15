@@ -472,15 +472,34 @@ public class OrderManageService extends BaseService {
 		}
 		if (order.getDealQuantity().equals(order.getQuantity())){
 			String userTotalKey = totalCurrentOrderUserKey + order.getUserCode();
-			currentOrders.remove(order.getOrderCode());
-			String result = RedisUtil.setMap(currentOrderUserKey + order.getUserCode(), currentOrders, cacheSeconds);
+			RedisUtil.mapRemove(currentOrderUserKey + order.getUserCode(), order.getOrderCode());
 			RedisUtil.set(userTotalKey, (Integer.valueOf(RedisUtil.get(userTotalKey)) -1)+"", cacheSeconds);
-			return result == null ? false : true;
+			return true;
 		}
 
 		currentOrders.put(order.getOrderCode(), JSON.toJSONString(copyPropertiesOrder(order, new CurrentEntrusts())));
 		String result = RedisUtil.setMap(currentOrderUserKey + order.getUserCode(), currentOrders, cacheSeconds);
 		return result == null ? false : true;
+	}
+
+	//成交系统返回撤销成功，删除缓存
+	public void deleteUserCurrentOrderListFromRedisByDeal(String userCode, String orderCode, int cacheSeconds){
+		if (StringUtils.isEmpty(userCode)){
+			return;
+		}
+		Map<String, String> currentOrders = RedisUtil.getMap(currentOrderUserKey + userCode);
+		if (currentOrders == null){
+			return;
+		}
+		if (orderCode != null){
+			String userTotalKey = totalCurrentOrderUserKey + userCode;;
+			RedisUtil.mapRemove(currentOrderUserKey + userCode, orderCode);
+			RedisUtil.set(userTotalKey, (Integer.valueOf(RedisUtil.get(userTotalKey)) -1)+"", cacheSeconds);
+			return;
+		}else {
+			RedisUtil.del(currentOrderUserKey + userCode);
+			RedisUtil.del(totalCurrentOrderUserKey + userCode);
+		}
 	}
 
 
