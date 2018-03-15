@@ -39,8 +39,10 @@ public class EntMqMessageService extends BaseService {
 	@Transactional
 	public void send (String topic, String tag, String key, String body) {
 		EntMqMessage entMqMessage = new EntMqMessage(topic, tag, key, body);
+		entMqMessage.setId(generateId());
 		dao.insert(entMqMessage);
-		this.sendMqMessage(entMqMessage);
+		//更改MQ状态与新增MQ在同一事务中, 保证重发任务不会读到未尝试发送的信息
+		this.trySendMqMessage(entMqMessage);
 	}
 
 	/**
@@ -54,7 +56,7 @@ public class EntMqMessageService extends BaseService {
 		List<EntMqMessage> messages= dao.findResendMessages();
 		logger.info("正在重发消息, 共"+messages.size()+"条");
 		for (EntMqMessage entMqMessage : messages) {
-			this.sendMqMessage(entMqMessage);
+			this.trySendMqMessage(entMqMessage);
 		}
 	}
 
@@ -64,7 +66,7 @@ public class EntMqMessageService extends BaseService {
 	 * @return void
 	 */
 	@Transactional
-	private void sendMqMessage(EntMqMessage entMqMessage) {
+	private void trySendMqMessage(EntMqMessage entMqMessage) {
 		MqMessage message = new MqMessage(entMqMessage.getTopic(), entMqMessage.getTag(), entMqMessage.getKey(), entMqMessage.getBody());
 		try {
 			MqSendResult result = mqProducer.send(message);

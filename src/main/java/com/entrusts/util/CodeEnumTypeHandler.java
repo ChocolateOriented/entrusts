@@ -1,6 +1,10 @@
 package com.entrusts.util;
 
 import com.entrusts.module.enums.BaseCodeEnum;
+import com.entrusts.module.enums.DelegateEventstatus;
+import com.entrusts.module.enums.OrderMode;
+import com.entrusts.module.enums.OrderStatus;
+import com.entrusts.module.enums.TradeType;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,7 +18,7 @@ import org.apache.ibatis.type.MappedTypes;
 /**
  * Created by jxli on 2018/3/14.
  */
-@MappedTypes(value = BaseCodeEnum.class)
+@MappedTypes(value = {DelegateEventstatus.class, OrderMode.class, OrderStatus.class, TradeType.class})
 public class CodeEnumTypeHandler<E extends Enum<E> & BaseCodeEnum> extends BaseTypeHandler<E> {
 	private Class<E> type;
 

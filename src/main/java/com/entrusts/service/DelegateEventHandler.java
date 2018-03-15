@@ -51,7 +51,7 @@ public class DelegateEventHandler extends BaseService {
 		String orderCode = delegateEvent.getOrderCode();
 
 		if (DelegateEventstatus.INSERT_ORDERDB_ERROR.equals(delegateEvent.getDelegateEventstatus())) {
-			logger.info("用户：" + userCode + "订单:" + orderCode + "新增托单数据未成功,账户锁币&MQ入库&变更托单状态未执行");
+			logger.info("用户：" + userCode + "订单:" + orderCode + "新增托单数据未成功, 未执行发布托单");
 			return;
 		}
 
@@ -75,7 +75,7 @@ public class DelegateEventHandler extends BaseService {
 		}
 
 		delegateEvent.setDelegateEventstatus(DelegateEventstatus.PUBLISH_ORDER_SUCCESS);
-		logger.debug("用户：" + delegateEvent.getUserCode() + "订单:" + delegateEvent.getOrderCode() + "托单成功");
+		logger.debug("用户：" + userCode + "订单:" + orderCode + "托单成功");
 	}
 
 	/**
@@ -132,6 +132,6 @@ public class DelegateEventHandler extends BaseService {
 			orderEvent.setStatus(OrderStatus.DELEGATE_FAILED);
 		}
 		orderEventService.save(orderEvent);
-		logger.info("用户：" + delegateEvent.getUserCode() + "订单:" + delegateEvent.getOrderCode() + "记录托单流程log插入成功");
+		logger.debug("用户：" + delegateEvent.getUserCode() + "订单:" + delegateEvent.getOrderCode() + "记录托单流程log插入成功");
 	}
 }

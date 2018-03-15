@@ -1,16 +1,11 @@
 package com.entrusts.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.entrusts.mapper.EntMqMessageMapper;
 import com.entrusts.mapper.OrderEventMapper;
 import com.entrusts.mapper.OrderMapper;
 import com.entrusts.module.dto.DelegateEvent;
-import com.entrusts.module.entity.EntMqMessage;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.enums.OrderStatus;
-import com.mo9.mqclient.IMqProducer;
-import com.mo9.mqclient.MqMessage;
-import com.mo9.mqclient.MqSendResult;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,13 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderService extends BaseService {
 
 	@Autowired
+	EntMqMessageService mqMessageService;
+	@Autowired
 	private OrderMapper orderMapper;
 	@Autowired
 	private OrderEventMapper orderEventMapper;
-	@Autowired
-	private EntMqMessageMapper mqMessageMapper;
-	@Autowired
-	private IMqProducer mqProducer;
 
 	@Value("${mq.delegatePushTopic}")
 	private String delegatePushTopic;
@@ -69,21 +62,6 @@ public class OrderService extends BaseService {
 	 */
 	@Transactional
 	public void push2Match(DelegateEvent delegateEvent) {
-		EntMqMessage entMqMessage = insertMqPush(delegateEvent);
-		this.updateOrderStatus(OrderStatus.TRADING, delegateEvent.getOrderCode());
-
-		//更改MQ状态与新增MQ在同一事务中, 保证重发任务不会读到未尝试发送的信息
-		try {
-			sendMatchMq(entMqMessage);
-		}catch (Exception e){
-			logger.info(delegateEvent.getOrderCode() + "推送至撮合失败", e);
-		}
-	}
-
-	/**
-	 * MQ入库
-	 */
-	public EntMqMessage insertMqPush(DelegateEvent delegateEvent) {
 		JSONObject body = new JSONObject();
 		body.put("orderCode", delegateEvent.getOrderCode());
 		body.put("price", delegateEvent.getConvertRate());
@@ -94,18 +72,8 @@ public class OrderService extends BaseService {
 		body.put("baseCurrencyId", delegateEvent.getBaseCurrencyId());
 		body.put("tradeType", delegateEvent.getTradeType());
 		body.put("createdTime", delegateEvent.getOrderTime().getTime());
-		EntMqMessage entMqMessage = new EntMqMessage(delegatePushTopic, delegatePushTag, delegateEvent.getOrderCode(), body.toJSONString());
-		mqMessageMapper.insert(entMqMessage);
-		return entMqMessage;
-	}
 
-	/**
-	 * 推送mq更新托单状态
-	 */
-	public void sendMatchMq(EntMqMessage entMqMessage) {
-		MqMessage message = new MqMessage(entMqMessage.getTopic(), entMqMessage.getTag(), entMqMessage.getKey(), entMqMessage.getBody());
-		MqSendResult result = mqProducer.send(message);
-		message.setMsgId(result.getMessageId());
-		mqMessageMapper.updateByKey(entMqMessage);
+		mqMessageService.send(delegatePushTopic, delegatePushTag, delegateEvent.getOrderCode(), body.toJSONString());
+		this.updateOrderStatus(OrderStatus.TRADING, delegateEvent.getOrderCode());
 	}
 }
