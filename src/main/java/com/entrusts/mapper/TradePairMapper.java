@@ -18,9 +18,16 @@ public interface TradePairMapper{
 	 */
 	TradePair findTradePairByCoinName(@Param("baseCurrencyAlias") String baseCurrencyAlias,@Param("targetCurrencyAlias") String targetCurrencyAlias);
 
+	/**
+	 * 通过交易对Id查询交易对
+	 * @param tradePairId
+	 * @return
+	 */
+	TradePair findTradePairById(int tradePairId);
+
     List<BaseCurrency> getBaseCurrency();
 
-	List<TargetMapCurrency> updateTargetCurrency(String s);
+    List<TargetMapCurrency> updateTargetCurrency(String s);
 
-	AliasMap getAllAlias(Long tradePairId);
+    AliasMap getAllAlias(Long tradePairId);
 }

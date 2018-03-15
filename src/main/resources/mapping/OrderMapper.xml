@@ -81,7 +81,7 @@
 		    SET
 		    updated_time = now(),
 		    `status` = #{status}
-	    WHERE 
+	    WHERE
 	    	order_code = #{orderCode}
   </update>
 
@@ -271,7 +271,7 @@
 		where user_code = #{userCode}
 		and status in (30, 40)
 	</select>
-	
+
 	<update id="updateOrderNewDeal">
 		update `order` set
 		deal_amount = deal_amount + #{dealAmount},
@@ -279,37 +279,62 @@
 		lasted_deal_time = #{dealTime}
 		where order_code = #{orderCode}
 	</update>
-	
+
 	<update id="completeOrder">
 		update `order` set
 		status = 30
 		where order_code = #{orderCode}
 		and status = 20
 	</update>
-	<select id="queryUnfreezeInfo" parameterType="String" resultMap="UnfreezeEntity">
-		SELECT
-		<include refid="orderColumns"/>,
-		c.id AS 'encryptCurrencyId',
-		p.base_currency_id AS 'baseCurrencyId',
-		p.target_currency_id AS 'targetCurrencyId',
-		(o.quantity-o.deal_quantity) AS 'residuequantity'
-		FROM
-		`order` AS o
-		INNER JOIN trade_pair AS p ON o.trade_pair_id = p.id
-		INNER JOIN digital_currency AS c ON p.base_currency_id = c.id
-		WHERE o.order_code = #{orderCode} AND o.`status`=20
+
+    <select id="queryUnfreezeInfo" parameterType="String" resultMap="UnfreezeEntity">
+        SELECT
+        <include refid="orderColumns"/>,
+        c.id AS 'encryptCurrencyId',
+        p.base_currency_id AS 'baseCurrencyId',
+        p.target_currency_id AS 'targetCurrencyId',
+        (o.quantity-o.deal_quantity) AS 'residuequantity'
+        FROM
+        `order` AS o
+        INNER JOIN trade_pair AS p ON o.trade_pair_id = p.id
+        INNER JOIN digital_currency AS c ON p.base_currency_id = c.id
+        WHERE o.order_code = #{orderCode} AND o.`status`=20
+    </select>
+    <select id="queryAllUnfreezeInfo" parameterType="String" resultMap="UnfreezeEntity">
+        SELECT
+        <include refid="orderColumns"/>,
+        c.id AS 'encryptCurrencyId',
+        p.base_currency_id AS 'baseCurrencyId',
+        p.target_currency_id AS 'targetCurrencyId',
+        (o.quantity-o.deal_quantity) AS 'residuequantity'
+        FROM
+        `order` AS o
+        INNER JOIN trade_pair AS p ON o.trade_pair_id = p.id
+        INNER JOIN digital_currency AS c ON p.base_currency_id = c.id
+        WHERE o.user_code = #{userCode} AND o.`status`=20
+    </select>
+
+	<select id="findCurrentOrder" resultType="com.entrusts.module.vo.CurrentEntrusts">
+		select
+		o.order_code as orderCode,
+		o.created_time as date,
+		c1.alias as baseCurrency,
+		c2.alias as targetCurrency,
+		if(o.trade_type = 1, 'buy', 'sell') as tradeType,
+		o.convert_rate as orderPrice,
+		o.deal_quantity as dealTargetQuantity,
+		o.deal_amount as dealBaseAmount,
+		status
+		from `order` o
+		left join trade_pair p on o.trade_pair_id = p.id
+		left join digital_currency c1 on c1.id = p.base_currency_id
+		left join digital_currency c2 on c2.id = p.target_currency_id
+		where user_code = #{userCode}
+		and status in (10, 20)
+		AND o.is_deleted ='0'
+		order by o.created_time desc
 	</select>
-	<select id="queryAllUnfreezeInfo" parameterType="String" resultMap="UnfreezeEntity">
-		SELECT
-		<include refid="orderColumns"/>,
-		c.id AS 'encryptCurrencyId',
-		p.base_currency_id AS 'baseCurrencyId',
-		p.target_currency_id AS 'targetCurrencyId',
-		(o.quantity-o.deal_quantity) AS 'residuequantity'
-		FROM
-		`order` AS o
-		INNER JOIN trade_pair AS p ON o.trade_pair_id = p.id
-		INNER JOIN digital_currency AS c ON p.base_currency_id = c.id
-		WHERE o.user_code = #{userCode} AND o.`status`=20
-	</select>
+
+
+
 </mapper>
