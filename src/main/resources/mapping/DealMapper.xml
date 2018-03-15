@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.entrusts.mapper.TradeMapper">
-	<resultMap id="BaseResultMap" type="com.entrusts.module.entity.Trade">
+	<resultMap id="BaseResultMap" type="com.entrusts.module.entity.Deal">
 		<id column="trade_code" jdbcType="BIGINT" property="tradeCode" />
 		<result column="order_code" jdbcType="BIGINT" property="orderCode" />
 		<result column="deal_price" jdbcType="DECIMAL" property="dealPrice" />
@@ -10,8 +10,8 @@
 		<result column="service_fee" jdbcType="DECIMAL" property="serviceFee" />
 		<result column="deal_time" jdbcType="TIMESTAMP" property="dealTime" />
 	</resultMap>
-	<insert id="insert" parameterType="com.entrusts.module.entity.Trade">
-		insert into trade (trade_code, order_code, deal_price, 
+	<insert id="insert" parameterType="com.entrusts.module.entity.Deal">
+		insert ignore into deal (trade_code, order_code, deal_price, 
 			deal_quantity, deal_amount, service_fee, 
 			deal_time)
 		values (#{tradeCode,jdbcType=BIGINT}, #{orderCode,jdbcType=BIGINT}, #{dealPrice,jdbcType=DECIMAL}, 
@@ -21,6 +21,6 @@
 	<select id="selectAll" resultMap="BaseResultMap">
 		select trade_code, order_code, deal_price, deal_quantity, deal_amount, service_fee, 
 		deal_time
-		from trade
+		from deal
 	</select>
 </mapper>

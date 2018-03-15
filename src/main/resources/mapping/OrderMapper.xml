@@ -1,27 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.entrusts.mapper.OrderMapper">
+  <sql id="orderColumns">
+  </sql>
 
-	<resultMap id="BaseResultMap" type="com.entrusts.module.entity.Order">
-		<id column="order_code" jdbcType="BIGINT" property="orderCode" />
-		<result column="user_code" jdbcType="CHAR" property="userCode" />
-		<result column="client_time" jdbcType="TIMESTAMP" property="clientTime" />
-		<result column="order_time" jdbcType="TIMESTAMP" property="orderTime" />
-		<result column="trade_pair_id" jdbcType="INTEGER" property="tradePairId" />
-		<result column="convert_rate" jdbcType="DECIMAL" property="convertRate" />
-		<result column="trade_type" jdbcType="TINYINT"  property="tradeType" />
-		<result column="quantity" jdbcType="DECIMAL" property="quantity" />
-		<result column="amount" jdbcType="DECIMAL" property="amount" />
-		<result column="mode" jdbcType="TINYINT"   property="mode" />
-		<result column="status" jdbcType="TINYINT"  property="status" />
-		<result column="service_fee_rate" jdbcType="DECIMAL" property="serviceFeeRate" />
-		<result column="deal_amout" jdbcType="DECIMAL" property="dealAmout" />
-		<result column="deal_quantity" jdbcType="DECIMAL" property="dealQuantity" />
-		<result column="lasted_deal_time" jdbcType="TIMESTAMP" property="lastedDealTime" />
-		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
-		<result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
-		<result column="is_deleted" jdbcType="TINYINT" property="isDeleted" />
-	</resultMap>
+	<insert id="insertOrder" parameterType="com.entrusts.module.entity.Order">
+  INSERT INTO `order` (
+    `order_code`,
+    `user_code`,
+    `client_time`,
+    `order_time`,
+    `trade_pair_id`,
+    `convert_rate`,
+    `trade_type`,
+    `quantity`,
+    `mode`,
+    `status`,
+    `created_time`,
+    `updated_time`,
+    `is_deleted`
+    )
+		values (
+			#{orderCode,jdbcType=CHAR},
+			#{userCode,jdbcType=VARCHAR},
+			#{clientTime,jdbcType=TIMESTAMP},
+			#{orderTime,jdbcType=TIMESTAMP},
+			#{tradePairId,jdbcType=INTEGER},
+			#{convertRate,jdbcType=DECIMAL},
+			#{tradeType,jdbcType=TINYINT},
+			#{quantity,jdbcType=DECIMAL},
+			#{mode,jdbcType=TINYINT},
+			#{status,jdbcType=TINYINT},
+      now(),
+      now(),
+      0
+		)
+	</insert>
+
+  <update id="updateOrderStatus">
+	    UPDATE `order`
+		    SET
+		    updated_time = now(),
+		    `status` = #{status}
+	    WHERE
+	    	order_code = #{orderCode}
+  </update>
+
+	<select id="get">
+		select
+			o.order_code as orderCode,
+			o.user_code as userCode,
+			o.client_time as clientTime,
+			o.order_time as orderTime,
+			o.trade_pair_id as tradePairId,
+			o.convert_rate as convertRate,
+			o.trade_type as tradeType,
+			o.quantity as quantity,
+			o.amount as amount,
+			o.mode as mode,
+			o.status as status,
+			o.service_fee_rate as serviceFeeRate,
+			o.deal_amount as dealAmount,
+			o.deal_quantity as dealQuantity,
+			o.lasted_deal_time as lastedDealTime,
+			o.created_time as createdTime,
+			o.updated_time as updatedTime,
+			o.is_deleted as isDeleted
+		from `order` o
+		where o.order_code = #{orderCode}
+	</select>
+
 	<select id="findHistoryOrderByPage" resultType="com.entrusts.module.vo.HistoryOrderView">
 		select
 			o.order_code as orderCode,
@@ -37,9 +85,9 @@
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
 		left join digital_currency c1 on c1.id = p.base_currency_id
-		left join digital_currency c2 on c2.id = p.target_currency_id
+		left join digital_currency c2 on c2.id = p.target_currency_id 
 		where user_code = #{userCode}
-		and status in (2, 3)
+		and status in (30, 40)
 		<if test="startTime != null">
 			<![CDATA[ and o.created_time >= #{startTime} ]]>
 		</if>
@@ -59,7 +107,7 @@
 			and c2.alias = #{targetCurrency}
 		</if>
 	</select>
-
+	
 	<select id="findHistoryOrderByTime" resultType="com.entrusts.module.vo.HistoryOrderView">
 		select
 			o.order_code as orderCode,
@@ -75,9 +123,9 @@
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
 		left join digital_currency c1 on c1.id = p.base_currency_id
-		left join digital_currency c2 on c2.id = p.target_currency_id
+		left join digital_currency c2 on c2.id = p.target_currency_id 
 		where user_code = #{userCode}
-		and status in (2, 3)
+		and status in (30, 40)
 		<if test="toCreatedTime != null">
 			<![CDATA[ and o.created_time < #{toCreatedTime} ]]>
 		</if>
@@ -102,16 +150,16 @@
 		order by o.created_time desc
 		limit #{limit}
 	</select>
-
+	
 	<select id="countHistoryOrderByTime" resultType="long">
 		select
 			count(o.order_code)
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
 		left join digital_currency c1 on c1.id = p.base_currency_id
-		left join digital_currency c2 on c2.id = p.target_currency_id
+		left join digital_currency c2 on c2.id = p.target_currency_id 
 		where user_code = #{userCode}
-		and status in (2, 3)
+		and status in (30, 40)
 		<if test="toCreatedTime != null">
 			<![CDATA[ and o.created_time < #{toCreatedTime} ]]>
 		</if>
@@ -134,7 +182,7 @@
 			and c2.alias = #{targetCurrency}
 		</if>
 	</select>
-
+	
 	<select id="findLimitHistoryOrder" resultType="com.entrusts.module.vo.HistoryOrderView">
 		select
 			o.order_code as orderCode,
@@ -150,13 +198,13 @@
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
 		left join digital_currency c1 on c1.id = p.base_currency_id
-		left join digital_currency c2 on c2.id = p.target_currency_id
+		left join digital_currency c2 on c2.id = p.target_currency_id 
 		where user_code = #{userCode}
-		and status in (2, 3)
+		and status in (30, 40)
 		order by o.created_time desc
 		limit #{limit}
 	</select>
-
+	
 	<select id="getHistoryOrder" resultType="com.entrusts.module.vo.HistoryOrderView">
 		select
 			o.order_code as orderCode,
@@ -172,18 +220,34 @@
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
 		left join digital_currency c1 on c1.id = p.base_currency_id
-		left join digital_currency c2 on c2.id = p.target_currency_id
+		left join digital_currency c2 on c2.id = p.target_currency_id 
 		where order_code = #{orderCode}
-		and status in (2, 3)
+		and status in (30, 40)
 	</select>
-
+	
 	<select id="totalHistoryOrder">
 		select
 			count(o.order_code)
 		from `order` o
 		where user_code = #{userCode}
-		and status in (2, 3)
+		and status in (30, 40)
 	</select>
+
+	<update id="updateOrderNewDeal">
+		update `order` set
+		deal_amount = deal_amount + #{dealAmount},
+		deal_quantity = deal_quantity + #{dealQuantity},
+		lasted_deal_time = #{dealTime}
+		where order_code = #{orderCode}
+	</update>
+
+	<update id="completeOrder">
+		update `order` set
+		status = 30
+		where order_code = #{orderCode}
+		and status = 20
+	</update>
+
 
 
 	<select id="findCurrentOrder" resultType="com.entrusts.module.vo.CurrentEntrusts">
@@ -209,49 +273,4 @@
 
 
 
-    <sql id="orderColumns">
-    </sql>
-
-    <insert id="insertOrder">
-        insert into order(
-        order_code,
-        user_code,
-        client_time,
-        order_time,
-        trade_pair_id,
-        convert_rate,
-        trade_type,
-        quantity,
-        amount,
-        mode,
-        status,
-        created_time,
-        updated_time,
-        isDeleted
-        )values (
-        #{orderCode,jdbcType=BIGINT},
-        #{userCode,jdbcType=VARCHAR},
-        #{clientTime,jdbcType=TIMESTAMP},
-        #{orderTime,jdbcType=TIMESTAMP},
-        #{tradePairId,jdbcType=BIGINT},
-        #{convertRate,jdbcType=DOUBLE},
-        #{tradeType,jdbcType=INTEGER},
-        #{quantity,jdbcType=DOUBLE},
-        #{amount,jdbcType=DOUBLE},
-        #{mode,jdbcType=INTEGER},
-        #{status,jdbcType=INTEGER},
-        now(),
-        now(),
-        0
-        )
-    </insert>
-
-    <update id="updateOrderStatus" >
-        UPDATE order
-        SET
-        update_date = now(),
-        status = #{status}
-        WHERE
-        order_code = #{orderCode}
-    </update>
 </mapper>
