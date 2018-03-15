@@ -27,4 +27,14 @@ public class TradePairService extends BaseService {
 	public TradePair findTradePairByCoinName(String baseCurrencyAlias, String targetCurrencyAlias){
 		return tradePairMapper.findTradePairByCoinName(baseCurrencyAlias,targetCurrencyAlias);
 	}
+
+	/**
+	 * 查询交易对根据交易对
+	 * @param tradePairId
+	 * @return
+	 */
+	@Cacheable(key = "#tradePairId")
+	public TradePair findTradePairById(int tradePairId){
+		return tradePairMapper.findTradePairById(tradePairId);
+	}
 }

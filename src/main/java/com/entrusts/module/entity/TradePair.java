@@ -7,7 +7,11 @@ public class TradePair {
 
     private Integer baseCurrencyId;
 
+    private String  baseCurrencyName;
+
     private Integer targetCurrencyId;
+
+    private String  targetCurrencyName;
 
     private BigDecimal minTradeQuantity;
 
@@ -51,5 +55,21 @@ public class TradePair {
 
     public void setIsDeleted(Byte isDeleted) {
         this.isDeleted = isDeleted;
+    }
+
+    public String getBaseCurrencyName() {
+        return baseCurrencyName;
+    }
+
+    public void setBaseCurrencyName(String baseCurrencyName) {
+        this.baseCurrencyName = baseCurrencyName;
+    }
+
+    public String getTargetCurrencyName() {
+        return targetCurrencyName;
+    }
+
+    public void setTargetCurrencyName(String targetCurrencyName) {
+        this.targetCurrencyName = targetCurrencyName;
     }
 }

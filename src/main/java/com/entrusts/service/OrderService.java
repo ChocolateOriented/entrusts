@@ -24,6 +24,8 @@ public class OrderService extends BaseService {
 	private OrderMapper orderMapper;
 	@Autowired
 	private OrderEventMapper orderEventMapper;
+	@Autowired
+	private OrderManageService orderManageService;
 
 	@Value("${mq.delegatePushTopic}")
 	private String delegatePushTopic;
@@ -47,14 +49,16 @@ public class OrderService extends BaseService {
 	@Transactional
 	public void save(Order order) {
 		orderMapper.insertOrder(order);
+		orderManageService.addUserCurrentOrderListFromRedis(order, 3600*12);
 	}
 
 	/**
 	 * 更新托单状态(交易中)
 	 */
 	@Transactional
-	public void updateOrderStatus(OrderStatus trading, String orderCode) {
+	public void updateOrderStatus(OrderStatus trading, String orderCode, String userCode) {
 		orderMapper.updateOrderStatus(trading, orderCode);
+		orderManageService.updateUserCurrentOrderListFromRedis(trading, orderCode, userCode, 3600*12);
 	}
 
 	/**
@@ -74,6 +78,6 @@ public class OrderService extends BaseService {
 		body.put("createdTime", delegateEvent.getOrderTime().getTime());
 
 		mqMessageService.send(delegatePushTopic, delegatePushTag, delegateEvent.getOrderCode(), body.toJSONString());
-		this.updateOrderStatus(OrderStatus.TRADING, delegateEvent.getOrderCode());
+		this.updateOrderStatus(OrderStatus.TRADING, delegateEvent.getOrderCode(), delegateEvent.getUserCode());
 	}
 }

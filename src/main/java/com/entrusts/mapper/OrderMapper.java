@@ -3,6 +3,8 @@ package com.entrusts.mapper;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.entity.Deal;
 import com.entrusts.module.enums.OrderStatus;
+import com.entrusts.module.enums.OrderStatus;
+import com.entrusts.module.vo.CurrentEntrusts;
 import com.entrusts.module.vo.HistoryOrderView;
 import com.entrusts.module.vo.OrderQuery;
 
@@ -35,8 +37,17 @@ public interface OrderMapper {
 	int totalHistoryOrder(String userCode);
 
 	HistoryOrderView getHistoryOrder(Order order);
-	
-	void updateOrderNewDeal(Deal trade);
-	
+
+	/**
+	 * 查询全量当前数据
+	 * @param userCode
+	 * @return
+	 */
+	List<CurrentEntrusts> findCurrentOrder(@Param("userCode") String userCode);
+
+
+    void updateOrderNewDeal(Deal trade);
+
+
 	int completeOrder(Order order);
 }
