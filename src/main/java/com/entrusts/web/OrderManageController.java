@@ -1,9 +1,11 @@
 package com.entrusts.web;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import com.entrusts.module.vo.CurrentEntrusts;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,17 +16,18 @@ import com.entrusts.module.dto.BaseResponse;
 import com.entrusts.module.dto.CommonResponse;
 import com.entrusts.module.dto.Page;
 import com.entrusts.module.dto.TimePage;
+import com.entrusts.module.dto.result.ResultConstant;
+import com.entrusts.module.dto.result.Results;
 import com.entrusts.module.entity.Order;
+import com.entrusts.module.enums.OrderStatus;
 import com.entrusts.module.entity.Deal;
 import com.entrusts.module.vo.HistoryOrderView;
 import com.entrusts.module.vo.OrderQuery;
 import com.entrusts.service.OrderManageService;
 import com.entrusts.service.DealService;
 
-import java.util.List;
-
 @RestController
-@RequestMapping(value = "order")
+@RequestMapping(value = "entrusts/order")
 public class OrderManageController {
 
 	@Autowired
@@ -63,16 +66,30 @@ public class OrderManageController {
 	}
 
 	@RequestMapping(value = "dealNotify", method = RequestMethod.POST)
-	public BaseResponse dealNotify(@RequestBody Deal trade) {
+	public BaseResponse dealNotify(@RequestBody @Valid Deal deal, BindingResult bindingResul) {
 		BaseResponse response = new BaseResponse();
-		if (!dealService.save(trade)) {
+		if (bindingResul.hasErrors()) {
+			response.setCode((int) ResultConstant.EMPTY_PARAM.code);
+			response.setMessage(OrderController.getFieldErrorsMessages(bindingResul));
+			return response;
+		}
+		
+		Order order = orderManageService.get(deal.getOrderCode());
+		if (order == null) {
+			response.setCode(1);
+			response.setMessage("不存在此托单");
+			return response;
+		}
+		
+		deal.setTradePairId(order.getTradePairId());
+		if (!dealService.save(deal)) {
 			return response;
 		}
 
-		Order order = dealService.updateOrderNewDeal(trade);
-		if (order != null) {
-			orderManageService.updateUserHistoryCache(order);
-			orderManageService.updateUserCurrentOrderListFromRedisByDeal(order, 3600*12);
+		Order currentOrder = dealService.updateOrderNewDeal(deal);
+		orderManageService.updateUserCurrentOrderListFromRedisByDeal(currentOrder, 3600*12);
+		if (currentOrder.getStatus() == OrderStatus.COMPLETE) {
+			orderManageService.updateUserHistoryCache(currentOrder);
 		}
 
 		return response;

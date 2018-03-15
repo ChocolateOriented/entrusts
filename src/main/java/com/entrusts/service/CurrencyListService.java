@@ -196,18 +196,18 @@ public class CurrencyListService extends BaseService {
     }
     /**
      * 订单过来,更新数据到Redis
-     * @param Deal
+     * @param deal
      */
     @Transactional(readOnly = false)
-    public void updateCurrentPrice(Deal Deal){
-        if(Deal.getTradePairId()==null){
+    public void updateCurrentPrice(Deal deal){
+        if(deal.getTradePairId()==null){
             logger.info("订单中没有交易对");
             return;
         }
-        AliasMap aliasMap = tradePairMapper.getAllAlias(Deal.getTradePairId());
+        AliasMap aliasMap = tradePairMapper.getAllAlias(deal.getTradePairId());
         String key = RedisKeyNameEnum.keyNow.getValue() + aliasMap.getBaseAlias();
         String feild= RedisKeyNameEnum.fieldNow.getValue() + aliasMap.getTargetAlias();
-        String s = setCurrencyList(key, feild, Deal.getDealPrice());
+        String s = setCurrencyList(key, feild, deal.getDealPrice());
         if(s == null || "0".equals(s)){
             logger.info("最新价格插入缓存有误");
         }
