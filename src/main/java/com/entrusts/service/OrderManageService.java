@@ -347,6 +347,7 @@ public class OrderManageService extends BaseService {
 		return orderMapper.completeOrder(order) != 0;
 	}
 
+	@Transactional(readOnly = true)
 	public Page<CurrentEntrusts> findCurrentOrder(OrderQuery orderQuery, int pageNum, int PageSize) {
 		String userCode = orderQuery.getUserCode();
 		String userTotalKey = totalCurrentOrderUserKey + userCode;
@@ -369,6 +370,7 @@ public class OrderManageService extends BaseService {
 
 	}
 
+	@Transactional(readOnly = true)
 	public TimePage<CurrentEntrusts> findCurrentOrderByTime(OrderQuery orderQuery, int limit) {
 		String userCode = orderQuery.getUserCode();
 		String userTotalKey = totalCurrentOrderUserKey + userCode;
@@ -393,6 +395,7 @@ public class OrderManageService extends BaseService {
 	}
 
 	//获取用户制定数量当前托单的缓存数据
+	@Transactional(readOnly = true)
 	private Page<CurrentEntrusts> findAndCacheLimitCurrentOrder(String userCode, int pageNum, int PageSize) {
 		List<CurrentEntrusts> limitOrders = orderMapper.findCurrentOrder(userCode);
 		int total = limitOrders.size();
@@ -404,6 +407,7 @@ public class OrderManageService extends BaseService {
 		return page;
 	}
 
+	@Transactional(readOnly = true)
 	private TimePage<CurrentEntrusts> findAndCacheLimitCurrentOrder(String userCode, int limit) {
 		List<CurrentEntrusts> limitOrders = orderMapper.findCurrentOrder(userCode);
 		int total = limitOrders.size();
@@ -416,6 +420,7 @@ public class OrderManageService extends BaseService {
 		return page;
 	}
 
+	@Transactional(readOnly = true)
 	private void cacheLimitCurrentOrder(String userCode, int total, List<CurrentEntrusts> limitOrders) {
 		String userKey = currentOrderUserKey + userCode;
 		String userTotalKey = totalCurrentOrderUserKey + userCode;
@@ -441,6 +446,7 @@ public class OrderManageService extends BaseService {
 	}
 
 	//根据用户从缓存中读取当前托单
+	@Transactional(readOnly = true)
 	public List<CurrentEntrusts> findCurrentOrderFromRedis(OrderQuery orderQuery) {
 		Map<String, String> currentOrders = RedisUtil.getMap(currentOrderUserKey + orderQuery.getUserCode());
 		if (currentOrders == null || currentOrders.isEmpty()) {
@@ -459,6 +465,7 @@ public class OrderManageService extends BaseService {
 	}
 
 	//根据用户托单，添加当前托单缓存
+	@Transactional(readOnly = true)
 	public boolean addUserCurrentOrderListFromRedis(Order order, int cacheSeconds){
 		if (StringUtils.isEmpty(order.getOrderCode())){
 			return false;
@@ -495,6 +502,7 @@ public class OrderManageService extends BaseService {
 	}
 
 	//托单系统状态变更：根据用户托单，更新制定托单缓存
+	@Transactional(readOnly = true)
 	public boolean updateUserCurrentOrderListFromRedis(OrderStatus trading, String orderCode, String userCode, int cacheSeconds){
 		if (StringUtils.isEmpty(orderCode)){
 			return false;
@@ -515,6 +523,7 @@ public class OrderManageService extends BaseService {
 	}
 
 	//成交系统返回，更新缓存信息
+	@Transactional(readOnly = true)
 	public boolean updateUserCurrentOrderListFromRedisByDeal(Order order, int cacheSeconds){
 		if (StringUtils.isEmpty(order.getUserCode())){
 			return false;
@@ -526,15 +535,35 @@ public class OrderManageService extends BaseService {
 		}
 		if (order.getDealQuantity().equals(order.getQuantity())){
 			String userTotalKey = totalCurrentOrderUserKey + order.getUserCode();
-			currentOrders.remove(order.getOrderCode());
-			String result = RedisUtil.setMap(currentOrderUserKey + order.getUserCode(), currentOrders, cacheSeconds);
+			RedisUtil.mapRemove(currentOrderUserKey + order.getUserCode(), order.getOrderCode());
 			RedisUtil.set(userTotalKey, (Integer.valueOf(RedisUtil.get(userTotalKey)) -1)+"", cacheSeconds);
-			return result == null ? false : true;
+			return true;
 		}
 
 		currentOrders.put(order.getOrderCode(), JSON.toJSONString(copyPropertiesOrder(order, new CurrentEntrusts())));
 		String result = RedisUtil.setMap(currentOrderUserKey + order.getUserCode(), currentOrders, cacheSeconds);
 		return result == null ? false : true;
+	}
+
+	//成交系统返回撤销成功，删除缓存
+	@Transactional(readOnly = true)
+	public void deleteUserCurrentOrderListFromRedisByDeal(String userCode, String orderCode, int cacheSeconds){
+		if (StringUtils.isEmpty(userCode)){
+			return;
+		}
+		Map<String, String> currentOrders = RedisUtil.getMap(currentOrderUserKey + userCode);
+		if (currentOrders == null){
+			return;
+		}
+		if (orderCode != null){
+			String userTotalKey = totalCurrentOrderUserKey + userCode;;
+			RedisUtil.mapRemove(currentOrderUserKey + userCode, orderCode);
+			RedisUtil.set(userTotalKey, (Integer.valueOf(RedisUtil.get(userTotalKey)) -1)+"", cacheSeconds);
+			return;
+		}else {
+			RedisUtil.del(currentOrderUserKey + userCode);
+			RedisUtil.del(totalCurrentOrderUserKey + userCode);
+		}
 	}
 
 

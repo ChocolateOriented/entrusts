@@ -97,7 +97,7 @@ public class OrderManageController {
 
 	@GetMapping(value = "listCurrent")
 	public Object getListCurrent(OrderQuery orderQuery, Integer pageNum, Integer pageSize, HttpServletRequest request){
-		String userCode = request.getParameter("Account-Code");
+		String userCode = request.getHeader("Account-Code");
 		orderQuery.setUserCode(userCode);
 		if (pageNum == null) {
 			pageNum = 1;
@@ -113,7 +113,7 @@ public class OrderManageController {
 
 	@GetMapping(value = "listCurrentByCreatedTime")
 	public Object getListCurrentByCreatedTime(OrderQuery orderQuery, Integer limit, HttpServletRequest request){
-		String userCode = request.getParameter("Account-Code");
+		String userCode = request.getHeader("Account-Code");
 		orderQuery.setUserCode(userCode);
 		CommonResponse<TimePage<CurrentEntrusts>> response = new CommonResponse<>();
 		if (limit == null) {

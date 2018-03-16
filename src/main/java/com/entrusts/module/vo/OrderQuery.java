@@ -170,6 +170,9 @@ public class OrderQuery {
 		if (status != null && (currentEntrusts.getStatus() == null || status != Integer.valueOf(currentEntrusts.getStatus()))){
 			return false;
 		}
+		if (toCreatedTime != null && (currentEntrusts.getDate() == null || toCreatedTime <= currentEntrusts.getDate())) {
+			return false;
+		}
 
 		return true;
 	}
