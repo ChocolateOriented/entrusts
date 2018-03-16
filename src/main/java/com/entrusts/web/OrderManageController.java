@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import com.entrusts.module.vo.CurrentEntrusts;
+import com.entrusts.service.CurrencyListService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +32,8 @@ public class OrderManageController extends BaseController {
 
 	@Autowired
 	private OrderManageService orderManageService;
-
+	@Autowired
+	private CurrencyListService currencyListService;
 	@Autowired
 	private DealService dealService;
 
@@ -84,7 +86,7 @@ public class OrderManageController extends BaseController {
 		if (!dealService.save(deal)) {
 			return response;
 		}
-
+		currencyListService.updateCurrentPrice(deal);
 		Order currentOrder = dealService.updateOrderNewDeal(deal);
 		orderManageService.updateUserCurrentOrderListFromRedisByDeal(currentOrder, 3600*12);
 		if (currentOrder.getStatus() == OrderStatus.COMPLETE) {

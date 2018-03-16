@@ -71,12 +71,12 @@
         x.alias AS 'alias',
         d.deal_price AS 'todayStartPrice'
         FROM
-        `deal_data` AS d
+        `deal` AS d
         INNER JOIN trade_pair AS p ON d.trade_pair_id = p.id
         INNER JOIN digital_currency AS c ON p.base_currency_id = c.id
         INNER JOIN digital_currency AS x ON p.target_currency_id = x.id
         ORDER BY
-        d.`timestamp` DESC
+        d.`deal_time` DESC
         ) t
         GROUP BY
         t.trade_pair_id
