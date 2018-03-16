@@ -8,7 +8,6 @@ import com.entrusts.mapper.DealMapper;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.entity.OrderEvent;
 import com.entrusts.module.entity.Deal;
-import com.entrusts.module.enums.DelegateEventstatus;
 import com.entrusts.module.enums.OrderStatus;
 
 @Service
