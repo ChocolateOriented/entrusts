@@ -77,9 +77,14 @@ public class OrderManageService extends BaseService {
 	public Page<HistoryOrderView> findHistoryOrderByPage(OrderQuery orderQuery, int pageNum, int PageSize) {
 		String userCode = orderQuery.getUserCode();
 		String userTotalKey = totalHistoryOrderUserKey + userCode;
-		String totalValue = RedisUtil.get(userTotalKey);
+		String userKey = historyOrderUserKey + userCode;
 		int requireNum = pageNum * PageSize;
-		if (totalValue == null) {
+		String totalValue = RedisUtil.get(userTotalKey);
+		Map<String, String> cache = RedisUtil.getMap(userKey);
+		logger.info(userCode + "用户历史托单总数量缓存：" + totalValue);
+		
+		//无缓存
+		if (totalValue == null || cache == null) {
 			if (requireNum > perUserOrderCacheLimit) { //若需要的数据量大于缓存上限，则直接从数据库获取
 				return findHistoryOrderByPageFromDB(orderQuery, pageNum, PageSize);
 			} else if (!orderQuery.hasCondition()) { //若需要的数据量不大于缓存上限，且不含查询条件，则获取上限数据并缓存
@@ -92,9 +97,11 @@ public class OrderManageService extends BaseService {
 		int total = Integer.parseInt(totalValue);
 		//缓存的为全量数据，或者不含查询条件且需要的数据量不大于缓存上限时，从缓存获取，否则从数据库获取
 		if (total <= perUserOrderCacheLimit || (requireNum <= perUserOrderCacheLimit && !orderQuery.hasCondition())) {
-			List<HistoryOrderView> orders = findHistoryOrderFromRedis(orderQuery);
+			List<HistoryOrderView> orders = findHistoryOrderFromRedis(orderQuery, cache);
 			Page<HistoryOrderView> page = new Page<>();
-			page.setEntities(orders.subList((pageNum - 1) * PageSize, pageNum * PageSize));
+			int start = Math.min(orders.size(), (pageNum - 1) * PageSize);
+			int end = Math.min(orders.size(), requireNum);
+			page.setEntities(orders.subList(start, end));
 			page.setTotal((long) orders.size());
 			page.setPageNum(pageNum);
 			page.setPageSize(PageSize);
@@ -115,9 +122,13 @@ public class OrderManageService extends BaseService {
 	public TimePage<HistoryOrderView> findHistoryOrderByTime(OrderQuery orderQuery, int limit) {
 		String userCode = orderQuery.getUserCode();
 		String userTotalKey = totalHistoryOrderUserKey + userCode;
+		String userKey = historyOrderUserKey + userCode;
 		String totalValue = RedisUtil.get(userTotalKey);
-		//无缓存时
-		if (totalValue == null) {
+		Map<String, String> cache = RedisUtil.getMap(userKey);
+		logger.info(userCode + "用户历史托单总数量缓存：" + totalValue);
+		
+		//无缓存
+		if (totalValue == null || cache == null) {
 			if (limit > perUserOrderCacheLimit) { //若需要的数据量大于缓存上限，则直接从数据库获取
 				return findHistoryOrderByTimeFromDB(orderQuery, limit);
 			} else if (!orderQuery.hasCondition()) { //若需要的数据量不大于缓存上限，且不含查询条件，则获取上限数据并缓存
@@ -130,9 +141,9 @@ public class OrderManageService extends BaseService {
 		int total = Integer.parseInt(totalValue);
 		//缓存的为全量数据，或者不含查询条件且需要的数据量不大于缓存上限时，从缓存获取，否则从数据库获取
 		if (total <= perUserOrderCacheLimit || (limit <= perUserOrderCacheLimit && !orderQuery.hasCondition())) {
-			List<HistoryOrderView> orders = findHistoryOrderFromRedis(orderQuery);
+			List<HistoryOrderView> orders = findHistoryOrderFromRedis(orderQuery, cache);
 			TimePage<HistoryOrderView> page = new TimePage<>();
-			page.setEntities(orders.subList(0, limit));
+			page.setEntities(orders.subList(0, Math.min(limit, orders.size())));
 			page.setTotal((long) orders.size());
 			page.setLimit(limit);
 			return page;
@@ -183,29 +194,30 @@ public class OrderManageService extends BaseService {
 	}
 
 	/**
-	 * 从redis查询用户历史托单分页
+	 * 从缓存查询用户历史托单分页
 	 * @param orderQuery
 	 * @return
 	 */
-	private List<HistoryOrderView> findHistoryOrderFromRedis(OrderQuery orderQuery) {
+	private List<HistoryOrderView> findHistoryOrderFromRedis(OrderQuery orderQuery, Map<String, String> cache) {
 		String userCode = orderQuery.getUserCode();
-		String userKey = historyOrderUserKey + userCode;
+		logger.info(userCode + "用户历史托单数据查询缓存");
 		String hitCountKey = historyCacheUserHitCountKey;
 		Jedis jedis = null;
 		try {
 			jedis = RedisUtil.getResource();
 			jedis.zincrby(hitCountKey, 1, userCode);
 		} catch (Exception e) {
+			logger.info(userCode + "用户历史托单缓存访问统计更新失败", e);
+		} finally {
 			if (jedis != null) {
 				jedis.close();
 			}
 		}
 
-		Map<String, String> cache = RedisUtil.getMap(userKey);
 		List<HistoryOrderView> historyOrders = new ArrayList<>();
 		
-		if (historyOrders == null || historyOrders.isEmpty()) {
-			return null;
+		if (cache == null || cache.isEmpty()) {
+			return historyOrders;
 		}
 		
 		for (String jsonStr : cache.values()) {
@@ -243,8 +255,12 @@ public class OrderManageService extends BaseService {
 		cacheLimitHistoryOrder(userCode, total, limitOrders);
 		
 		Page<HistoryOrderView> page = new Page<>();
-		page.setEntities(limitOrders.subList((pageNum - 1) * PageSize, pageNum * PageSize));
+		int start = Math.min(limitOrders.size(), (pageNum - 1) * PageSize);
+		int end = Math.min(limitOrders.size(), pageNum * PageSize);
+		
+		page.setEntities(limitOrders.subList(start, end));
 		page.setTotal((long) total);
+		page.setPageSize(PageSize);
 		page.setPageNum(pageNum);
 		return page;
 	}
@@ -266,7 +282,7 @@ public class OrderManageService extends BaseService {
 		cacheLimitHistoryOrder(userCode, total, limitOrders);
 		
 		TimePage<HistoryOrderView> page = new TimePage<>();
-		page.setEntities(limitOrders.subList(0, limit));
+		page.setEntities(limitOrders.subList(0, Math.min(limit, limitOrders.size())));
 		page.setTotal((long) total);
 		return page;
 	}
@@ -296,6 +312,8 @@ public class OrderManageService extends BaseService {
 			trans.zincrby(hitCountKey, 1, userCode);
 			trans.exec();
 		} catch (Exception e) {
+			logger.info(userCode + "用户历史托缓存失败", e);
+		} finally {
 			if (jedis != null) {
 				jedis.close();
 			}
@@ -324,6 +342,8 @@ public class OrderManageService extends BaseService {
 				jedis.incr(userTotalKey);
 			}
 		} catch (Exception e) {
+			logger.info(userCode + "用户历史托缓存更新失败", e);
+		} finally {
 			if (jedis != null) {
 				jedis.close();
 			}
@@ -358,7 +378,7 @@ public class OrderManageService extends BaseService {
 		List<CurrentEntrusts> orders = findCurrentOrderFromRedis(orderQuery);
 		Page<CurrentEntrusts> page = new Page<>();
 		if (orders != null){
-			page.setEntities(orders.subList((pageNum - 1) * PageSize, pageNum * PageSize > orders.size() ? orders.size() :pageNum * PageSize));
+			page.setEntities(orders.subList((pageNum - 1) * PageSize, pageNum * PageSize > orders.size() ? orders.size() : pageNum * PageSize));
 			page.setTotal((long) orders.size());
 		}else {
 			page.setEntities(null);
@@ -604,6 +624,8 @@ public class OrderManageService extends BaseService {
 				jedis.zadd(historyCacheUserHitCountKey, score, userCode);
 			}
 		} catch (Exception e) {
+			logger.error("定时清理缓存失败", e);
+		} finally {
 			if (jedis != null) {
 				jedis.close();
 			}

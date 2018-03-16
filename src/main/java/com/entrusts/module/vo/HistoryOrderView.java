@@ -1,6 +1,7 @@
 package com.entrusts.module.vo;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 import com.aliyun.openservices.shade.com.alibaba.fastjson.JSON;
 
@@ -8,7 +9,7 @@ public class HistoryOrderView {
 
 	private String orderCode;
 
-	private Long date;
+	private Date date;
 
 	private String baseCurrency;
 
@@ -32,11 +33,12 @@ public class HistoryOrderView {
 		this.orderCode = orderCode;
 	}
 
+
 	public Long getDate() {
-		return date;
+		return date == null ? null : date.getTime();
 	}
 
-	public void setDate(Long date) {
+	public void setDate(Date date) {
 		this.date = date;
 	}
 
