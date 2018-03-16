@@ -4,15 +4,16 @@ import com.entrusts.module.entity.OrderEvent;
 import java.util.List;
 
 public interface OrderEventMapper {
-	
-    int delete(Long id);
 
-    int insertOrderEvent(OrderEvent record);
+	int delete(Long id);
 
-    OrderEvent get(Long id);
+	int insertOrderEvent(OrderEvent record);
 
-    List<OrderEvent> selectAll();
+	OrderEvent get(Long id);
 
-    int update(OrderEvent record);
-    
+	List<OrderEvent> selectAll();
+
+	int update(OrderEvent record);
+
+	void batchInsert(List<OrderEvent> orderEvents);
 }
