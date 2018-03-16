@@ -1,6 +1,7 @@
 package com.entrusts.module.vo;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * Created by jxguo on 2018/3/7.
@@ -8,7 +9,7 @@ import java.math.BigDecimal;
 public class CurrentEntrusts {
 
     private String orderCode; //托单编号
-    private Long date; //委托时间
+    private Date date; //委托时间
     private String baseCurrency; //基准货币
     private String targetCurrency; //目标货币
     private String tradeType; //交易类型(sell, buy)
@@ -26,11 +27,15 @@ public class CurrentEntrusts {
     }
 
     public Long getDate() {
-        return date;
+        return date == null ? null : date.getTime();
     }
 
-    public void setDate(long date) {
-        this.date = date;
+    public void setDate(Object date) {
+        if (date instanceof Date){
+            this.date = (Date) date;
+        }else if (date instanceof Long){
+            this.date = new Date((Long) date);
+        }
     }
 
     public String getBaseCurrency() {

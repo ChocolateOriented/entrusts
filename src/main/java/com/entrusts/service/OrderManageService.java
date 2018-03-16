@@ -569,7 +569,7 @@ public class OrderManageService extends BaseService {
 
 	private CurrentEntrusts copyPropertiesOrder(Order order, CurrentEntrusts currentEntrusts){
 		currentEntrusts.setOrderCode(order.getOrderCode());
-		currentEntrusts.setDate(order.getOrderTime().getTime());
+		currentEntrusts.setDate(order.getOrderTime());
 		currentEntrusts.setTradeType(order.getTradeType().name());
 		currentEntrusts.setStatus(order.getStatus().getValue()+"");
 		currentEntrusts.setDealTargetQuantity(order.getDealQuantity() == null ? new BigDecimal(0):order.getDealQuantity());
