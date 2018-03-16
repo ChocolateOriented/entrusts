@@ -2,6 +2,7 @@ package com.entrusts.mapper;
 
 import com.entrusts.module.entity.OrderEvent;
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface OrderEventMapper {
 
@@ -15,5 +16,5 @@ public interface OrderEventMapper {
 
 	int update(OrderEvent record);
 
-	void batchInsert(List<OrderEvent> orderEvents);
+	void batchInsert(@Param("list") List<OrderEvent> orderEvents);
 }

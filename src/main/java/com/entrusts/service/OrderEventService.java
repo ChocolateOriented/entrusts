@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class OrderEventService extends BaseService implements EventHandler<DelegateEvent> {
+
 	@Autowired
 	private OrderEventMapper orderEventMapper;
 
@@ -25,37 +26,44 @@ public class OrderEventService extends BaseService implements EventHandler<Deleg
 	private final ArrayList<OrderEvent> orderEvents = new ArrayList<>(maxListSize);
 
 	/**
-	 * @Description 批量处理委托日志, 日志处理使用单线程, BatchEventProcessor每批取到的数据一起插入, 最多每次插入1000条
-	 * @param delegateEvent
-	 * @param sequence
-	 * @param isLast
 	 * @return void
+	 * @Description 批量处理委托日志, 日志处理使用单线程, BatchEventProcessor每批取到的数据一起插入, 最多每次插入1000条
 	 */
 	@Override
 	public void onEvent(DelegateEvent delegateEvent, long sequence, boolean isLast) throws Exception {
 		//未到该批次最后一个 且 List未满
-		if (!isLast && orderEvents.size() < maxListSize) {
-			OrderEvent orderEvent = new OrderEvent();
-			orderEvent.setOrderCode(delegateEvent.getOrderCode());
-			orderEvent.setDelegateEventstatus(delegateEvent.getDelegateEventstatus());
-			orderEvent.setId(super.generateId());
+		logger.debug("收到日志" + delegateEvent.getOrderCode());
+		OrderEvent orderEvent = new OrderEvent();
+		orderEvent.setOrderCode(delegateEvent.getOrderCode());
+		orderEvent.setDelegateEventstatus(delegateEvent.getDelegateEventstatus());
+		orderEvent.setId(super.generateId());
 
-			if (DelegateEventstatus.PUBLISH_ORDER_SUCCESS.equals(delegateEvent.getDelegateEventstatus())) {
-				orderEvent.setStatus(OrderStatus.TRADING);
-			} else {
-				orderEvent.setStatus(OrderStatus.DELEGATE_FAILED);
-			}
-			orderEvents.add(orderEvent);
+		if (DelegateEventstatus.PUBLISH_ORDER_SUCCESS.equals(delegateEvent.getDelegateEventstatus())) {
+			orderEvent.setStatus(OrderStatus.TRADING);
+		} else {
+			orderEvent.setStatus(OrderStatus.DELEGATE_FAILED);
+		}
+		orderEvents.add(orderEvent);
+
+		if (!isLast && orderEvents.size() < maxListSize) {//等待同一插入
 			return;
 		}
 
-		orderEventMapper.batchInsert(orderEvents);
+		try {
+			orderEventMapper.batchInsert(orderEvents);
+		} catch (Exception e) {
+			StringBuilder lostMsg = new StringBuilder(orderEvents.size() * 30);
+			for (OrderEvent event : orderEvents) {
+				lostMsg.append("," + event.getOrderCode());
+			}
+			logger.info("批量记录托单流程log插入失败"+lostMsg, e);
+		}
+		logger.debug("批量记录托单流程log插入成功" + orderEvents.size());
 		orderEvents.clear();
-		logger.debug("用户：" + delegateEvent.getUserCode() + "订单:" + delegateEvent.getOrderCode() + "记录托单流程log插入成功");
 	}
 
 
-	public void save(OrderEvent orderEvent){
+	public void save(OrderEvent orderEvent) {
 		orderEvent.setId(super.generateId());
 		orderEventMapper.insertOrderEvent(orderEvent);
 	}
