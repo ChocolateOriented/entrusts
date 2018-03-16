@@ -32,11 +32,10 @@
 		o.convert_rate AS "convert_rate",
 		o.trade_type AS "trade_type",
 		o.quantity AS "quantity",
-		o.amount AS "amount",
 		o.mode AS "mode" ,
 		o.status AS "status" ,
 		o.service_fee_rate AS "service_fee_rate",
-		o.deal_amout AS "deal_amout",
+		o.deal_amount AS "deal_amount",
 		o.deal_quantity AS "deal_quantity" ,
 		o.lasted_deal_time AS "lasted_deal_time" ,
 		o.created_time AS "created_time",
@@ -85,7 +84,7 @@
 	    	order_code = #{orderCode}
   </update>
 
-	<select id="get">
+	<select id="get" resultType="com.entrusts.module.entity.Order">
 		select
 			o.order_code as orderCode,
 			o.user_code as userCode,
@@ -119,7 +118,7 @@
 			o.convert_rate as orderPrice,
 			o.deal_quantity as dealTargetQuantity,
 			o.deal_amount as dealBaseAmount,
-			o.deal_amount * sevice_fee_rate as serviceFee,
+			o.deal_amount * service_fee_rate as serviceFee,
 			status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
@@ -157,7 +156,7 @@
 			o.convert_rate as orderPrice,
 			o.deal_quantity as dealTargetQuantity,
 			o.deal_amount as dealBaseAmount,
-			o.deal_amount * sevice_fee_rate as serviceFee,
+			o.deal_amount * service_fee_rate as serviceFee,
 			status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
@@ -232,7 +231,7 @@
 			o.convert_rate as orderPrice,
 			o.deal_quantity as dealTargetQuantity,
 			o.deal_amount as dealBaseAmount,
-			o.deal_amount * sevice_fee_rate as serviceFee,
+			o.deal_amount * service_fee_rate as serviceFee,
 			status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
@@ -254,7 +253,7 @@
 			o.convert_rate as orderPrice,
 			o.deal_quantity as dealTargetQuantity,
 			o.deal_amount as dealBaseAmount,
-			o.deal_amount * sevice_fee_rate as serviceFee,
+			o.deal_amount * service_fee_rate as serviceFee,
 			status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
@@ -276,7 +275,7 @@
 		update `order` set
 		deal_amount = deal_amount + #{dealAmount},
 		deal_quantity = deal_quantity + #{dealQuantity},
-		lasted_deal_time = #{dealTime}
+		lasted_deal_time = if(lasted_deal_time > #{dealTime}, lasted_deal_time, #{dealTime})
 		where order_code = #{orderCode}
 	</update>
 

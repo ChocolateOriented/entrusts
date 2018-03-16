@@ -3,40 +3,52 @@ package com.entrusts.module.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
+
 public class Deal {
-    private Long tradeCode;
 
-    private Long orderCode;
+	@NotNull(message = "交易流水号为空")
+    private String tradeCode;
 
+	@NotNull(message = "托单编号为空")
+    private String orderCode;
+
+	@NotNull(message = "无效的成交价格")
+	@DecimalMin(value = "0", message = "无效的成交价格")
     private BigDecimal dealPrice;
 
+	@NotNull(message = "无效的成交量")
+	@DecimalMin(value = "0", message = "无效的成交量")
     private BigDecimal dealQuantity;
 
+	@NotNull(message = "无效的成交金额")
+	@DecimalMin(value = "0", message = "无效的成交金额")
     private BigDecimal dealAmount;
 
     private BigDecimal serviceFee;
 
     private Date dealTime;
 
-    private Long tradePairId;
+    private Integer tradePairId;
 
-    public Long getTradeCode() {
-        return tradeCode;
-    }
+    public String getTradeCode() {
+		return tradeCode;
+	}
 
-    public void setTradeCode(Long tradeCode) {
-        this.tradeCode = tradeCode;
-    }
+	public void setTradeCode(String tradeCode) {
+		this.tradeCode = tradeCode;
+	}
 
-    public Long getOrderCode() {
-        return orderCode;
-    }
+	public String getOrderCode() {
+		return orderCode;
+	}
 
-    public void setOrderCode(Long orderCode) {
-        this.orderCode = orderCode;
-    }
+	public void setOrderCode(String orderCode) {
+		this.orderCode = orderCode;
+	}
 
-    public BigDecimal getDealPrice() {
+	public BigDecimal getDealPrice() {
         return dealPrice;
     }
 
@@ -76,11 +88,11 @@ public class Deal {
         this.dealTime = dealTime;
     }
 
-	public Long getTradePairId() {
+	public Integer getTradePairId() {
 		return tradePairId;
 	}
 
-	public void setTradePairId(Long tradePairId) {
+	public void setTradePairId(Integer tradePairId) {
 		this.tradePairId = tradePairId;
 	}
 
