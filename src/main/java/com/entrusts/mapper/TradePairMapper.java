@@ -3,6 +3,7 @@ package com.entrusts.mapper;
 import com.entrusts.module.dto.AliasMap;
 import com.entrusts.module.dto.BaseCurrency;
 import com.entrusts.module.dto.TargetMapCurrency;
+import com.entrusts.module.entity.Deal;
 import com.entrusts.module.entity.TradePair;
 import org.apache.ibatis.annotations.Param;
 
@@ -30,4 +31,6 @@ public interface TradePairMapper{
     List<TargetMapCurrency> updateTargetCurrency();
 
     AliasMap getAllAlias(Integer tradePairId);
+
+	List<TargetMapCurrency> getTargetCurrency(@Param("tradePareIds") List<Integer> tradePareIds);
 }

@@ -2,12 +2,14 @@ package com.entrusts.service;
 
 import com.alibaba.fastjson.JSON;
 
+import com.entrusts.mapper.DealMapper;
 import com.entrusts.mapper.TradePairMapper;
 import com.entrusts.module.dto.AliasMap;
 import com.entrusts.module.dto.BaseCurrency;
 import com.entrusts.module.dto.TargetCurrency;
 import com.entrusts.module.dto.TargetMapCurrency;
 import com.entrusts.module.entity.Deal;
+import com.entrusts.module.entity.TradePair;
 import com.entrusts.module.enums.RedisKeyNameEnum;
 import com.entrusts.module.enums.UTCTimeEnum;
 import com.entrusts.util.RedisUtil;
@@ -18,10 +20,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * Created by cyuan on 2018/3/8.
@@ -32,6 +37,10 @@ public class CurrencyListService extends BaseService {
 
     @Autowired
     private TradePairMapper tradePairMapper;
+    @Autowired
+    private DealMapper dealMapper;
+    @Autowired
+    private TradePairService tradePairService;
 
     private static final Logger logger = LoggerFactory.getLogger(CurrencyListService.class);
 
@@ -84,10 +93,10 @@ public class CurrencyListService extends BaseService {
         for(TargetCurrency targetCurrency : currencyList){
             String s = map.get(RedisKeyNameEnum.fieldNow.getValue()+targetCurrency.getAlias());
             if(s==null){
-                targetCurrency.setCurrentPrice(0);
+                targetCurrency.setCurrentPrice(new BigDecimal(0));
                 logger.info("没有获取到最新价格");
             }else {
-                targetCurrency.setCurrentPrice(Double.valueOf(s));
+                targetCurrency.setCurrentPrice(new BigDecimal(s));
             }
 
         }
@@ -157,9 +166,12 @@ public class CurrencyListService extends BaseService {
      * 每半时跟新数据库的基准数据到redis
      */
     @Scheduled(cron = "0 0/30 * * * ?")
-    public void updateTargetCurrency(){
+    public void setCurrencyToRedis(){
+        long l = System.currentTimeMillis();
+        //获取redis中的key
         String redisKey = getRedisKey();
-        addTargetCurrencyToRedis(redisKey);
+        //把数据更新到redis中
+        addTargetCurrencyToRedis(redisKey,l);
     }
 
     /**
@@ -187,10 +199,28 @@ public class CurrencyListService extends BaseService {
         String redisKey =RedisKeyNameEnum.keyTarget.getValue()+ key;
         return redisKey;
     }
-    public void addTargetCurrencyToRedis(String redisKey){
+
+    /**把数据更新到redis中
+     *
+     * @param redisKey
+     * @param now
+     */
+    public void addTargetCurrencyToRedis(String redisKey,Long now){
 
         logger.info("开始更新目标货币到缓存:"+redisKey);
-        List<TargetMapCurrency> targetMapCurrencies = tradePairMapper.updateTargetCurrency();
+        //从db获取订单数据
+        List<TargetMapCurrency> targetMapCurrencies = targetMapCurrencies(now);
+//        Map<String, String> map = RedisUtil.getMap(redisKey);
+//        Set<String> strings = map.keySet();
+//        List<TargetMapCurrency> targetMapCurrencies2 = new ArrayList<>();
+//        for (String s : strings){
+//            TargetMapCurrency targetMapCurrency = new TargetMapCurrency();
+//            targetMapCurrency.setBaseAlias(s.substring(21));
+//            List<TargetCurrency> targetCurrencies = JSON.parseArray(map.get(s), TargetCurrency.class);
+//            targetMapCurrency.setTargetCurrencies(targetCurrencies);
+//            targetMapCurrencies2.a
+//        }
+
         if(targetMapCurrencies == null || targetMapCurrencies.size() ==0){
             logger.info("读取数据库失败");
             return;
@@ -201,6 +231,34 @@ public class CurrencyListService extends BaseService {
             setCurrencyList(redisKey,redisFeild,targetCurrencies);
         }
         logger.info("更新目标货币到缓存结束"+redisKey);
+    }
+
+
+    /**
+     * 从db读取数据
+     * @param now
+     * @return
+     */
+    public List<TargetMapCurrency> targetMapCurrencies (Long now){
+        Long startTime = now - 90*24*60*60*1000;
+        //获取最近时间段的成交订单
+        List<Deal> dealList = dealMapper.getRecentDeal(startTime,now);
+        List<Integer> tradePareIds = new ArrayList<>();
+        for (Deal d : dealList){
+            tradePareIds.add(d.getTradePairId());
+        }
+        //获取目标货币交易对信息
+        List<TargetMapCurrency> tradePairList = tradePairService.getTargetCurrency(tradePareIds);
+        for (TargetMapCurrency targetMapCurrency : tradePairList){
+            for (TargetCurrency targetCurrency : targetMapCurrency.getTargetCurrencies()){
+                for (Deal d : dealList){
+                    if(targetCurrency.getTradePareId() == d.getTradePairId()){
+                        targetCurrency.setTodayStartPrice(d.getDealPrice());
+                    }
+                }
+            }
+        }
+        return tradePairList;
     }
     /**
      * 根据时间获取UTCTimerEnum中对应的名字作为redis中的key

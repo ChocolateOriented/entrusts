@@ -8,19 +8,51 @@
 		<result column="deal_quantity" jdbcType="DECIMAL" property="dealQuantity" />
 		<result column="deal_amount" jdbcType="DECIMAL" property="dealAmount" />
 		<result column="service_fee" jdbcType="DECIMAL" property="serviceFee" />
-		<result column="deal_time" jdbcType="TIMESTAMP" property="dealTime" />
+		<result column="deal_time" jdbcType="BIGINT" property="dealTime" />
+		<result column="trade_pair_id" jdbcType="INTEGER" property="tradePairId" />
 	</resultMap>
 	<insert id="insert" parameterType="com.entrusts.module.entity.Deal">
 		insert ignore into deal (trade_code, order_code, deal_price, 
 			deal_quantity, deal_amount, service_fee, 
-			deal_time)
+			deal_time,trade_pair_id)
 		values (#{tradeCode,jdbcType=BIGINT}, #{orderCode,jdbcType=BIGINT}, #{dealPrice,jdbcType=DECIMAL}, 
 			#{dealQuantity,jdbcType=DECIMAL}, #{dealAmount,jdbcType=DECIMAL}, #{serviceFee,jdbcType=DECIMAL}, 
-			#{dealTime,jdbcType=TIMESTAMP})
+			#{dealTime,jdbcType=BIGINT},#{tradePairId,jdbcType=INTEGER})
 	</insert>
 	<select id="selectAll" resultMap="BaseResultMap">
 		select trade_code, order_code, deal_price, deal_quantity, deal_amount, service_fee, 
-		deal_time
+		deal_time,trade_pair_id
 		from deal
+	</select>
+	<select id="getRecentDeal" resultMap="BaseResultMap">
+		SELECT
+			t.trade_code AS 'trade_code',
+			t.order_code AS 'order_code',
+			t.deal_price AS 'deal_price',
+			t.deal_quantity AS 'deal_quantity',
+			t.deal_amount AS 'deal_amount',
+			t.service_fee AS 'service_fee',
+			t.deal_time AS 'deal_time',
+			t.trade_pair_id AS 'trade_pair_id'
+		FROM
+			(
+				SELECT
+					trade_code,
+					order_code,
+					deal_price,
+					deal_quantity,
+					deal_amount,
+					service_fee,
+					deal_time,
+					trade_pair_id
+				FROM
+					deal
+				WHERE
+					deal_time BETWEEN #{startTime} AND #{endTime}
+				ORDER BY
+					`deal_time` DESC
+			) t
+		GROUP BY
+			t.trade_pair_id
 	</select>
 </mapper>
