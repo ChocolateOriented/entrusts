@@ -86,21 +86,4 @@ public class DelegateEventHandler extends BaseService {
 			throw new ApiException(result.getMessage());
 		}
 	}
-
-	/**
-	 * 记录托单流程log
-	 */
-	public void savePublishOrdereEvent(DelegateEvent delegateEvent) {
-		OrderEvent orderEvent = new OrderEvent();
-		orderEvent.setOrderCode(delegateEvent.getOrderCode());
-		orderEvent.setDelegateEventstatus(delegateEvent.getDelegateEventstatus());
-
-		if (DelegateEventstatus.PUBLISH_ORDER_SUCCESS.equals(delegateEvent.getDelegateEventstatus())) {
-			orderEvent.setStatus(OrderStatus.TRADING);
-		} else {
-			orderEvent.setStatus(OrderStatus.DELEGATE_FAILED);
-		}
-		orderEventService.save(orderEvent);
-		logger.debug("用户：" + delegateEvent.getUserCode() + "订单:" + delegateEvent.getOrderCode() + "记录托单流程log插入成功");
-	}
 }
