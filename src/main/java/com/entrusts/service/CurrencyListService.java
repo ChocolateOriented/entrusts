@@ -66,13 +66,11 @@ public class CurrencyListService extends BaseService {
      */
     @Transactional(readOnly = false)
     public List<TargetCurrency> getTargetCurrency(String baseCurrency,Integer value) {
-        String time1 = RedisKeyNameEnum.keyTarget.getValue()+UTCTimeEnum.getName(value);
+        String time1 = RedisKeyNameEnum.keyTarget.getValue()+value;
         String currency1= RedisKeyNameEnum.fieldTarget.getValue()+baseCurrency;
         //获取目标货币
         List<TargetCurrency> currencyList = this.getCurrencyList(time1, currency1, TargetCurrency.class);
         if(currencyList == null){
-            //从数据库获取数据
-            logger.info("从缓存中获取目标货币失败");
             return null;
         }
         //获取最新价格
@@ -160,41 +158,39 @@ public class CurrencyListService extends BaseService {
      */
     @Scheduled(cron = "0 0/30 * * * ?")
     public void updateTargetCurrency(){
+        String redisKey = getRedisKey();
+        addTargetCurrencyToRedis(redisKey);
+    }
+
+    /**
+     * 根据UTC时间获取redis中的key
+     * @return
+     */
+    public String getRedisKey(){
         // 1、取得本地时间：
         Calendar cal = Calendar.getInstance() ;
         // 2、取得时间偏移量：
-        int zoneOffset = cal.get(java.util.Calendar.ZONE_OFFSET);
+        int zoneOffset = cal.get(Calendar.ZONE_OFFSET);
         // 3、取得夏令时差：
-        int dstOffset = cal.get(java.util.Calendar.DST_OFFSET);
+        int dstOffset = cal.get(Calendar.DST_OFFSET);
         // 4、从本地时间里扣除这些差量，即可以取得UTC时间：
         cal.add(Calendar.MILLISECOND, -(zoneOffset + dstOffset));
-        long l = cal.getTimeInMillis();
-        int i = cal.get(Calendar.HOUR_OF_DAY)*10;
-        if(cal.get(Calendar.MINUTE) == 30){
-            i=i+5;
-        }else if(cal.get(Calendar.MINUTE )!= 0){
-            return;
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        int minute = cal.get(Calendar.MINUTE);
+        int key ;
+        if(hour<12){
+            key = -(hour * 60 + minute);
+        }else {
+            key =1440- (hour * 60 + minute);
         }
-//        long l = System.currentTimeMillis();
-//        int i = 0;
-        UTCTimeEnum[] values = UTCTimeEnum.values();
-        Boolean flag = false;
-        for (UTCTimeEnum utcTimeEnum : values){
-            if(utcTimeEnum.getTime() == i){
-                flag = true;
-            }
-        }
-        if(!flag){
-            return;
-        }
-        String redisKey =RedisKeyNameEnum.keyTarget.getValue()+ UTCTimeEnum.getNameByTime(i);
-        addTargetCurrencyToRedis(l,redisKey);
+
+        String redisKey =RedisKeyNameEnum.keyTarget.getValue()+ key;
+        return redisKey;
     }
+    public void addTargetCurrencyToRedis(String redisKey){
 
-    public void addTargetCurrencyToRedis(Long l ,String redisKey){
-
-        logger.info("开始更新目标货币到缓存");
-        List<TargetMapCurrency> targetMapCurrencies = tradePairMapper.updateTargetCurrency(l + "");
+        logger.info("开始更新目标货币到缓存:"+redisKey);
+        List<TargetMapCurrency> targetMapCurrencies = tradePairMapper.updateTargetCurrency();
         if(targetMapCurrencies == null || targetMapCurrencies.size() ==0){
             logger.info("读取数据库失败");
             return;
@@ -204,7 +200,7 @@ public class CurrencyListService extends BaseService {
             List<TargetCurrency> targetCurrencies = t.getTargetCurrencies();
             setCurrencyList(redisKey,redisFeild,targetCurrencies);
         }
-        logger.info("更新目标货币到缓存结束");
+        logger.info("更新目标货币到缓存结束"+redisKey);
     }
     /**
      * 根据时间获取UTCTimerEnum中对应的名字作为redis中的key
@@ -251,7 +247,7 @@ public class CurrencyListService extends BaseService {
             targetMapCurrency.setBaseAlias(baseCurrency1.getAlias());
             List<TargetCurrency> targetCurrency = getTargetCurrency(baseCurrency1.getAlias(), time);
             if(targetCurrency == null){
-                break;
+                continue;
             }
             targetMapCurrency.setTargetCurrencies(targetCurrency);
             list.add(targetMapCurrency);
