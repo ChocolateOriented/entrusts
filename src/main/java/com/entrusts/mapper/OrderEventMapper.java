@@ -2,17 +2,19 @@ package com.entrusts.mapper;
 
 import com.entrusts.module.entity.OrderEvent;
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface OrderEventMapper {
-	
-    int delete(Long id);
 
-    int insertOrderEvent(OrderEvent record);
+	int delete(Long id);
 
-    OrderEvent get(Long id);
+	int insertOrderEvent(OrderEvent record);
 
-    List<OrderEvent> selectAll();
+	OrderEvent get(Long id);
 
-    int update(OrderEvent record);
-    
+	List<OrderEvent> selectAll();
+
+	int update(OrderEvent record);
+
+	void batchInsert(@Param("list") List<OrderEvent> orderEvents);
 }

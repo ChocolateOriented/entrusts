@@ -32,8 +32,8 @@ eureka:
 
 redis:
   database: 11
-  host: 127.0.0.1
-  password: 123
+  host: 192.168.3.31
+  password: dev@Mo9.com
 
   database2: 6
   host2: 192.168.3.31
@@ -88,7 +88,9 @@ mybatis:
   type-handlers-package: com.entrusts.util
 
 disruptor:
-  delegateEventBufferSize: 1024
+  delegateEvent:
+    bufferSize: 1024
+    publishOrderThreadNum: 50
 
 url:
   lockCoin: www

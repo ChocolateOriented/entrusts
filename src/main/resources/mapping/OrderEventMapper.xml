@@ -20,29 +20,16 @@
       #{dealAmout,jdbcType=DECIMAL}, #{dealQuantity,jdbcType=DECIMAL}, now(),
       #{lastedDealTime,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR})
   </insert>
-  
-  <update id="update" parameterType="com.entrusts.module.entity.OrderEvent">
-    update order_event
-    set order_code = #{orderCode,jdbcType=BIGINT},
-      status = #{status,jdbcType=TINYINT},
-      deal_amout = #{dealAmout,jdbcType=DECIMAL},
-      deal_quantity = #{dealQuantity,jdbcType=DECIMAL},
-      created_time = #{createdTime,jdbcType=TIMESTAMP},
-      lasted_deal_time = #{lastedDealTime,jdbcType=TIMESTAMP},
-      remark = #{remark,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=BIGINT}
-  </update>
-  
-  <select id="get" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select id, order_code, status, deal_amout, deal_quantity, created_time, lasted_deal_time, 
-    remark
-    from order_event
-    where id = #{id,jdbcType=BIGINT}
-  </select>
-  
-  <select id="selectAll" resultMap="BaseResultMap">
-    select id, order_code, status, deal_amout, deal_quantity, created_time, lasted_deal_time, 
-    remark
-    from order_event
-  </select>
+
+  <insert id="batchInsert">
+    insert into order_event (id, order_code, status,
+    deal_amout, deal_quantity, created_time,
+    lasted_deal_time, remark)
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+    (#{item.id,jdbcType=BIGINT}, #{item.orderCode,jdbcType=BIGINT}, #{item.status,jdbcType=TINYINT},
+    #{item.dealAmout,jdbcType=DECIMAL}, #{item.dealQuantity,jdbcType=DECIMAL}, now(),
+    #{item.lastedDealTime,jdbcType=TIMESTAMP}, #{item.remark,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
 </mapper>

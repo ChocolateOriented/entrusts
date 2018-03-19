@@ -3,9 +3,10 @@ package com.entrusts.config;
 import com.entrusts.module.dto.DelegateEvent;
 import com.entrusts.service.DelegateEventHandler;
 
+import com.entrusts.service.OrderEventService;
 import com.lmax.disruptor.SleepingWaitStrategy;
+import com.lmax.disruptor.WorkHandler;
 import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.dsl.EventHandlerGroup;
 import com.lmax.disruptor.dsl.ProducerType;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -22,9 +23,13 @@ public class DisruptorConfig {
 
 	@Autowired
 	private DelegateEventHandler eventHandler;
+	@Autowired
+	private OrderEventService orderEventService;
 
-	@Value("${disruptor.delegateEventBufferSize}")
-	private int delegateEventBufferSize;
+	@Value("${disruptor.delegateEvent.bufferSize}")
+	private int delegateEventBufferSize;//委托事件任务队列大小
+	@Value("${disruptor.delegateEvent.publishOrderThreadNum}")
+	private int publishOrderThreadNum;//发布托单线程数
 
 	/**
 	 * 托单队列
@@ -37,9 +42,12 @@ public class DisruptorConfig {
 		Disruptor<DelegateEvent> disruptor =
 				new Disruptor<>(DelegateEvent::new, delegateEventBufferSize, threadFactory, ProducerType.MULTI, new SleepingWaitStrategy());
 
-		EventHandlerGroup<DelegateEvent> orderEventHandlerGroup = disruptor.handleEventsWith(eventHandler::saveOrder);
-		orderEventHandlerGroup.then(eventHandler::saveNewOrdereEvent);
-		orderEventHandlerGroup.then(eventHandler::publishOrder).then(eventHandler::savePublishOrdereEvent);
+		WorkHandler<DelegateEvent>[] publishOrderWorkers = new WorkHandler[publishOrderThreadNum];
+		for (int i = 0; i < publishOrderThreadNum; i++) {
+			publishOrderWorkers[i] = eventHandler::publishOrder;
+		}
+
+		disruptor.handleEventsWithWorkerPool(publishOrderWorkers).then(orderEventService);
 		return disruptor;
 	}
 }

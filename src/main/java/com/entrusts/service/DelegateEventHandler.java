@@ -27,9 +27,14 @@ public class DelegateEventHandler extends BaseService {
 	private String url;
 
 	/**
-	 * 保存托单数据
+	 * 发布托单
+	 * 账户锁币&MQ入库&变更托单状态
 	 */
-	public void saveOrder(DelegateEvent delegateEvent, long sequence, boolean endOfBatch) {
+	public void publishOrder(DelegateEvent delegateEvent) {
+		String userCode = delegateEvent.getUserCode();
+		String orderCode = delegateEvent.getOrderCode();
+
+		//入库
 		try {
 			orderService.saveNewOrderByEvent(delegateEvent);
 		} catch (Exception e) {
@@ -38,29 +43,14 @@ public class DelegateEventHandler extends BaseService {
 			return;
 		}
 
-		logger.debug("用户：{}订单:{} 新增托单数据成功", delegateEvent.getUserCode(), delegateEvent.getOrderCode());
-	}
-
-
-	/**
-	 * 发布托单
-	 * 账户锁币&MQ入库&变更托单状态
-	 */
-	public void publishOrder(DelegateEvent delegateEvent, long sequence, boolean endOfBatch) {
-		String userCode = delegateEvent.getUserCode();
-		String orderCode = delegateEvent.getOrderCode();
-
-		if (DelegateEventstatus.INSERT_ORDERDB_ERROR.equals(delegateEvent.getDelegateEventstatus())) {
-			logger.info("用户：" + userCode + "订单:" + orderCode + "新增托单数据未成功, 未执行发布托单");
-			return;
-		}
-
+		logger.debug("用户：{}订单:{} 新增托单数据成功", userCode, orderCode);
 		//锁币
 		try {
-//			this.lockCoin(delegateEvent);
-		}catch (Exception e) {
+//TODO 测试暂时注释,			this.lockCoin(delegateEvent);
+		} catch (Exception e) {
 			delegateEvent.setDelegateEventstatus(DelegateEventstatus.RREQUESTACCOUNT_ERROR);
-			logger.info("用户："+userCode+" 订单: "+orderCode+" 锁币失败:"+e.getMessage(),e);
+			orderService.updateOrderStatus(OrderStatus.DELEGATE_FAILED,orderCode,userCode);
+			logger.info("用户：" + userCode + " 订单: " + orderCode + " 锁币失败:" + e.getMessage(), e);
 			return;
 		}
 		logger.debug("用户：" + userCode + "订单:" + orderCode + "锁币成功");
@@ -68,9 +58,10 @@ public class DelegateEventHandler extends BaseService {
 		//通知撮合系统
 		try {
 			orderService.push2Match(delegateEvent);
-		}catch (Exception e) {
+		} catch (Exception e) {
+			orderService.updateOrderStatus(OrderStatus.DELEGATE_FAILED,orderCode,userCode);
 			delegateEvent.setDelegateEventstatus(DelegateEventstatus.PUSH_MATCH_ERROR);
-			logger.info("用户：" + userCode + "订单:" + orderCode + "通知撮合系统失败",e);
+			logger.info("用户：" + userCode + "订单:" + orderCode + "通知撮合系统失败", e);
 			return;
 		}
 
@@ -80,8 +71,6 @@ public class DelegateEventHandler extends BaseService {
 
 	/**
 	 * 锁币
-	 * @param delegateEvent
-	 * @throws ApiException
 	 */
 	private void lockCoin(DelegateEvent delegateEvent) throws ApiException {
 		/**   账户锁币        */
@@ -96,42 +85,5 @@ public class DelegateEventHandler extends BaseService {
 		if (result.getCode() != 0) {
 			throw new ApiException(result.getMessage());
 		}
-	}
-
-	/**
-	 * 保存新托单日志
-	 */
-	public void saveNewOrdereEvent(DelegateEvent delegateEvent, long sequence, boolean endOfBatch) {
-		OrderEvent orderEvent = new OrderEvent();
-		orderEvent.setOrderCode(delegateEvent.getOrderCode());
-		orderEvent.setDelegateEventstatus(delegateEvent.getDelegateEventstatus());
-		if (DelegateEventstatus.INSERT_ORDERDB_ERROR.equals(delegateEvent.getDelegateEventstatus())) {
-			orderEvent.setStatus(OrderStatus.DELEGATE_FAILED);
-		} else {
-			orderEvent.setStatus(OrderStatus.DELEGATING);
-		}
-		orderEventService.save(orderEvent);
-	}
-
-	/**
-	 * 记录托单流程log
-	 */
-	public void savePublishOrdereEvent(DelegateEvent delegateEvent, long sequence, boolean endOfBatch) {
-		if (DelegateEventstatus.INSERT_ORDERDB_ERROR.equals(delegateEvent.getDelegateEventstatus())) {
-			logger.info("用户：" + delegateEvent.getUserCode() + "订单:" + delegateEvent.getOrderCode() + "插入托单数据未成功,账户锁币&MQ入库&变更托单状态未执行,记录托单流程log未执行");
-			return;
-		}
-
-		OrderEvent orderEvent = new OrderEvent();
-		orderEvent.setOrderCode(delegateEvent.getOrderCode());
-		orderEvent.setDelegateEventstatus(delegateEvent.getDelegateEventstatus());
-
-		if (DelegateEventstatus.PUBLISH_ORDER_SUCCESS.equals(delegateEvent.getDelegateEventstatus())) {
-			orderEvent.setStatus(OrderStatus.TRADING);
-		} else {
-			orderEvent.setStatus(OrderStatus.DELEGATE_FAILED);
-		}
-		orderEventService.save(orderEvent);
-		logger.debug("用户：" + delegateEvent.getUserCode() + "订单:" + delegateEvent.getOrderCode() + "记录托单流程log插入成功");
 	}
 }
