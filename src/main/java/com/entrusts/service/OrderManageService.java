@@ -367,6 +367,14 @@ public class OrderManageService extends BaseService {
 		return orderMapper.completeOrder(order) != 0;
 	}
 
+
+	/**
+	 * 分页查询当前用户托单信息
+	 * @param orderQuery
+	 * @param pageNum
+	 * @param PageSize
+	 * @return
+	 */
 	@Transactional(readOnly = true)
 	public Page<CurrentEntrusts> findCurrentOrder(OrderQuery orderQuery, int pageNum, int PageSize) {
 		String userCode = orderQuery.getUserCode();
@@ -390,6 +398,12 @@ public class OrderManageService extends BaseService {
 
 	}
 
+	/**
+	 * 移动端查询当前用户托单信息
+	 * @param orderQuery
+	 * @param limit
+	 * @return
+	 */
 	@Transactional(readOnly = true)
 	public TimePage<CurrentEntrusts> findCurrentOrderByTime(OrderQuery orderQuery, int limit) {
 		String userCode = orderQuery.getUserCode();
@@ -414,7 +428,13 @@ public class OrderManageService extends BaseService {
 
 	}
 
-	//获取用户制定数量当前托单的缓存数据
+	/**
+	 * 分页获取用户制定数量当前托单的数据
+	 * @param userCode
+	 * @param pageNum
+	 * @param PageSize
+	 * @return
+	 */
 	@Transactional(readOnly = true)
 	private Page<CurrentEntrusts> findAndCacheLimitCurrentOrder(String userCode, int pageNum, int PageSize) {
 		List<CurrentEntrusts> limitOrders = orderMapper.findCurrentOrder(userCode);
@@ -427,6 +447,12 @@ public class OrderManageService extends BaseService {
 		return page;
 	}
 
+
+	/**
+	 * 移动端获取用户制定数量当前托单的数据
+	 * @param userCode
+	 * @return
+	 */
 	@Transactional(readOnly = true)
 	private TimePage<CurrentEntrusts> findAndCacheLimitCurrentOrder(String userCode, int limit) {
 		List<CurrentEntrusts> limitOrders = orderMapper.findCurrentOrder(userCode);
@@ -440,6 +466,12 @@ public class OrderManageService extends BaseService {
 		return page;
 	}
 
+	/**
+	 * 从数据库中查询当前托单数据，放入缓存中
+	 * @param userCode
+	 * @param total
+	 * @param limitOrders
+	 */
 	@Transactional(readOnly = true)
 	private void cacheLimitCurrentOrder(String userCode, int total, List<CurrentEntrusts> limitOrders) {
 		String userKey = currentOrderUserKey + userCode;
@@ -466,6 +498,12 @@ public class OrderManageService extends BaseService {
 	}
 
 	//根据用户从缓存中读取当前托单
+
+	/**
+	 * 查询当前用户的托单数据从redis缓存中
+	 * @param orderQuery
+	 * @return
+	 */
 	@Transactional(readOnly = true)
 	public List<CurrentEntrusts> findCurrentOrderFromRedis(OrderQuery orderQuery) {
 		Map<String, String> currentOrders = RedisUtil.getMap(currentOrderUserKey + orderQuery.getUserCode());
@@ -484,7 +522,13 @@ public class OrderManageService extends BaseService {
 		return list;
 	}
 
-	//根据用户托单，添加当前托单缓存
+
+	/**
+	 * 根据用户当前托单，添加新当前托单到缓存
+	 * @param order
+	 * @param cacheSeconds
+	 * @return
+	 */
 	@Transactional(readOnly = true)
 	public boolean addUserCurrentOrderListFromRedis(Order order, int cacheSeconds){
 		if (StringUtils.isEmpty(order.getOrderCode())){
@@ -521,7 +565,15 @@ public class OrderManageService extends BaseService {
 		return true;
 	}
 
-	//托单系统状态变更：根据用户托单，更新制定托单缓存
+
+	/**
+	 * 托单系统状态变更：根据用户托单，更新制定托单缓存
+	 * @param trading
+	 * @param orderCode
+	 * @param userCode
+	 * @param cacheSeconds
+	 * @return
+	 */
 	@Transactional(readOnly = true)
 	public boolean updateUserCurrentOrderListFromRedis(OrderStatus trading, String orderCode, String userCode, int cacheSeconds){
 		if (StringUtils.isEmpty(orderCode)){
@@ -542,7 +594,14 @@ public class OrderManageService extends BaseService {
 		return result == null ? false : true;
 	}
 
-	//成交系统返回，更新缓存信息
+
+
+	/**
+	 * 成交系统返回，更新缓存信息
+	 * @param order
+	 * @param cacheSeconds
+	 * @return
+	 */
 	@Transactional(readOnly = true)
 	public boolean updateUserCurrentOrderListFromRedisByDeal(Order order, int cacheSeconds){
 		if (StringUtils.isEmpty(order.getUserCode())){
@@ -565,7 +624,13 @@ public class OrderManageService extends BaseService {
 		return result == null ? false : true;
 	}
 
-	//成交系统返回撤销成功，删除缓存
+
+	/**
+	 * 成交系统返回撤销成功，删除缓存
+	 * @param userCode
+	 * @param orderCode
+	 * @param cacheSeconds
+	 */
 	@Transactional(readOnly = true)
 	public void deleteUserCurrentOrderListFromRedisByDeal(String userCode, String orderCode, int cacheSeconds){
 		if (StringUtils.isEmpty(userCode)){
@@ -586,10 +651,15 @@ public class OrderManageService extends BaseService {
 		}
 	}
 
-
+	/**
+	 * Order特定数据辅到CurrentEntrusts
+	 * @param order
+	 * @param currentEntrusts
+	 * @return
+	 */
 	private CurrentEntrusts copyPropertiesOrder(Order order, CurrentEntrusts currentEntrusts){
 		currentEntrusts.setOrderCode(order.getOrderCode());
-		currentEntrusts.setDate(order.getOrderTime().getTime());
+		currentEntrusts.setDate(order.getOrderTime());
 		currentEntrusts.setTradeType(order.getTradeType().name());
 		currentEntrusts.setStatus(order.getStatus().getValue()+"");
 		currentEntrusts.setDealTargetQuantity(order.getDealQuantity() == null ? new BigDecimal(0):order.getDealQuantity());
