@@ -52,7 +52,7 @@
         GROUP BY
         p.base_currency_id
     </select>
-    <select id="updateTargetCurrency" parameterType="String" resultMap="mapTarget">
+    <select id="updateTargetCurrency" resultMap="mapTarget">
         SELECT
         t.baseAlias AS 'baseAlias',
         t.targetCurrencyId AS 'targetCurrencyId',
