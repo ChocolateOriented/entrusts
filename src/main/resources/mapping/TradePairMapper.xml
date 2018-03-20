@@ -106,10 +106,6 @@
         INNER JOIN digital_currency AS x ON p.target_currency_id = x.id
         WHERE
             p.is_deleted=0
-          AND p.id IN
-        <foreach collection="tradePareIds" index="index" item="item" open="(" separator="," close=")">
-            #{item}
-        </foreach>
         ORDER BY
             p.order_by_num
     </select>

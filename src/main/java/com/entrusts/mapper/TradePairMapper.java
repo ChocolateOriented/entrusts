@@ -32,5 +32,5 @@ public interface TradePairMapper{
 
     AliasMap getAllAlias(Integer tradePairId);
 
-	List<TargetMapCurrency> getTargetCurrency(@Param("tradePareIds") List<Integer> tradePareIds);
+	List<TargetMapCurrency> getTargetCurrency();
 }
