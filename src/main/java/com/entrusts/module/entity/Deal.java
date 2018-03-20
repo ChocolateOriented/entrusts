@@ -28,7 +28,7 @@ public class Deal {
 
     private BigDecimal serviceFee;
 
-    private Date dealTime;
+    private Long dealTime;
 
     private Integer tradePairId;
 
@@ -80,15 +80,15 @@ public class Deal {
         this.serviceFee = serviceFee;
     }
 
-    public Date getDealTime() {
+    public Long getDealTime() {
         return dealTime;
     }
 
-    public void setDealTime(Date dealTime) {
+    public void setDealTime(Long dealTime) {
         this.dealTime = dealTime;
     }
 
-	public Integer getTradePairId() {
+    public Integer getTradePairId() {
 		return tradePairId;
 	}
 

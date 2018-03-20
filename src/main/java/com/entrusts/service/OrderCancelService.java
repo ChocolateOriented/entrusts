@@ -12,7 +12,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by cyuan on 2018/3/13.
@@ -27,31 +30,37 @@ public class OrderCancelService {
 
     @Autowired
     private OrderMapper orderMapper;
-    public Boolean cancelOrder(String orderCode) {
+    public Order cancelOrder(String orderCode) {
 
         UnfreezeEntity unfreezeEntity = orderMapper.queryUnfreezeInfo(orderCode);
         if(unfreezeEntity == null){
             logger.info("订单号:"+orderCode+",没有此订单");
-            return false;
+            return null;
         }
 
-        Boolean aBoolean = toCancelOrder(unfreezeEntity);
-        return aBoolean;
+        Order order = toCancelOrder(unfreezeEntity);
+
+        return order;
     }
 
-    public Boolean cancelAll(String userCode) {
-        Boolean flag = true;
+    public Map<OrderStatus,List<Order>> cancelAll(String userCode) {
+
+        Map<OrderStatus,List<Order>> map = new HashMap<>();
         List<UnfreezeEntity> unfreezeEntities = orderMapper.queryAllUnfreezeInfo(userCode);
         if(unfreezeEntities == null || unfreezeEntities.size() == 0){
-            return false;
+            return null;
         }
         for(UnfreezeEntity unfreezeEntity : unfreezeEntities){
-            Boolean aBoolean = toCancelOrder(unfreezeEntity);
-            if(!aBoolean){
-                flag = false;
+            Order order = toCancelOrder(unfreezeEntity);
+            if(map.containsKey(order.getStatus())){
+                map.get(order.getStatus()).add(order);
+            }else {
+                List<Order> orders = new ArrayList<>();
+                orders.add(order);
+                map.put(order.getStatus(),orders);
             }
         }
-        return flag;
+        return map;
     }
 
     /**
@@ -59,26 +68,26 @@ public class OrderCancelService {
      * @param unfreezeEntity
      * @return
      */
-    public Boolean toCancelOrder(UnfreezeEntity unfreezeEntity){
+    public Order toCancelOrder(UnfreezeEntity unfreezeEntity){
+        Order order = unfreezeEntity.getOrder();
         //调用搓单系统取消订单
         String s = delCancelOrder(unfreezeEntity);
         if(s == null || (Integer)JSON.parseObject(s).get("code") != 0){
             logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+",调用通知撮单系统撤销接口失败");
-            return false;
+            return order;
         }
-
-        //修改数据库状态
-        Integer integer = updateOrderAfterCancel(unfreezeEntity);
 
         //解锁
         String s1 = unfreezeForOrder(unfreezeEntity);
         if(s1 == null || (Integer)JSON.parseObject(s1).get("code") != 0){
             logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+",撮单系统取消成功,但是货币解锁失败");
-            Order order = unfreezeEntity.getOrder();
             orderMapper.updateOrderStatus(OrderStatus.WITHDRAW_UNTHAWING,order.getOrderCode());
-            return false;
+            order.setStatus(OrderStatus.WITHDRAW_UNTHAWING);
+        }else {
+            //修改数据库状态
+            order = updateOrderAfterCancel(unfreezeEntity);
         }
-        return true;
+        return order;
     }
 
     /**
@@ -86,10 +95,11 @@ public class OrderCancelService {
      * @param unfreezeEntity
      * @return
      */
-    public Integer updateOrderAfterCancel(UnfreezeEntity unfreezeEntity){
+    public Order updateOrderAfterCancel(UnfreezeEntity unfreezeEntity){
         Order order = unfreezeEntity.getOrder();
-        int i = orderMapper.updateOrderStatus(OrderStatus.WITHDRAW,order.getOrderCode());
-        return i;
+        orderMapper.updateOrderStatus(OrderStatus.WITHDRAW,order.getOrderCode());
+        order.setStatus(OrderStatus.WITHDRAW);
+        return order;
     }
     /**
      * 调用搓单系统取消订单
