@@ -74,6 +74,10 @@ public class OrderCancelController extends BaseController  {
             return new Results(ResultConstant.INNER_ERROR.code,"撤销全部失败");
         }else {
             //说明部分成功部分失败SYSTEM_BUSY
+            List<Order> orders = map.get(OrderStatus.WITHDRAW);
+            for (Order order : orders){
+                orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, order.getOrderCode(), 3600*12);
+            }
             return new Results(ResultConstant.SYSTEM_BUSY.code,"撤销部分成功");
         }
     }
