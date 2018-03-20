@@ -5,6 +5,7 @@ import com.entrusts.mapper.OrderMapper;
 import com.entrusts.module.dto.UnfreezeEntity;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.enums.OrderStatus;
+import com.entrusts.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +13,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  * Created by cyuan on 2018/3/13.
@@ -28,6 +35,8 @@ public class OrderCancelService {
     @Value("${url.urldealmaking}")
     private String urldealmaking;
 
+    @Autowired
+    private ExecutorService orderCancelExecutorService;
     @Autowired
     private OrderMapper orderMapper;
     public Order cancelOrder(String orderCode) {
@@ -50,8 +59,22 @@ public class OrderCancelService {
         if(unfreezeEntities == null || unfreezeEntities.size() == 0){
             return null;
         }
+        List<Future<Order>> orderSubmit = new ArrayList<>();
         for(UnfreezeEntity unfreezeEntity : unfreezeEntities){
-            Order order = toCancelOrder(unfreezeEntity);
+            //Order order = toCancelOrder(unfreezeEntity);
+            Future<Order> submit = orderCancelExecutorService.submit(() -> toCancelOrder(unfreezeEntity));
+            orderSubmit.add(submit);
+        }
+
+        for (Future<Order> fo : orderSubmit){
+            Order order = null;
+            try {
+                order = fo.get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
             if(map.containsKey(order.getStatus())){
                 map.get(order.getStatus()).add(order);
             }else {
@@ -59,6 +82,7 @@ public class OrderCancelService {
                 orders.add(order);
                 map.put(order.getStatus(),orders);
             }
+            System.out.println(order);
         }
         return map;
     }
@@ -120,29 +144,29 @@ public class OrderCancelService {
     }
      */
     public String delCancelOrder(UnfreezeEntity unfreezeEntity){
-//        Map<String,Object> params = new HashMap<>();
-//        params.put("orderCode",unfreezeEntity.getOrder().getOrderCode());
-//        params.put("price",unfreezeEntity.getOrder().getConvertRate());
-//        params.put("quantity",unfreezeEntity.getOrder().getQuantity());
-//        params.put("orderType",unfreezeEntity.getOrder().getMode().name());
-//        params.put("targetCurrencyId",unfreezeEntity.getTargetCurrencyId());
-//        params.put("userCode",unfreezeEntity.getOrder().getUserCode());
-//        params.put("marketId",unfreezeEntity.getOrder().getTradePairId());
-//        params.put("baseCurrencyId",unfreezeEntity.getBaseCurrencyId());
-//        params.put("tradeType",unfreezeEntity.getOrder().getTradeType().name());
-//        params.put("createdTime",unfreezeEntity.getOrder().getCreatedTime());
-//        Map<String,Object> headers = new HashMap<>();
-//        headers.put("Content-Type", "application/json");
-//        String s = null;
-//        try {
-//            s = HttpClientUtil.httpPostRequest(urldealmaking+"/dealmaking/delcancel_order",headers,params);
-//        } catch (UnsupportedEncodingException e) {
-//            logger.info("调用通知撮单系统撤销接口失败",e);
-//        }
-        String s = "{\n" +
-                "  \"code\": 0,\n" +
-                "  \"message\": \"ok\"\n" +
-                "}";
+        Map<String,Object> params = new HashMap<>();
+        params.put("orderCode",unfreezeEntity.getOrder().getOrderCode());
+        params.put("price",unfreezeEntity.getOrder().getConvertRate());
+        params.put("quantity",unfreezeEntity.getOrder().getQuantity());
+        params.put("orderType",unfreezeEntity.getOrder().getMode().name());
+        params.put("targetCurrencyId",unfreezeEntity.getTargetCurrencyId());
+        params.put("userCode",unfreezeEntity.getOrder().getUserCode());
+        params.put("marketId",unfreezeEntity.getOrder().getTradePairId());
+        params.put("baseCurrencyId",unfreezeEntity.getBaseCurrencyId());
+        params.put("tradeType",unfreezeEntity.getOrder().getTradeType().name());
+        params.put("createdTime",unfreezeEntity.getOrder().getCreatedTime());
+        Map<String,Object> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+        String s = null;
+        try {
+            s = HttpClientUtil.httpPostRequest(urldealmaking+"/dealmaking/delcancel_order",headers,params);
+        } catch (IOException e) {
+            logger.info("调用通知撮单系统撤销接口失败",e);
+        }
+//        String s = "{\n" +
+//                "  \"code\": 0,\n" +
+//                "  \"message\": \"ok\"\n" +
+//                "}";
         return s;
     }
     /**
@@ -155,23 +179,25 @@ public class OrderCancelService {
      }
      */
     public String unfreezeForOrder(UnfreezeEntity unfreezeEntity){
-//        Map<String,Object>  map = new HashMap<>();
-//        map.put("orderCode",unfreezeEntity.getOrder().getOrderCode());
-//        map.put("userCode",unfreezeEntity.getOrder().getUserCode());
-//        map.put("encryptCurrencyId",unfreezeEntity.getEncryptCurrencyId());
-//        map.put("quantity",unfreezeEntity.getResiduequantity());
-//        Map<String,Object> headers = new HashMap<>();
-//        headers.put("Content-Type", "application/json");
-//        String s = null;
-//        try {
-//            s = HttpClientUtil.httpPostRequest("/api/millstone/v1/account/unfreeze_for_order",headers,map);
-//        } catch (UnsupportedEncodingException e) {
-//            logger.info("调用解锁接口失败",e);
-//        }
-        String s = "{\n" +
-                "  \"code\": 0,\n" +
-                "  \"message\": \"ok\"\n" +
-                "}";
+        Map<String,Object>  map = new HashMap<>();
+        map.put("orderCode",unfreezeEntity.getOrder().getOrderCode());
+        map.put("userCode",unfreezeEntity.getOrder().getUserCode());
+        map.put("encryptCurrencyId",unfreezeEntity.getEncryptCurrencyId());
+        map.put("quantity",unfreezeEntity.getResiduequantity());
+        Map<String,Object> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+        String s = null;
+
+        try {
+            s = HttpClientUtil.httpPostRequest("/api/millstone/v1/account/unfreeze_for_order",headers,map);
+        } catch (IOException e) {
+            logger.info("解冻接口调用失败",e);
+        }
+
+//        String s = "{\n" +
+//                "  \"code\": 0,\n" +
+//                "  \"message\": \"ok\"\n" +
+//                "}";
         return s;
     }
 

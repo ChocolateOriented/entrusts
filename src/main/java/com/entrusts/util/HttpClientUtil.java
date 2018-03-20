@@ -50,12 +50,12 @@ public class HttpClientUtil {
      * @param url
      * @return
      */
-    public static String httpGetRequest(String url) {
+    public static String httpGetRequest(String url) throws IOException {
         HttpGet httpGet = new HttpGet(url);
         return getResult(httpGet);
     }
 
-    public static String httpGetRequest(String url, Map<String, Object> params) throws URISyntaxException {
+    public static String httpGetRequest(String url, Map<String, Object> params) throws URISyntaxException, IOException {
         URIBuilder ub = new URIBuilder();
         ub.setPath(url);
 
@@ -67,7 +67,7 @@ public class HttpClientUtil {
     }
 
     public static String httpGetRequest(String url, Map<String, Object> headers, Map<String, Object> params)
-            throws URISyntaxException {
+            throws URISyntaxException, IOException {
         URIBuilder ub = new URIBuilder();
         ub.setPath(url);
 
@@ -81,12 +81,12 @@ public class HttpClientUtil {
         return getResult(httpGet);
     }
 
-    public static String httpPostRequest(String url) {
+    public static String httpPostRequest(String url) throws IOException {
         HttpPost httpPost = new HttpPost(url);
         return getResult(httpPost);
     }
 
-    public static String httpPostRequest(String url, Map<String, Object> params) throws UnsupportedEncodingException {
+    public static String httpPostRequest(String url, Map<String, Object> params) throws IOException {
         HttpPost httpPost = new HttpPost(url);
         ArrayList<NameValuePair> pairs = covertParams2NVPS(params);
         httpPost.setEntity(new UrlEncodedFormEntity(pairs, UTF_8));
@@ -94,7 +94,7 @@ public class HttpClientUtil {
     }
 
     public static String httpPostRequest(String url, Map<String, Object> headers, Map<String, Object> params)
-            throws UnsupportedEncodingException {
+            throws IOException {
         HttpPost httpPost = new HttpPost(url);
 
         for (Map.Entry<String, Object> param : headers.entrySet()) {
@@ -122,10 +122,9 @@ public class HttpClientUtil {
      * @param request
      * @return
      */
-    private static String getResult(HttpRequestBase request) {
+    private static String getResult(HttpRequestBase request) throws IOException {
         // CloseableHttpClient httpClient = HttpClients.createDefault();
         CloseableHttpClient httpClient = getHttpClient();
-        try {
             CloseableHttpResponse response = httpClient.execute(request);
             // response.getStatusLine().getStatusCode();
             HttpEntity entity = response.getEntity();
@@ -136,13 +135,6 @@ public class HttpClientUtil {
                 // httpClient.close();
                 return result;
             }
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-
-        }
 
         return EMPTY_STR;
     }
