@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -54,6 +55,13 @@ public class OrderCancelController extends BaseController  {
     public Object cancelAll(HttpServletRequest request){
         String userCode = request.getHeader("Account-Code");
         Map<OrderStatus,List<Order>> map = orderCancelService.cancelAll(userCode);
+        List<Order> listOrder = new ArrayList<>();
+        if(map.keySet().contains(OrderStatus.WITHDRAW)){
+            listOrder.addAll(map.get(OrderStatus.WITHDRAW));
+        }else if(map.keySet().contains(OrderStatus.WITHDRAW_UNTHAWING)){
+            listOrder.addAll(map.get(OrderStatus.WITHDRAW_UNTHAWING));
+        }
+
         if (map == null){
             return new Results(ResultConstant.EMPTY_ENTITY.code,"请求数据不存在");
         }
