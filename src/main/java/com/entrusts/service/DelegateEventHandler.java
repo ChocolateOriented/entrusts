@@ -20,8 +20,6 @@ public class DelegateEventHandler extends BaseService {
 
 	@Autowired
 	private OrderService orderService;
-	@Autowired
-	private OrderEventService orderEventService;
 
 	@Value("${url.lockCoin}")
 	private String url;
