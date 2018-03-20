@@ -28,7 +28,7 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8000/eureka/
+      defaultZone: http://gavin:Mo92017@192.168.1.58:8380/batonApi/eureka
 
 redis:
   database: 20
