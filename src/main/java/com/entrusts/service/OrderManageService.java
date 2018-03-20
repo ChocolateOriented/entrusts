@@ -2,6 +2,7 @@
 package com.entrusts.service;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -325,6 +326,10 @@ public class OrderManageService extends BaseService {
 	 * @param order
 	 */
 	public void updateUserHistoryCache(Order order) {
+		if (order == null) {
+			return;
+		}
+		
 		String userCode = order.getUserCode();
 		String userTotalKey = totalHistoryOrderUserKey + userCode;
 		String userKey = historyOrderUserKey + userCode;
@@ -334,7 +339,7 @@ public class OrderManageService extends BaseService {
 			return;
 		}
 		
-		HistoryOrderView orderView = orderMapper.getHistoryOrder(order);
+		HistoryOrderView orderView = createHistoryOrderView(order);
 		Jedis jedis = null;
 		try {
 			jedis = RedisUtil.getResource();
@@ -348,6 +353,60 @@ public class OrderManageService extends BaseService {
 				jedis.close();
 			}
 		}
+		
+		
+	}
+
+	public void updateUserHistoryCaches(List<Order> orders) {
+		if (orders == null || orders.isEmpty()) {
+			return;
+		}
+		
+		for (Order order : orders) {
+			updateUserHistoryCache(order);
+		}
+	}
+
+	/**
+	 * 根据托单信息生成历史托单视图
+	 * @param order
+	 * @return
+	 */
+	public HistoryOrderView createHistoryOrderView(Order order) {
+		if (order.getOrderCode() == null) {
+			throw new IllegalArgumentException("托单编号为空");
+		}
+		
+		if (order.getStatus() == null) {
+			throw new IllegalArgumentException("交易类型为空");
+		}
+		
+		if (order.getDealAmount() == null) {
+			throw new IllegalArgumentException("交易类型为空");
+		}
+		
+		if (order.getServiceFeeRate() == null) {
+			throw new IllegalArgumentException("交易费率为空");
+		}
+		
+		if (order.getTradePairId() == null) {
+			throw new IllegalArgumentException("交易对为空");
+		}
+		
+		HistoryOrderView orderView = new HistoryOrderView();
+		orderView.setOrderCode(order.getOrderCode());
+		orderView.setDate(order.getCreatedTime());
+		orderView.setTradeType(order.getTradeType().toString());
+		orderView.setStatus(String.valueOf(order.getStatus().getValue()));
+		orderView.setOrderPrice(order.getConvertRate());
+		orderView.setDealTargetQuantity(order.getDealQuantity());
+		orderView.setOrderTargetQuantity(order.getQuantity());
+		orderView.setDealBaseAmount(order.getDealAmount() == null ? new BigDecimal("0") : order.getDealAmount());
+		orderView.setServiceFee(orderView.getDealBaseAmount().multiply(order.getServiceFeeRate(), new MathContext(8)));
+		TradePair tradePair = tradePairService.findTradePairById(order.getTradePairId());
+		orderView.setBaseCurrency(tradePair.getBaseCurrencyName());
+		orderView.setBaseCurrency(tradePair.getTargetCurrencyName());
+		return orderView;
 	}
 
 	/**
@@ -684,15 +743,22 @@ public class OrderManageService extends BaseService {
 				deleteUserHistoryOrderCache(userCode, jedis);
 			}
 			
-			Set<Tuple> tuples = jedis.zrangeWithScores(historyCacheUserHitCountKey, 0, -1);
+			long total = jedis.zcard(historyCacheUserHitCountKey);
 			
-			//缩减过去的访问计数
-			for (Tuple tuple : tuples) {
-				String userCode = tuple.getElement();
-				long score = (long) tuple.getScore();
-				score = score / 2;
-				jedis.zadd(historyCacheUserHitCountKey, score, userCode);
+			int pageSize = 500;
+			
+			int page = (int) (total / pageSize);
+			int start = 0;
+			int end = pageSize - 1;
+			for (int i = 0; i < page; i++) {
+				reduceUserHitCount(start, end, jedis);
+				
+				start = end + 1;
+				end += pageSize;
 			}
+			
+			//最后一页
+			reduceUserHitCount(start, -1, jedis);
 		} catch (Exception e) {
 			logger.error("定时清理缓存失败", e);
 		} finally {
@@ -723,5 +789,22 @@ public class OrderManageService extends BaseService {
 				+ "redis.call('del', KEYS[2]);"
 				+ "redis.call('zrem', KEYS[3], ARGV[1]);";
 		jedis.eval(script, keys, args);
+	}
+
+	/**
+	 * 缩减过去的访问计数
+	 * @param start
+	 * @param end
+	 * @param jedis
+	 */
+	private void reduceUserHitCount(int start, int end, Jedis jedis) {
+		Set<Tuple> tuples = jedis.zrangeWithScores(historyCacheUserHitCountKey, start, end);
+		
+		for (Tuple tuple : tuples) {
+			String userCode = tuple.getElement();
+			long score = (long) tuple.getScore();
+			score = score / 2;
+			jedis.zadd(historyCacheUserHitCountKey, score, userCode);
+		}
 	}
 }

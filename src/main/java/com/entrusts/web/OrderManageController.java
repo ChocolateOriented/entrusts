@@ -87,7 +87,7 @@ public class OrderManageController extends BaseController {
 			return response;
 		}
 		currencyListService.updateCurrentPrice(deal);
-		Order currentOrder = dealService.updateOrderNewDeal(deal);
+		Order currentOrder = dealService.updateNewDeal(deal);
 		orderManageService.updateUserCurrentOrderListFromRedisByDeal(currentOrder, 3600*12);
 		if (currentOrder.getStatus() == OrderStatus.COMPLETE) {
 			orderManageService.updateUserHistoryCache(currentOrder);

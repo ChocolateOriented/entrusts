@@ -32,7 +32,7 @@ public class DealService extends BaseService {
 	 * @return
 	 */
 	@Transactional
-	public Order updateOrderNewDeal(Deal deal) {
+	public Order updateNewDeal(Deal deal) {
 		orderManageService.updateOrderNewDeal(deal);
 		Order order = orderManageService.get(deal.getOrderCode());
 		if (order.getDealQuantity() == null || order.getQuantity() == null || !order.getDealQuantity().equals(order.getQuantity())) {
@@ -41,13 +41,14 @@ public class DealService extends BaseService {
 		
 		if (orderManageService.completeOrder(order)) {
 			order.setStatus(OrderStatus.COMPLETE);
-			OrderEvent orderEvent = new OrderEvent();
-			orderEvent.setOrderCode(order.getOrderCode());
-			orderEvent.setStatus(order.getStatus());
-			orderEvent.setDealAmout(order.getDealAmount());
-			orderEvent.setDealQuantity(order.getDealQuantity());
-			orderEventService.save(orderEvent);
 		}
+		
+		OrderEvent orderEvent = new OrderEvent();
+		orderEvent.setOrderCode(order.getOrderCode());
+		orderEvent.setStatus(order.getStatus());
+		orderEvent.setDealAmout(order.getDealAmount());
+		orderEvent.setDealQuantity(order.getDealQuantity());
+		orderEventService.save(orderEvent);
 		
 		return order;
 	}

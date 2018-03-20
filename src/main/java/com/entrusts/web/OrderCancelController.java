@@ -42,6 +42,7 @@ public class OrderCancelController extends BaseController  {
             //撤销成功
             String userCode = request.getHeader("Account-Code");
             orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, orderCode, 3600*12);
+            orderManageService.updateUserHistoryCache(order);
             return Results.ok();
         }else if (order.getStatus() == OrderStatus.TRADING){
             //撤销失败
@@ -55,16 +56,19 @@ public class OrderCancelController extends BaseController  {
     public Object cancelAll(HttpServletRequest request){
         String userCode = request.getHeader("Account-Code");
         Map<OrderStatus,List<Order>> map = orderCancelService.cancelAll(userCode);
+        if (map == null){
+        	return new Results(ResultConstant.EMPTY_ENTITY.code,"请求数据不存在");
+        }
+        
         List<Order> listOrder = new ArrayList<>();
         if(map.keySet().contains(OrderStatus.WITHDRAW)){
             listOrder.addAll(map.get(OrderStatus.WITHDRAW));
         }else if(map.keySet().contains(OrderStatus.WITHDRAW_UNTHAWING)){
             listOrder.addAll(map.get(OrderStatus.WITHDRAW_UNTHAWING));
         }
+        
+        orderManageService.updateUserHistoryCaches(listOrder);
 
-        if (map == null){
-            return new Results(ResultConstant.EMPTY_ENTITY.code,"请求数据不存在");
-        }
         if(map.containsKey(OrderStatus.WITHDRAW) && map.size()==1){
             //说明全部撤销成功
             orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, null, 3600*12);
