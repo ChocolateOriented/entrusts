@@ -56,9 +56,9 @@ public class OrderService extends BaseService {
 	 * 更新托单状态(交易中)
 	 */
 	@Transactional
-	public void updateOrderStatus(OrderStatus trading, String orderCode, String userCode) {
-		orderMapper.updateOrderStatus(trading, orderCode);
-		orderManageService.updateUserCurrentOrderListFromRedis(trading, orderCode, userCode, 3600*12);
+	public void updateOrderStatus(OrderStatus status, String orderCode, String userCode) {
+		orderMapper.updateOrderStatus(status, orderCode);
+		orderManageService.updateUserCurrentOrderListFromRedis(status, orderCode, userCode, 3600*12);
 	}
 
 	/**

@@ -108,6 +108,24 @@
 		where o.order_code = #{orderCode}
 	</select>
 
+	<sql id="orderCondition">
+		<if test="startTime != null">
+			<![CDATA[ and unix_timestamp(o.created_time) >= #{startTime} / 1000 ]]>
+		</if>
+		<if test="endTime != null">
+			<![CDATA[ and unix_timestamp(o.created_time) <= #{endTime} / 1000 ]]>
+		</if>
+		<if test="direction != null">
+			and o.trade_type = #{direction}
+		</if>
+		<if test="baseCurrency != null and baseCurrency != ''">
+			and c1.alias = #{baseCurrency}
+		</if>
+		<if test="targetCurrency != null and targetCurrency != ''">
+			and c2.alias = #{targetCurrency}
+		</if>
+	</sql>
+
 	<select id="findHistoryOrderByPage" resultType="com.entrusts.module.vo.HistoryOrderView">
 		select
 			o.order_code as orderCode,
@@ -126,24 +144,7 @@
 		left join digital_currency c2 on c2.id = p.target_currency_id 
 		where user_code = #{userCode}
 		and status in (30, 40)
-		<if test="startTime != null">
-			<![CDATA[ and o.created_time >= #{startTime} ]]>
-		</if>
-		<if test="endTime != null">
-			<![CDATA[ and o.created_time <= #{endTime} ]]>
-		</if>
-		<if test="direction != null">
-			and o.trade_type = #{direction}
-		</if>
-		<if test="direction != null">
-			and o.trade_type = #{direction}
-		</if>
-		<if test="baseCurrency != null and baseCurrency != ''">
-			and c1.alias = #{baseCurrency}
-		</if>
-		<if test="targetCurrency != null and targetCurrency != ''">
-			and c2.alias = #{targetCurrency}
-		</if>
+		<include refid="orderCondition" />
 	</select>
 	
 	<select id="findHistoryOrderByTime" resultType="com.entrusts.module.vo.HistoryOrderView">
@@ -164,26 +165,23 @@
 		left join digital_currency c2 on c2.id = p.target_currency_id 
 		where user_code = #{userCode}
 		and status in (30, 40)
-		<if test="toCreatedTime != null">
-			<![CDATA[ and o.created_time < #{toCreatedTime} ]]>
+		<if test="orderQuery.toCreatedTime != null">
+			<![CDATA[ and unix_timestamp(o.created_time) < #{orderQuery.toCreatedTime} / 1000 ]]>
 		</if>
-		<if test="startTime != null">
-			<![CDATA[ and o.created_time >= #{startTime} ]]>
+		<if test="orderQuery.startTime != null">
+			<![CDATA[ and unix_timestamp(o.created_time) >= #{orderQuery.startTime} / 1000 ]]>
 		</if>
-		<if test="endTime != null">
-			<![CDATA[ and o.created_time <= #{endTime} ]]>
+		<if test="orderQuery.endTime != null">
+			<![CDATA[ and unix_timestamp(o.created_time) <= #{orderQuery.endTime} / 1000 ]]>
 		</if>
-		<if test="direction != null">
-			and o.trade_type = #{direction}
+		<if test="orderQuery.direction != null">
+			and o.trade_type = #{orderQuery.direction}
 		</if>
-		<if test="direction != null">
-			and o.trade_type = #{direction}
-		</if>
-		<if test="baseCurrency != null and baseCurrency != ''">
+		<if test="orderQuery.baseCurrency != null and orderQuery.baseCurrency != ''">
 			and c1.alias = #{baseCurrency}
 		</if>
-		<if test="targetCurrency != null and targetCurrency != ''">
-			and c2.alias = #{targetCurrency}
+		<if test="orderQuery.targetCurrency != null and orderQuery.targetCurrency != ''">
+			and c2.alias = #{orderQuery.targetCurrency}
 		</if>
 		order by o.created_time desc
 		limit #{limit}
@@ -199,26 +197,9 @@
 		where user_code = #{userCode}
 		and status in (30, 40)
 		<if test="toCreatedTime != null">
-			<![CDATA[ and o.created_time < #{toCreatedTime} ]]>
+			<![CDATA[ and unix_timestamp(o.created_time) < #{toCreatedTime} / 1000 ]]>
 		</if>
-		<if test="startTime != null">
-			<![CDATA[ and o.created_time >= #{startTime} ]]>
-		</if>
-		<if test="endTime != null">
-			<![CDATA[ and o.created_time <= #{endTime} ]]>
-		</if>
-		<if test="direction != null">
-			and o.trade_type = #{direction}
-		</if>
-		<if test="direction != null">
-			and o.trade_type = #{direction}
-		</if>
-		<if test="baseCurrency != null and baseCurrency != ''">
-			and c1.alias = #{baseCurrency}
-		</if>
-		<if test="targetCurrency != null and targetCurrency != ''">
-			and c2.alias = #{targetCurrency}
-		</if>
+		<include refid="orderCondition" />
 	</select>
 	
 	<select id="findLimitHistoryOrder" resultType="com.entrusts.module.vo.HistoryOrderView">
@@ -243,26 +224,6 @@
 		limit #{limit}
 	</select>
 	
-	<select id="getHistoryOrder" resultType="com.entrusts.module.vo.HistoryOrderView">
-		select
-			o.order_code as orderCode,
-			o.created_time as date,
-			c1.alias as baseCurrency,
-			c2.alias as targetCurrency,
-			if(o.trade_type = 1, 'buy', 'sell') as tradeType,
-			o.convert_rate as orderPrice,
-			o.deal_quantity as dealTargetQuantity,
-			o.deal_amount as dealBaseAmount,
-			o.deal_amount * service_fee_rate as serviceFee,
-			status
-		from `order` o
-		left join trade_pair p on o.trade_pair_id = p.id
-		left join digital_currency c1 on c1.id = p.base_currency_id
-		left join digital_currency c2 on c2.id = p.target_currency_id 
-		where order_code = #{orderCode}
-		and status in (30, 40)
-	</select>
-	
 	<select id="totalHistoryOrder">
 		select
 			count(o.order_code)
@@ -273,9 +234,9 @@
 
 	<update id="updateOrderNewDeal">
 		update `order` set
-		deal_amount = deal_amount + #{dealAmount},
-		deal_quantity = deal_quantity + #{dealQuantity},
-		lasted_deal_time = if(lasted_deal_time > #{dealTime}, lasted_deal_time, #{dealTime})
+		deal_amount = ifnull(deal_amount, 0) + #{dealAmount},
+		deal_quantity = ifnull(deal_quantity, 0) + #{dealQuantity},
+		lasted_deal_time = if(unix_timestamp(lasted_deal_time) * 1000 > #{dealTime}, lasted_deal_time, from_unixtime(#{dealTime} / 1000))
 		where order_code = #{orderCode}
 	</update>
 
@@ -333,7 +294,5 @@
 		AND o.is_deleted ='0'
 		order by o.created_time desc
 	</select>
-
-
 
 </mapper>

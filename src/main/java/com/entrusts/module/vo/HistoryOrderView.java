@@ -23,6 +23,10 @@ public class HistoryOrderView {
 
 	private BigDecimal dealTargetQuantity;
 
+	private BigDecimal dealBaseAmount;
+
+	private BigDecimal serviceFee;
+
 	private String status;
 
 	public String getOrderCode() {
@@ -32,7 +36,6 @@ public class HistoryOrderView {
 	public void setOrderCode(String orderCode) {
 		this.orderCode = orderCode;
 	}
-
 
 	public Long getDate() {
 		return date == null ? null : date.getTime();
@@ -88,6 +91,22 @@ public class HistoryOrderView {
 
 	public void setDealTargetQuantity(BigDecimal dealTargetQuantity) {
 		this.dealTargetQuantity = dealTargetQuantity;
+	}
+
+	public BigDecimal getDealBaseAmount() {
+		return dealBaseAmount;
+	}
+
+	public void setDealBaseAmount(BigDecimal dealBaseAmount) {
+		this.dealBaseAmount = dealBaseAmount;
+	}
+
+	public BigDecimal getServiceFee() {
+		return serviceFee;
+	}
+
+	public void setServiceFee(BigDecimal serviceFee) {
+		this.serviceFee = serviceFee;
 	}
 
 	public String getStatus() {

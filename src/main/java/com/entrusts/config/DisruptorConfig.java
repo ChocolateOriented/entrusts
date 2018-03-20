@@ -24,7 +24,7 @@ public class DisruptorConfig {
 	@Autowired
 	private DelegateEventHandler eventHandler;
 	@Autowired
-	private OrderEventService orderEventService;
+	private OrderEventService orderEventHandler;
 
 	@Value("${disruptor.delegateEvent.bufferSize}")
 	private int delegateEventBufferSize;//委托事件任务队列大小
@@ -47,7 +47,7 @@ public class DisruptorConfig {
 			publishOrderWorkers[i] = eventHandler::publishOrder;
 		}
 
-		disruptor.handleEventsWithWorkerPool(publishOrderWorkers).then(orderEventService);
+		disruptor.handleEventsWithWorkerPool(publishOrderWorkers).then(orderEventHandler);
 		return disruptor;
 	}
 }

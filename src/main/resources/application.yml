@@ -1,5 +1,5 @@
 server:
-  port: 80
+  port: 8080
 
 logging:
   config: classpath:logback-spring.xml
@@ -28,14 +28,14 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8000/eureka/
+      defaultZone: http://gavin:Mo92017@192.168.1.58:8380/batonApi/eureka
 
 redis:
-  database: 11
+  database: 20
   host: 192.168.3.31
   password: dev@Mo9.com
 
-  database2: 6
+  database2: 21
   host2: 192.168.3.31
   password2: dev@Mo9.com
 
@@ -52,6 +52,7 @@ mq:
   secretKey: XRDykcat39ONcoCi1OZ7cpfohm1Yyk
   delegatePushTopic: TOPIC_MO9_CLONE_ENTRUSTS_DELEGATE_PUSH
   delegatePushTag: TAG_MO9_CLONE_ENTRUSTS_DELEGATE_PUSH
+  sendMsgTimeoutMillis: 3000
   onsAddr: http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet
 
 datacenterId: 1
@@ -91,6 +92,22 @@ disruptor:
   delegateEvent:
     bufferSize: 1024
     publishOrderThreadNum: 50
+
+httpclient:
+  pool:
+    maxTotal: 500
+    defaultMaxPerRoute: 200
+
+feign:
+  httpclient:
+    enabled: true
+
+ribbon:
+  ConnectTimeout: 500
+  ReadTimeout: 10000
+  OkToRetryOnAllOperations: false
+  MaxAutoRetriesNextServer: 0
+  MaxAutoRetries: 0
 
 url:
   lockCoin: www
