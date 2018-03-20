@@ -43,11 +43,11 @@ public class TradePairService extends BaseService {
 
 	/**
 	 * 根据交易对List获取目标货币信息
-	 * @param tradePareIds
+	 * @param
 	 * @return
 	 */
-	@Cacheable(key = "#tradePareIds")
-	public List<TargetMapCurrency> getTargetCurrency(List<Integer> tradePareIds){
-		return tradePairMapper. getTargetCurrency(tradePareIds);
+	@Cacheable()
+	public List<TargetMapCurrency> getTargetCurrency(){
+		return tradePairMapper. getTargetCurrency();
 	}
 }

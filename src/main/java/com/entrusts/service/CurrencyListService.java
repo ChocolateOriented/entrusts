@@ -209,17 +209,8 @@ public class CurrencyListService extends BaseService {
 
         logger.info("开始更新目标货币到缓存:"+redisKey);
         //从db获取订单数据
-        List<TargetMapCurrency> targetMapCurrencies = targetMapCurrencies(now);
-//        Map<String, String> map = RedisUtil.getMap(redisKey);
-//        Set<String> strings = map.keySet();
-//        List<TargetMapCurrency> targetMapCurrencies2 = new ArrayList<>();
-//        for (String s : strings){
-//            TargetMapCurrency targetMapCurrency = new TargetMapCurrency();
-//            targetMapCurrency.setBaseAlias(s.substring(21));
-//            List<TargetCurrency> targetCurrencies = JSON.parseArray(map.get(s), TargetCurrency.class);
-//            targetMapCurrency.setTargetCurrencies(targetCurrencies);
-//            targetMapCurrencies2.a
-//        }
+        List<TargetMapCurrency> targetMapCurrencies = targetMapCurrencies(now,redisKey);
+
 
         if(targetMapCurrencies == null || targetMapCurrencies.size() ==0){
             logger.info("读取数据库失败");
@@ -239,26 +230,66 @@ public class CurrencyListService extends BaseService {
      * @param now
      * @return
      */
-    public List<TargetMapCurrency> targetMapCurrencies (Long now){
-        Long startTime = now - 90*24*60*60*1000;
+    public List<TargetMapCurrency> targetMapCurrencies (Long now,String redisKey) {
+        Long startTime = now - 86400000;
         //获取最近时间段的成交订单
-        List<Deal> dealList = dealMapper.getRecentDeal(startTime,now);
-        List<Integer> tradePareIds = new ArrayList<>();
-        for (Deal d : dealList){
-            tradePareIds.add(d.getTradePairId());
-        }
+        List<Deal> dealList = dealMapper.getRecentDeal(startTime, now);
         //获取目标货币交易对信息
-        List<TargetMapCurrency> tradePairList = tradePairService.getTargetCurrency(tradePareIds);
-        for (TargetMapCurrency targetMapCurrency : tradePairList){
-            for (TargetCurrency targetCurrency : targetMapCurrency.getTargetCurrencies()){
-                for (Deal d : dealList){
-                    if(targetCurrency.getTradePareId() == d.getTradePairId()){
+        List<TargetMapCurrency> tradePairList = tradePairService.getTargetCurrency();
+        //从redis获取旧的数据
+        List<TargetMapCurrency> targetMapCurrenciesredis = getTargetMapCurrenciesFromRedis(redisKey);
+        //给tradePairList赋值
+        for (TargetMapCurrency targetMapCurrency : tradePairList) {
+            for (TargetCurrency targetCurrency : targetMapCurrency.getTargetCurrencies()) {
+                //给tradePairList赋值(从数据库中查出的数据)
+                for (Deal d : dealList) {
+                    if (targetCurrency.getTradePareId() == d.getTradePairId()) {
                         targetCurrency.setTodayStartPrice(d.getDealPrice());
                     }
                 }
+                //说明数据库没有查出此数据,使用redis中的数据给tradePairList赋值
+                if(targetMapCurrenciesredis != null && targetCurrency.getTodayStartPrice() == null){
+                    dataFromRedis(targetMapCurrenciesredis,targetCurrency);
+                }
             }
+
         }
         return tradePairList;
+    }
+
+    /**
+     * 从redis获取旧的数据,装换成List
+     * @param redisKey
+     * @return
+     */
+    public List<TargetMapCurrency> getTargetMapCurrenciesFromRedis(String redisKey){
+        Map<String, String> map = RedisUtil.getMap(redisKey);
+        if (map == null){
+            return null;
+        }
+        Set<String> strings = map.keySet();
+        List<TargetMapCurrency> targetMapCurrenciesredis = new ArrayList<>();
+        for (String s : strings) {
+            TargetMapCurrency targetMapCurrency = new TargetMapCurrency();
+            targetMapCurrency.setBaseAlias(s.substring(22));
+            List<TargetCurrency> targetCurrencies = JSON.parseArray(map.get(s), TargetCurrency.class);
+            targetMapCurrency.setTargetCurrencies(targetCurrencies);
+            targetMapCurrenciesredis.add(targetMapCurrency);
+        }
+        return targetMapCurrenciesredis;
+    }
+    /**
+     * 说明数据库没有查出此数据,使用redis中的数据给tradePairList赋值
+     */
+    public void dataFromRedis(List<TargetMapCurrency> targetMapCurrenciesredis,TargetCurrency targetCurrency){
+        for (TargetMapCurrency t : targetMapCurrenciesredis){
+            for(TargetCurrency t1 : t.getTargetCurrencies()){
+                if(targetCurrency.getTradePareId() == t1.getTradePareId()){
+                    targetCurrency.setTodayStartPrice(t1.getTodayStartPrice());
+                    return;
+                }
+            }
+        }
     }
     /**
      * 根据时间获取UTCTimerEnum中对应的名字作为redis中的key
