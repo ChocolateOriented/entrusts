@@ -30,13 +30,11 @@ public interface OrderMapper {
 
 	long countHistoryOrderByTime(OrderQuery orderQuery);
 
-	List<HistoryOrderView> findHistoryOrderByTime(OrderQuery orderQuery, @Param("limit") int limit);
+	List<HistoryOrderView> findHistoryOrderByTime(@Param("orderQuery") OrderQuery orderQuery, @Param("limit") int limit);
 
 	List<HistoryOrderView> findLimitHistoryOrder(@Param("userCode") String userCode, @Param("limit") int limit);
 
 	int totalHistoryOrder(String userCode);
-
-	HistoryOrderView getHistoryOrder(Order order);
 
 	/**
 	 * 查询全量当前数据

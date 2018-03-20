@@ -92,6 +92,22 @@ disruptor:
     bufferSize: 1024
     publishOrderThreadNum: 50
 
+httpclient:
+  pool:
+    maxTotal: 500
+    defaultMaxPerRoute: 200
+
+feign:
+  httpclient:
+    enabled: true
+
+ribbon:
+  ConnectTimeout: 500
+  ReadTimeout: 10000
+  OkToRetryOnAllOperations: false
+  MaxAutoRetriesNextServer: 0
+  MaxAutoRetries: 0
+
 url:
   lockCoin: www
   urldealmaking: http://192.168.6.27:3000/mock/104
