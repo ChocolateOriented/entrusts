@@ -23,7 +23,7 @@ spring:
     testOnBorrow: false
     testOnReturn: false
   application:
-    name: entrusts-service
+    name: entrusts
 
 eureka:
   client:

@@ -3,73 +3,74 @@ package com.entrusts.module.entity;
 import java.math.BigDecimal;
 
 public class TradePair {
-    private Integer id;
 
-    private Integer baseCurrencyId;
+	private Integer id;
 
-    private String  baseCurrencyName;
+	private Integer baseCurrencyId;//基准货币
 
-    private Integer targetCurrencyId;
+	private String baseCurrencyName;
 
-    private String  targetCurrencyName;
+	private Integer targetCurrencyId;//目标货币
 
-    private BigDecimal minTradeQuantity;
+	private String targetCurrencyName;
 
-    private Byte isDeleted;
+	private BigDecimal minTradeQuantity;
 
-    public Integer getId() {
-        return id;
-    }
+	private Byte isDeleted;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public Integer getId() {
+		return id;
+	}
 
-    public Integer getBaseCurrencyId() {
-        return baseCurrencyId;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public void setBaseCurrencyId(Integer baseCurrencyId) {
-        this.baseCurrencyId = baseCurrencyId;
-    }
+	public Integer getBaseCurrencyId() {
+		return baseCurrencyId;
+	}
 
-    public Integer getTargetCurrencyId() {
-        return targetCurrencyId;
-    }
+	public void setBaseCurrencyId(Integer baseCurrencyId) {
+		this.baseCurrencyId = baseCurrencyId;
+	}
 
-    public void setTargetCurrencyId(Integer targetCurrencyId) {
-        this.targetCurrencyId = targetCurrencyId;
-    }
+	public Integer getTargetCurrencyId() {
+		return targetCurrencyId;
+	}
 
-    public BigDecimal getMinTradeQuantity() {
-        return minTradeQuantity;
-    }
+	public void setTargetCurrencyId(Integer targetCurrencyId) {
+		this.targetCurrencyId = targetCurrencyId;
+	}
 
-    public void setMinTradeQuantity(BigDecimal minTradeQuantity) {
-        this.minTradeQuantity = minTradeQuantity;
-    }
+	public BigDecimal getMinTradeQuantity() {
+		return minTradeQuantity;
+	}
 
-    public Byte getIsDeleted() {
-        return isDeleted;
-    }
+	public void setMinTradeQuantity(BigDecimal minTradeQuantity) {
+		this.minTradeQuantity = minTradeQuantity;
+	}
 
-    public void setIsDeleted(Byte isDeleted) {
-        this.isDeleted = isDeleted;
-    }
+	public Byte getIsDeleted() {
+		return isDeleted;
+	}
 
-    public String getBaseCurrencyName() {
-        return baseCurrencyName;
-    }
+	public void setIsDeleted(Byte isDeleted) {
+		this.isDeleted = isDeleted;
+	}
 
-    public void setBaseCurrencyName(String baseCurrencyName) {
-        this.baseCurrencyName = baseCurrencyName;
-    }
+	public String getBaseCurrencyName() {
+		return baseCurrencyName;
+	}
 
-    public String getTargetCurrencyName() {
-        return targetCurrencyName;
-    }
+	public void setBaseCurrencyName(String baseCurrencyName) {
+		this.baseCurrencyName = baseCurrencyName;
+	}
 
-    public void setTargetCurrencyName(String targetCurrencyName) {
-        this.targetCurrencyName = targetCurrencyName;
-    }
+	public String getTargetCurrencyName() {
+		return targetCurrencyName;
+	}
+
+	public void setTargetCurrencyName(String targetCurrencyName) {
+		this.targetCurrencyName = targetCurrencyName;
+	}
 }

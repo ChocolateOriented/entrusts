@@ -51,7 +51,7 @@ public class OrderManageService extends BaseService {
 
 	private static final String currentOrderUserKey = currentOrderPrefix + ".currentuserDate.";
 
-	private static final String totalCurrentOrderUserKey = currentOrderPrefix + ".currentuserTotalData.";
+	public static final String totalCurrentOrderUserKey = currentOrderPrefix + ".currentuserTotalData.";
 
 	private static final String historyOrderUserKey = historyOrderPrefix + ".userData.";
 
