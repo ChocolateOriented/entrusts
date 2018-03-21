@@ -1,7 +1,7 @@
 package com.entrusts.service;
 
-import com.entrusts.client.MillstoneClient;
 import com.entrusts.exception.ApiException;
+import com.entrusts.manager.MillstoneClient;
 import com.entrusts.module.dto.DelegateEvent;
 import com.entrusts.module.dto.FreezeDto;
 import com.entrusts.module.dto.result.Results;
