@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  #port: 8080
 
 logging:
   config: classpath:logback-spring.xml
@@ -28,7 +28,7 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://gavin:Mo92017@192.168.1.58:8380/batonApi/eureka
+      defaultZone: http://localhost:8761/eureka/
 
 redis:
   database: 20
@@ -108,6 +108,12 @@ ribbon:
   OkToRetryOnAllOperations: false
   MaxAutoRetriesNextServer: 0
   MaxAutoRetries: 0
+
+feignName:
+  #钱包系统
+  millstoneName: client-service
+  #撮单系统
+  dealmakingName: springcloud-client
 
 url:
   lockCoin: www

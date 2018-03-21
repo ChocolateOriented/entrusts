@@ -1,26 +1,23 @@
 package com.entrusts.service;
 
 import com.alibaba.fastjson.JSON;
+import com.entrusts.manager.DealmakingClient;
+import com.entrusts.manager.MillstoneClient;
 import com.entrusts.mapper.OrderMapper;
 import com.entrusts.module.dto.UnfreezeEntity;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.enums.OrderStatus;
-import com.entrusts.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -32,8 +29,10 @@ import java.util.concurrent.Future;
 public class OrderCancelService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrderCancelService.class);
-    @Value("${url.urldealmaking}")
-    private String urldealmaking;
+    @Autowired
+    private DealmakingClient dealmakingClient;
+    @Autowired
+    private MillstoneClient millstoneClient;
 
     @Autowired
     private ExecutorService orderCancelExecutorService;
@@ -155,14 +154,8 @@ public class OrderCancelService {
         params.put("baseCurrencyId",unfreezeEntity.getBaseCurrencyId());
         params.put("tradeType",unfreezeEntity.getOrder().getTradeType().name());
         params.put("createdTime",unfreezeEntity.getOrder().getCreatedTime());
-        Map<String,Object> headers = new HashMap<>();
-        headers.put("Content-Type", "application/json");
-        String s = null;
-        try {
-            s = HttpClientUtil.httpPostRequest(urldealmaking+"/dealmaking/delcancel_order",headers,params);
-        } catch (IOException e) {
-            logger.info("调用通知撮单系统撤销接口失败",e);
-        }
+        String s = dealmakingClient.delCancelOrder(params);
+
 //        String s = "{\n" +
 //                "  \"code\": 0,\n" +
 //                "  \"message\": \"ok\"\n" +
@@ -177,23 +170,15 @@ public class OrderCancelService {
      "encryptCurrencyId": 1,
      "quantity": 17.1
      }
-     */
+     *///, path = "/dealmaking"
     public String unfreezeForOrder(UnfreezeEntity unfreezeEntity){
         Map<String,Object>  map = new HashMap<>();
         map.put("orderCode",unfreezeEntity.getOrder().getOrderCode());
         map.put("userCode",unfreezeEntity.getOrder().getUserCode());
         map.put("encryptCurrencyId",unfreezeEntity.getEncryptCurrencyId());
         map.put("quantity",unfreezeEntity.getResiduequantity());
-        Map<String,Object> headers = new HashMap<>();
-        headers.put("Content-Type", "application/json");
-        String s = null;
 
-        try {
-            s = HttpClientUtil.httpPostRequest("/api/millstone/v1/account/unfreeze_for_order",headers,map);
-        } catch (IOException e) {
-            logger.info("解冻接口调用失败",e);
-        }
-
+        String s = millstoneClient.unfreezeForOrder(map);
 //        String s = "{\n" +
 //                "  \"code\": 0,\n" +
 //                "  \"message\": \"ok\"\n" +
