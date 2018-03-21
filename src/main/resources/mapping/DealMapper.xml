@@ -26,31 +26,41 @@
 	</select>
 	<select id="getRecentDeal" resultMap="BaseResultMap">
 		SELECT
-			t.trade_code AS 'trade_code',
-			t.order_code AS 'order_code',
-			t.deal_price AS 'deal_price',
-			t.deal_quantity AS 'deal_quantity',
-			t.deal_amount AS 'deal_amount',
-			t.service_fee AS 'service_fee',
-			t.deal_time AS 'deal_time',
-			t.trade_pair_id AS 'trade_pair_id'
+			t.trade_code AS trade_code,
+			t.code AS code,
+			t.order_code AS order_code,
+			t.order_type AS order_type,
+			t.trade_type AS trade_type,
+			t.trade_fee AS trade_fee,
+			t.deal_price AS deal_price,
+			t.deal_quantity AS deal_quantity,
+			t.base_currencyId AS base_currencyId,
+			t.target_currencyId AS target_currencyId,
+			t.created_time AS created_time,
+			t.is_initiator AS is_initiator,
+			t.trade_pair_id AS trade_pair_id
 		FROM
 			(
 				SELECT
-					trade_code,
-					order_code,
-					deal_price,
-					deal_quantity,
-					deal_amount,
-					service_fee,
-					deal_time,
-					trade_pair_id
+				trade_code,
+				code,
+				order_code,
+				order_type,
+				trade_type,
+				trade_fee,
+				deal_price,
+				deal_quantity,
+				base_currencyId,
+				target_currencyId,
+				created_time,
+				is_initiator,
+				trade_pair_id
 				FROM
 					deal
 				WHERE
-					deal_time BETWEEN #{startTime} AND #{endTime}
+					created_time BETWEEN #{startTime} AND #{endTime}
 				ORDER BY
-					`deal_time` DESC
+					`created_time` DESC
 			) t
 		GROUP BY
 			t.trade_pair_id

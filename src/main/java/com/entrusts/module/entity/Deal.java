@@ -1,54 +1,85 @@
 package com.entrusts.module.entity;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.NotNull;
+import com.alibaba.fastjson.annotation.JSONField;
 
 public class Deal {
-
-	@NotNull(message = "交易流水号为空")
     private String tradeCode;
 
-	@NotNull(message = "托单编号为空")
+    private String code;
+
     private String orderCode;
 
-	@NotNull(message = "无效的成交价格")
-	@DecimalMin(value = "0", message = "无效的成交价格")
+    private String orderType;
+
+    private String tradeType;
+
+    private BigDecimal tradeFee;
+
     private BigDecimal dealPrice;
 
-	@NotNull(message = "无效的成交量")
-	@DecimalMin(value = "0", message = "无效的成交量")
     private BigDecimal dealQuantity;
 
-	@NotNull(message = "无效的成交金额")
-	@DecimalMin(value = "0", message = "无效的成交金额")
-    private BigDecimal dealAmount;
+    private Integer baseCurrencyid;
 
-    private BigDecimal serviceFee;
+    private Integer targetCurrencyid;
 
-    private Long dealTime;
+    private Long createdTime;
+
+    private Byte isInitiator;
 
     private Integer tradePairId;
 
     public String getTradeCode() {
-		return tradeCode;
-	}
+        return tradeCode;
+    }
 
-	public void setTradeCode(String tradeCode) {
-		this.tradeCode = tradeCode;
-	}
+    public void setTradeCode(String tradeCode) {
+        this.tradeCode = tradeCode;
+    }
 
-	public String getOrderCode() {
-		return orderCode;
-	}
+    public String getCode() {
+        return code;
+    }
 
-	public void setOrderCode(String orderCode) {
-		this.orderCode = orderCode;
-	}
+    public void setCode(String code) {
+        this.code = code;
+    }
 
-	public BigDecimal getDealPrice() {
+    public String getOrderCode() {
+        return orderCode;
+    }
+
+    public void setOrderCode(String orderCode) {
+        this.orderCode = orderCode;
+    }
+
+    public String getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(String orderType) {
+        this.orderType = orderType;
+    }
+
+    public String getTradeType() {
+        return tradeType;
+    }
+
+    public void setTradeType(String tradeType) {
+        this.tradeType = tradeType;
+    }
+
+    public BigDecimal getTradeFee() {
+        return tradeFee;
+    }
+
+    public void setTradeFee(BigDecimal tradeFee) {
+        this.tradeFee = tradeFee;
+    }
+
+    public BigDecimal getDealPrice() {
         return dealPrice;
     }
 
@@ -60,40 +91,50 @@ public class Deal {
         return dealQuantity;
     }
 
+    @JSONField(name = "tradeEncryptCurrencyQuantity")
     public void setDealQuantity(BigDecimal dealQuantity) {
         this.dealQuantity = dealQuantity;
     }
 
-    public BigDecimal getDealAmount() {
-        return dealAmount;
+    public Integer getBaseCurrencyid() {
+        return baseCurrencyid;
     }
 
-    public void setDealAmount(BigDecimal dealAmount) {
-        this.dealAmount = dealAmount;
+    @JSONField(name = "dealEncryptCurrencyId")
+    public void setBaseCurrencyid(Integer baseCurrencyid) {
+        this.baseCurrencyid = baseCurrencyid;
     }
 
-    public BigDecimal getServiceFee() {
-        return serviceFee;
+    public Integer getTargetCurrencyid() {
+        return targetCurrencyid;
     }
 
-    public void setServiceFee(BigDecimal serviceFee) {
-        this.serviceFee = serviceFee;
+    @JSONField(name = "tradeEncryptCurrencyId")
+    public void setTargetCurrencyid(Integer targetCurrencyid) {
+        this.targetCurrencyid = targetCurrencyid;
     }
 
-    public Long getDealTime() {
-        return dealTime;
+    public Long getCreatedTime() {
+        return createdTime;
     }
 
-    public void setDealTime(Long dealTime) {
-        this.dealTime = dealTime;
+    public void setCreatedTime(Long createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public Byte getIsInitiator() {
+        return isInitiator;
+    }
+
+    public void setIsInitiator(Byte isInitiator) {
+        this.isInitiator = isInitiator;
     }
 
     public Integer getTradePairId() {
-		return tradePairId;
-	}
+        return tradePairId;
+    }
 
-	public void setTradePairId(Integer tradePairId) {
-		this.tradePairId = tradePairId;
-	}
-
+    public void setTradePairId(Integer tradePairId) {
+        this.tradePairId = tradePairId;
+    }
 }

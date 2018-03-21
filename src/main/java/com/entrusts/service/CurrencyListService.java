@@ -9,6 +9,7 @@ import com.entrusts.module.dto.BaseCurrency;
 import com.entrusts.module.dto.TargetCurrency;
 import com.entrusts.module.dto.TargetMapCurrency;
 import com.entrusts.module.entity.Deal;
+import com.entrusts.module.entity.DigitalCurrency;
 import com.entrusts.module.entity.TradePair;
 import com.entrusts.module.enums.RedisKeyNameEnum;
 import com.entrusts.module.enums.UTCTimeEnum;
@@ -316,9 +317,10 @@ public class CurrencyListService extends BaseService {
             logger.info("订单中没有交易对");
             return;
         }
-        AliasMap aliasMap = tradePairMapper.getAllAlias(deal.getTradePairId());
-        String key = RedisKeyNameEnum.keyNow.getValue() + aliasMap.getBaseAlias();
-        String feild= RedisKeyNameEnum.fieldNow.getValue() + aliasMap.getTargetAlias();
+        DigitalCurrency baseCurrency = tradePairService.findCurrencyById(deal.getBaseCurrencyid());
+        DigitalCurrency targetCurrency = tradePairService.findCurrencyById(deal.getTargetCurrencyid());
+        String key = RedisKeyNameEnum.keyNow.getValue() + baseCurrency.getAlias();
+        String feild= RedisKeyNameEnum.fieldNow.getValue() + targetCurrency.getAlias();
         String s = setCurrencyList(key, feild, deal.getDealPrice());
         if(s == null || "0".equals(s)){
             logger.info("最新价格插入缓存有误");

@@ -1,7 +1,9 @@
 package com.entrusts.service;
 
+import com.entrusts.mapper.DigitalCurrencyMapper;
 import com.entrusts.mapper.TradePairMapper;
 import com.entrusts.module.dto.TargetMapCurrency;
+import com.entrusts.module.entity.DigitalCurrency;
 import com.entrusts.module.entity.TradePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -19,6 +21,8 @@ import java.util.List;
 public class TradePairService extends BaseService {
 	@Autowired
 	TradePairMapper tradePairMapper;
+	@Autowired
+	DigitalCurrencyMapper digitalCurrencyMapper;
 
 	/**
 	 * @Description 查询交易对, 使用本地缓存
@@ -49,5 +53,14 @@ public class TradePairService extends BaseService {
 	@Cacheable()
 	public List<TargetMapCurrency> getTargetCurrency(){
 		return tradePairMapper. getTargetCurrency();
+	}
+	/**
+	 * 根据id查货币信息
+	 * @param
+	 * @return
+	 */
+	@Cacheable(key = "#currencyId+'_currencyId'")
+	public DigitalCurrency findCurrencyById(int currencyId){
+		return digitalCurrencyMapper.selectByPrimaryKey(currencyId);
 	}
 }
