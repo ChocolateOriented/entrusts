@@ -74,6 +74,7 @@ public class OrderService extends BaseService {
 		body.put("userCode", delegateEvent.getUserCode());
 		body.put("marketId", delegateEvent.getTradePairId());
 		body.put("baseCurrencyId", delegateEvent.getBaseCurrencyId());
+		body.put("targetCurrencyId", delegateEvent.getTargetCurrencyId());
 		body.put("tradeType", delegateEvent.getTradeType());
 		body.put("createdTime", delegateEvent.getOrderTime().getTime());
 
