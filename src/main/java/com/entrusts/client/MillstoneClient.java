@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 /**
  * Created by jxli on 2018/3/21.
  */
-@FeignClient("millstone")
+@FeignClient(value = "millstone",path = "api/millstone/v1/account")
 public interface MillstoneClient {
 
 	/**
@@ -18,7 +18,7 @@ public interface MillstoneClient {
 	 * @param freezeDto
 	 * @return com.entrusts.module.dto.result.Results
 	 */
-	@RequestMapping(method = RequestMethod.POST, value = "api/millstone/v1/account/freeze_for_order", produces = MediaType.APPLICATION_JSON_VALUE,
+	@RequestMapping(method = RequestMethod.POST, value = "freeze_for_order", produces = MediaType.APPLICATION_JSON_VALUE,
 			consumes = MediaType.APPLICATION_JSON_VALUE)
 	Results freezeForOrder(FreezeDto freezeDto);
 }
