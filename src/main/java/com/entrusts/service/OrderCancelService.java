@@ -7,12 +7,14 @@ import com.entrusts.mapper.OrderMapper;
 import com.entrusts.module.dto.UnfreezeEntity;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.enums.OrderStatus;
+import com.entrusts.module.enums.TradeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -172,11 +174,25 @@ public class OrderCancelService {
      }
      *///, path = "/dealmaking"
     public String unfreezeForOrder(UnfreezeEntity unfreezeEntity){
+        Order order = unfreezeEntity.getOrder();
+        TradeType tradeType = order.getTradeType();
+        Integer encryptCurrencyId =null;
+        BigDecimal quantity = null;
+        if(tradeType.getValue() == 1){
+            //说明是买方,基准货币金额相减
+            encryptCurrencyId=unfreezeEntity.getBaseCurrencyId();
+            //托单单价*(托单总数量-已成交数量)
+            quantity = order.getConvertRate().multiply(order.getQuantity().subtract(order.getDealAmount()));
+        }else {
+            //说明是卖方,托单总数量-已成交数量
+            encryptCurrencyId=unfreezeEntity.getTargetCurrencyId();
+            quantity= order.getQuantity().subtract(order.getDealQuantity());
+        }
         Map<String,Object>  map = new HashMap<>();
         map.put("orderCode",unfreezeEntity.getOrder().getOrderCode());
         map.put("userCode",unfreezeEntity.getOrder().getUserCode());
-        map.put("encryptCurrencyId",unfreezeEntity.getEncryptCurrencyId());
-        map.put("quantity",unfreezeEntity.getResiduequantity());
+        map.put("encryptCurrencyId",encryptCurrencyId);
+        map.put("quantity",quantity);
 
         String s = millstoneClient.unfreezeForOrder(map);
 //        String s = "{\n" +

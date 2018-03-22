@@ -33,4 +33,6 @@ public interface TradePairMapper{
     AliasMap getAllAlias(Integer tradePairId);
 
 	List<TargetMapCurrency> getTargetCurrency();
+
+	TradePair findCurrencyById(int currencyId);
 }
