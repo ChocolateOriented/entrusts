@@ -26,4 +26,7 @@ public class BaseResponse implements Serializable {
 		this.message = message;
 	}
 
+	public boolean isSuccess() {
+		return code != null && code == 0;
+	}
 }

@@ -135,8 +135,8 @@
 			if(o.trade_type = 1, 'buy', 'sell') as tradeType,
 			o.convert_rate as orderPrice,
 			o.deal_quantity as dealTargetQuantity,
-			convert(o.convert_rate * quantity, decimal(17,8)) as dealBaseAmount,
-			convert(o.convert_rate * quantity * service_fee_rate, decimal(17,8)) as serviceFee,
+			convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
+			convert(o.convert_rate * (o.quantity - o.deal_quantity, decimal(17,8)) as serviceFee,
 			status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
@@ -156,8 +156,8 @@
 			if(o.trade_type = 1, 'buy', 'sell') as tradeType,
 			o.convert_rate as orderPrice,
 			o.deal_quantity as dealTargetQuantity,
-			convert(o.convert_rate * quantity, decimal(17,8)) as dealBaseAmount,
-			convert(o.convert_rate * quantity * service_fee_rate, decimal(17,8)) as serviceFee,
+			convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
+			convert(o.convert_rate * (o.quantity - o.deal_quantity, decimal(17,8)) as serviceFee,
 			status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
@@ -211,8 +211,8 @@
 			if(o.trade_type = 1, 'buy', 'sell') as tradeType,
 			o.convert_rate as orderPrice,
 			o.deal_quantity as dealTargetQuantity,
-			convert(o.convert_rate * quantity, decimal(17,8)) as dealBaseAmount,
-			convert(o.convert_rate * quantity * service_fee_rate, decimal(17,8)) as serviceFee,
+			convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
+			convert(o.convert_rate * (o.quantity - o.deal_quantity, decimal(17,8)) as serviceFee,
 			status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
@@ -282,7 +282,7 @@
 		if(o.trade_type = 1, 'buy', 'sell') as tradeType,
 		o.convert_rate as orderPrice,
 		o.deal_quantity as dealTargetQuantity,
-		o.deal_amount as dealBaseAmount,
+		convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
 		status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
