@@ -14,6 +14,7 @@ import com.entrusts.module.entity.TradePair;
 import com.entrusts.module.enums.RedisKeyNameEnum;
 import com.entrusts.module.enums.UTCTimeEnum;
 import com.entrusts.util.RedisUtil;
+import com.entrusts.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,15 +55,11 @@ public class CurrencyListService extends BaseService {
 
         List<BaseCurrency> baseCurrencies = this.getCurrencyList(RedisKeyNameEnum.baseCurrency.getValue(),null,BaseCurrency.class);
 
-        if(baseCurrencies == null){
+        if(baseCurrencies.size() == 0){
             //查数据库
             baseCurrencies =tradePairMapper.getBaseCurrency();
-            if(baseCurrencies == null){
-                logger.info("读取数据库中数据失败");
-                return null;
-            }
             String baseCurrency = setCurrencyList(RedisKeyNameEnum.baseCurrency.getValue(), null, baseCurrencies);
-            if(baseCurrency == null || "0".equals(baseCurrency)){
+            if(baseCurrency == null){
                 logger.info("基准货币放入缓存失败");
             }
         }
@@ -78,29 +75,36 @@ public class CurrencyListService extends BaseService {
     public List<TargetCurrency> getTargetCurrency(String baseCurrency,Integer value) {
         String time1 = RedisKeyNameEnum.keyTarget.getValue()+value;
         String currency1= RedisKeyNameEnum.fieldTarget.getValue()+baseCurrency;
-        //获取目标货币
-        List<TargetCurrency> currencyList = this.getCurrencyList(time1, currency1, TargetCurrency.class);
-        if(currencyList == null){
+        List<TargetCurrency> currencyList = null;
+        try{
+            //获取目标货币
+            currencyList = this.getCurrencyList(time1, currency1, TargetCurrency.class);
+            if(currencyList == null){
+                return new ArrayList<TargetCurrency>();
+            }
+            //获取最新价格
+            String key = RedisKeyNameEnum.keyNow.getValue()+baseCurrency;
+            Map<String, String> map = RedisUtil.getMap(key);
+            if(map == null){
+                //从数据库获取最新数据
+                logger.info("缓存中没有最新价格");
+                return currencyList;
+            }
+            for(TargetCurrency targetCurrency : currencyList){
+                String s = map.get(RedisKeyNameEnum.fieldNow.getValue()+targetCurrency.getAlias());
+                if(s==null){
+                    targetCurrency.setCurrentPrice(new BigDecimal(0));
+                    logger.info("没有获取到最新价格");
+                }else {
+                    targetCurrency.setCurrentPrice(new BigDecimal(s));
+                }
+
+            }
+        }catch (Exception e){
+            logger.info("获取目标货币失败",e);
             return null;
         }
-        //获取最新价格
-        String key = RedisKeyNameEnum.keyNow.getValue()+baseCurrency;
-        Map<String, String> map = RedisUtil.getMap(key);
-        if(map == null){
-            //从数据库获取最新数据
-            logger.info("缓存中获取最新价格失败");
-            return currencyList;
-        }
-        for(TargetCurrency targetCurrency : currencyList){
-            String s = map.get(RedisKeyNameEnum.fieldNow.getValue()+targetCurrency.getAlias());
-            if(s==null){
-                targetCurrency.setCurrentPrice(new BigDecimal(0));
-                logger.info("没有获取到最新价格");
-            }else {
-                targetCurrency.setCurrentPrice(new BigDecimal(s));
-            }
 
-        }
 
         return currencyList;
     }
@@ -117,10 +121,6 @@ public class CurrencyListService extends BaseService {
     public <T> List<T> getCurrencyList(String key,String field,Class<T> t){
         if(field == null){
             String s = RedisUtil.get(key);
-            if(s==null){
-                logger.info("获取redis数据失败");
-                return null;
-            }
             List<T> ts = JSON.parseArray(s, t);
             return ts;
         }
@@ -329,8 +329,8 @@ public class CurrencyListService extends BaseService {
 
     public List<TargetMapCurrency> getAllTargetCurrency(Integer time) {
         List<BaseCurrency> baseCurrency = getBaseCurrency();
-        if(baseCurrency == null || baseCurrency.size() == 1){
-            return null;
+        if(baseCurrency == null || baseCurrency.size() == 0){
+            return new ArrayList<>();
         }
         List<TargetMapCurrency> list = new ArrayList<>();
         for (BaseCurrency baseCurrency1 : baseCurrency){
@@ -338,6 +338,9 @@ public class CurrencyListService extends BaseService {
             targetMapCurrency.setBaseAlias(baseCurrency1.getAlias());
             List<TargetCurrency> targetCurrency = getTargetCurrency(baseCurrency1.getAlias(), time);
             if(targetCurrency == null){
+                return null;
+            }
+            if( targetCurrency.size() == 0){
                 continue;
             }
             targetMapCurrency.setTargetCurrencies(targetCurrency);
