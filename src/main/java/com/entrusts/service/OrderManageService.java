@@ -381,12 +381,16 @@ public class OrderManageService extends BaseService {
 			throw new IllegalArgumentException("交易类型为空");
 		}
 		
-		if (order.getDealAmount() == null) {
-			throw new IllegalArgumentException("交易类型为空");
+		if (order.getQuantity() == null) {
+			throw new IllegalArgumentException("委托数量为空");
 		}
 		
-		if (order.getServiceFeeRate() == null) {
-			throw new IllegalArgumentException("交易费率为空");
+		if (order.getDealQuantity() == null) {
+			throw new IllegalArgumentException("成交数量为空");
+		}
+		
+		if (order.getConvertRate() == null) {
+			throw new IllegalArgumentException("委托单价为空");
 		}
 		
 		if (order.getTradePairId() == null) {
@@ -401,8 +405,9 @@ public class OrderManageService extends BaseService {
 		orderView.setOrderPrice(order.getConvertRate());
 		orderView.setDealTargetQuantity(order.getDealQuantity());
 		orderView.setOrderTargetQuantity(order.getQuantity());
-		orderView.setDealBaseAmount(order.getDealAmount() == null ? new BigDecimal("0") : order.getDealAmount());
-		orderView.setServiceFee(orderView.getDealBaseAmount().multiply(order.getServiceFeeRate(), new MathContext(8)));
+		orderView.setDealBaseAmount(order.getConvertRate().multiply(order.getDealQuantity(), new MathContext(8)));
+		orderView.setServiceFee(order.getConvertRate().multiply((
+				order.getQuantity().subtract(order.getDealQuantity())), new MathContext(8)));
 		TradePair tradePair = tradePairService.findTradePairById(order.getTradePairId());
 		orderView.setBaseCurrency(tradePair.getBaseCurrencyName());
 		orderView.setBaseCurrency(tradePair.getTargetCurrencyName());

@@ -135,8 +135,8 @@
 			if(o.trade_type = 1, 'buy', 'sell') as tradeType,
 			o.convert_rate as orderPrice,
 			o.deal_quantity as dealTargetQuantity,
-			o.deal_amount as dealBaseAmount,
-			o.deal_amount * service_fee_rate as serviceFee,
+			convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
+			convert(o.convert_rate * (o.quantity - o.deal_quantity, decimal(17,8)) as serviceFee,
 			status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
@@ -156,8 +156,8 @@
 			if(o.trade_type = 1, 'buy', 'sell') as tradeType,
 			o.convert_rate as orderPrice,
 			o.deal_quantity as dealTargetQuantity,
-			o.deal_amount as dealBaseAmount,
-			o.deal_amount * service_fee_rate as serviceFee,
+			convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
+			convert(o.convert_rate * (o.quantity - o.deal_quantity, decimal(17,8)) as serviceFee,
 			status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
@@ -211,8 +211,8 @@
 			if(o.trade_type = 1, 'buy', 'sell') as tradeType,
 			o.convert_rate as orderPrice,
 			o.deal_quantity as dealTargetQuantity,
-			o.deal_amount as dealBaseAmount,
-			o.deal_amount * service_fee_rate as serviceFee,
+			convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
+			convert(o.convert_rate * (o.quantity - o.deal_quantity, decimal(17,8)) as serviceFee,
 			status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
@@ -234,9 +234,8 @@
 
 	<update id="updateOrderNewDeal">
 		update `order` set
-		deal_amount = ifnull(deal_amount, 0) + #{dealAmount},
 		deal_quantity = ifnull(deal_quantity, 0) + #{dealQuantity},
-		lasted_deal_time = if(unix_timestamp(lasted_deal_time) * 1000 > #{dealTime}, lasted_deal_time, from_unixtime(#{dealTime} / 1000))
+		lasted_deal_time = if(unix_timestamp(lasted_deal_time) * 1000 > #{createdTime}, lasted_deal_time, from_unixtime(#{createdTime} / 1000))
 		where order_code = #{orderCode}
 	</update>
 
@@ -283,7 +282,7 @@
 		if(o.trade_type = 1, 'buy', 'sell') as tradeType,
 		o.convert_rate as orderPrice,
 		o.deal_quantity as dealTargetQuantity,
-		o.deal_amount as dealBaseAmount,
+		convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
 		status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id

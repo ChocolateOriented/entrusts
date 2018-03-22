@@ -48,12 +48,17 @@ redis:
 
 mq:
   productId: PID_MO9_CLONE_ENTRUSTS
+  millstoneConsumerId: CID_MO9_CLONE_ENTRUSTS
   accessKey: LTAIyDR4k37NBuJu
   secretKey: XRDykcat39ONcoCi1OZ7cpfohm1Yyk
   delegatePushTopic: TOPIC_MO9_CLONE_ENTRUSTS_DELEGATE_PUSH
   delegatePushTag: TAG_MO9_CLONE_ENTRUSTS_DELEGATE_PUSH
   sendMsgTimeoutMillis: 3000
   onsAddr: http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet
+  messageModelString: CLUSTERING
+  consumeThreadNums: 10
+  millstoneTopic: TOPIC_MO9_DEV_MILLSTONE_UNORDER
+  millstoneDealTag: TAG_MO9_DEV_MILLSTONE_TRADE_RESULT
 
 datacenterId: 1
 machineId: 1
@@ -110,5 +115,9 @@ ribbon:
   MaxAutoRetries: 0
 
 feignName:
+  #钱包系统
+  millstoneName: client-service
   #撮单系统
   dealmakingName: springcloud-client
+  #钱包系统
+  account: account
