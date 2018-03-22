@@ -72,10 +72,13 @@ public class OrderCancelService {
             try {
                 order = fo.get();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.info("",e);
+                continue;
             } catch (ExecutionException e) {
-                e.printStackTrace();
+                logger.info("",e);
+                continue;
             }
+
             if(map.containsKey(order.getStatus())){
                 map.get(order.getStatus()).add(order);
             }else {
@@ -83,7 +86,6 @@ public class OrderCancelService {
                 orders.add(order);
                 map.put(order.getStatus(),orders);
             }
-            System.out.println(order);
         }
         return map;
     }
