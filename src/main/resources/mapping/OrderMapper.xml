@@ -234,7 +234,7 @@
 
 	<update id="updateOrderNewDeal">
 		update `order` set
-		deal_quantity = ifnull(deal_quantity, 0) + #{dealQuantity},
+		deal_quantity = ifnull(deal_quantity, 0) + #{tradeEncryptCurrencyQuantity},
 		lasted_deal_time = if(unix_timestamp(lasted_deal_time) * 1000 > #{createdTime}, lasted_deal_time, from_unixtime(#{createdTime} / 1000))
 		where order_code = #{orderCode}
 	</update>

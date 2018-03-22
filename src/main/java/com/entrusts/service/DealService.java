@@ -8,9 +8,9 @@ import com.entrusts.mapper.DealMapper;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.entity.OrderEvent;
 import com.entrusts.module.dto.DealNotify;
+import com.entrusts.module.dto.DealNotify.OrderDealDetail;
 import com.entrusts.module.entity.Deal;
 import com.entrusts.module.enums.OrderStatus;
-import com.mo9.mqclient.MqAction;
 
 @Service
 public class DealService extends BaseService {
@@ -34,14 +34,14 @@ public class DealService extends BaseService {
 
 	/**
 	 * 更新托单成交信息和状态(如果完成)
-	 * @param deal
+	 * @param orderDealDetail
 	 * @return
 	 */
 	@Transactional
-	public Order updateNewDeal(Deal deal) {
-		orderManageService.updateOrderNewDeal(deal);
-		Order order = orderManageService.get(deal.getOrderCode());
-		if (order.getDealQuantity() == null || order.getQuantity() == null || !order.getDealQuantity().equals(order.getQuantity())) {
+	public Order updateNewDeal(OrderDealDetail orderDealDetail) {
+		orderManageService.updateOrderNewDeal(orderDealDetail);
+		Order order = orderManageService.get(orderDealDetail.getOrderCode());
+		if (order == null || order.getDealQuantity() == null || order.getQuantity() == null || !order.getDealQuantity().equals(order.getQuantity())) {
 			return order;
 		}
 		
@@ -59,38 +59,90 @@ public class DealService extends BaseService {
 		return order;
 	}
 
+	/**
+	 * 处理托单成交信息
+	 * @param orderDealDetail
+	 */
 	@Transactional
-	public void handleDeal(Deal deal) {
-		Order order = orderManageService.get(deal.getOrderCode());
-		if (order == null) {
-			logger.info("不存在此托单");
+	public void handleOrderDeal(OrderDealDetail orderDealDetail) {
+		Order currentOrder = updateNewDeal(orderDealDetail);
+		if (currentOrder == null) {
 			return;
 		}
 		
-		deal.setTradePairId(order.getTradePairId());
-		if (!save(deal)) {
-			logger.info("此成交信息已处理，交易流水号:" + deal.getTradeCode());
-			return;
-		}
-		currencyListService.updateCurrentPrice(deal);
-		Order currentOrder = updateNewDeal(deal);
 		orderManageService.updateUserCurrentOrderListFromRedisByDeal(currentOrder, 3600*12);
 		if (currentOrder.getStatus() == OrderStatus.COMPLETE) {
 			orderManageService.updateUserHistoryCache(currentOrder);
 		}
 	}
-
+	
+	/**
+	 * 接收到成交通知
+	 * @param dealNotify
+	 */
 	@Transactional
 	public void dealNotify(DealNotify dealNotify) {
-		String code = null;
-		if (dealNotify == null || (code = dealNotify.getCode()) == null 
-				|| dealNotify.getAskOrder() == null || dealNotify.getBidOrder() == null) {
+		Deal deal = createDealFromNotify(dealNotify);
+		Order askOrder = orderManageService.get(deal.getAskOrderCode());
+		if (askOrder == null) {
+			logger.info("不存在此托单,托单号" + deal.getAskOrderCode());
+			return;
+		}
+		
+		Order bidOrder = orderManageService.get(deal.getBidOrderCode());
+		if (bidOrder == null) {
+			logger.info("不存在此托单,托单号" + deal.getBidOrderCode());
+			return;
+		}
+		
+		deal.setTradePairId(askOrder.getTradePairId());
+		
+		if (!save(deal)) {
+			logger.info("此成交信息已处理,交易流水号:" + deal.getTradeCode());
+			return;
+		}
+		currencyListService.updateCurrentPrice(deal);
+		handleOrderDeal(dealNotify.getAskOrder());
+		handleOrderDeal(dealNotify.getBidOrder());
+	}
+	
+	/**
+	 * 根据成交信息通知生成成交实体
+	 * @param dealNotify
+	 * @return
+	 */
+	private Deal createDealFromNotify(DealNotify dealNotify) {
+		OrderDealDetail askOrder = null;
+		OrderDealDetail bidOrder = null;
+		
+		if (dealNotify == null || dealNotify.getCode() == null
+				|| (askOrder = dealNotify.getAskOrder()) == null || (bidOrder = dealNotify.getBidOrder()) == null) {
         	throw new IllegalArgumentException("成交信息不完整");
         }
-		dealNotify.getAskOrder().setCode(code);
-		dealNotify.getBidOrder().setCode(code);
 		
-        handleDeal(dealNotify.getAskOrder());
-        handleDeal(dealNotify.getBidOrder());
+		if (askOrder.getOrderCode() == null || bidOrder.getOrderCode() == null) {
+			throw new IllegalArgumentException("托单编号为空");
+		}
+		
+		if (askOrder.getTradeEncryptCurrencyQuantity() == null || bidOrder.getTradeEncryptCurrencyQuantity() == null) {
+			throw new IllegalArgumentException("托单成交量为空");
+		}
+		
+		if (askOrder.getDealPrice() == null || bidOrder.getDealPrice() == null) {
+			throw new IllegalArgumentException("托单成交价格为空");
+		}
+		
+		Deal deal = new Deal();
+		deal.setTradeCode(dealNotify.getCode());
+		deal.setAskOrderCode(askOrder.getOrderCode());
+		deal.setBidOrderCode(bidOrder.getOrderCode());
+		deal.setDealPrice(askOrder.getDealPrice());
+		deal.setDealQuantity(askOrder.getTradeEncryptCurrencyQuantity());
+		deal.setBaseCurrencyid(askOrder.getDealEncryptCurrencyId());
+		deal.setTargetCurrencyid(askOrder.getTradeEncryptCurrencyId());
+		deal.setCreatedTime(askOrder.getCreatedTime());
+		deal.setTradeFee(askOrder.getTradeFee());
+		
+		return deal;
 	}
 }

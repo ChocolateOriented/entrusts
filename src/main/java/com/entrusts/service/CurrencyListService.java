@@ -4,17 +4,14 @@ import com.alibaba.fastjson.JSON;
 
 import com.entrusts.mapper.DealMapper;
 import com.entrusts.mapper.TradePairMapper;
-import com.entrusts.module.dto.AliasMap;
 import com.entrusts.module.dto.BaseCurrency;
 import com.entrusts.module.dto.TargetCurrency;
 import com.entrusts.module.dto.TargetMapCurrency;
 import com.entrusts.module.entity.Deal;
 import com.entrusts.module.entity.DigitalCurrency;
-import com.entrusts.module.entity.TradePair;
 import com.entrusts.module.enums.RedisKeyNameEnum;
 import com.entrusts.module.enums.UTCTimeEnum;
 import com.entrusts.util.RedisUtil;
-import com.entrusts.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +19,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -317,14 +309,15 @@ public class CurrencyListService extends BaseService {
             logger.info("订单中没有交易对");
             return;
         }
-        DigitalCurrency baseCurrency = tradePairService.findCurrencyById(deal.getBaseCurrencyid());
-        DigitalCurrency targetCurrency = tradePairService.findCurrencyById(deal.getTargetCurrencyid());
-        String key = RedisKeyNameEnum.keyNow.getValue() + baseCurrency.getAlias();
-        String feild= RedisKeyNameEnum.fieldNow.getValue() + targetCurrency.getAlias();
-        String s = setCurrencyList(key, feild, deal.getDealPrice());
-        if(s == null || "0".equals(s)){
-            logger.info("最新价格插入缓存有误");
-        }
+        try {
+			DigitalCurrency baseCurrency = tradePairService.findCurrencyById(deal.getBaseCurrencyid());
+			DigitalCurrency targetCurrency = tradePairService.findCurrencyById(deal.getTargetCurrencyid());
+			String key = RedisKeyNameEnum.keyNow.getValue() + baseCurrency.getAlias();
+			String feild= RedisKeyNameEnum.fieldNow.getValue() + targetCurrency.getAlias();
+			setCurrencyList(key, feild, deal.getDealPrice());
+		} catch (Exception e) {
+			logger.info("最新价格插入缓存失败", e);
+		}
     }
 
     public List<TargetMapCurrency> getAllTargetCurrency(Integer time) {
