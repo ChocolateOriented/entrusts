@@ -667,6 +667,9 @@ public class OrderManageService extends BaseService {
 			return false;
 		}
 		Map<String, String> currentOrders = RedisUtil.getMap(currentOrderUserKey + order.getUserCode());
+		if (currentOrders == null){
+			return false;
+		}
 		String jsonString = currentOrders.get(order.getOrderCode());
 		if (StringUtils.isEmpty(jsonString)){
 			return false;
