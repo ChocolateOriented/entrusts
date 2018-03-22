@@ -1,18 +1,14 @@
 package com.entrusts.service;
 
-import com.alibaba.fastjson.JSON;
 import com.entrusts.exception.ApiException;
-import com.entrusts.mapper.OrderEventMapper;
+import com.entrusts.manager.MillstoneClient;
 import com.entrusts.module.dto.DelegateEvent;
+import com.entrusts.module.dto.FreezeDto;
 import com.entrusts.module.dto.result.Results;
-import com.entrusts.module.entity.OrderEvent;
 import com.entrusts.module.enums.DelegateEventstatus;
 import com.entrusts.module.enums.OrderStatus;
-import com.entrusts.util.RestTemplateUtils;
-import java.util.HashMap;
-import java.util.Map;
+import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,9 +16,8 @@ public class DelegateEventHandler extends BaseService {
 
 	@Autowired
 	private OrderService orderService;
-
-	@Value("${url.lockCoin}")
-	private String url;
+	@Autowired
+	private MillstoneClient millstoneClient;
 
 	/**
 	 * 发布托单
@@ -44,7 +39,7 @@ public class DelegateEventHandler extends BaseService {
 		logger.debug("用户：{}订单:{} 新增托单数据成功", userCode, orderCode);
 		//锁币
 		try {
-//TODO 测试暂时注释,			this.lockCoin(delegateEvent);
+			this.lockCoin(delegateEvent);
 		} catch (Exception e) {
 			delegateEvent.setDelegateEventstatus(DelegateEventstatus.RREQUESTACCOUNT_ERROR);
 			orderService.updateOrderStatus(OrderStatus.DELEGATE_FAILED,orderCode,userCode);
@@ -69,17 +64,24 @@ public class DelegateEventHandler extends BaseService {
 
 	/**
 	 * 锁币
+	 * 买入时锁基础货币, 数量=比率*目标货币数量
+	 * 卖出时锁目标货币
 	 */
 	private void lockCoin(DelegateEvent delegateEvent) throws ApiException {
-		/**   账户锁币        */
-		Map<String, Object> map = new HashMap<>();
-		map.put("orderCode", delegateEvent.getOrderCode());
-		map.put("userCode", delegateEvent.getUserCode());
-		map.put("encryptCurrencyId", delegateEvent.getTargetCurrencyId());
-		map.put("quantity", delegateEvent.getQuantity());
+		Integer lockCurrencyId ;
+		BigDecimal lockQuantity ;
+		switch (delegateEvent.getTradeType()){
+			case buy:
+				lockCurrencyId = delegateEvent.getBaseCurrencyId();
+				lockQuantity = delegateEvent.getQuantity().multiply(delegateEvent.getConvertRate());
+				break;
+			default:
+				lockCurrencyId = delegateEvent.getTargetCurrencyId();
+				lockQuantity = delegateEvent.getQuantity();
+		}
 
-		Results result = RestTemplateUtils.post(this.url + "/account/freeze_for_order", Results.class, null, null, JSON.toJSONString(map));
-
+		FreezeDto freezeDto = new FreezeDto(delegateEvent.getOrderCode(),delegateEvent.getUserCode(),lockCurrencyId,lockQuantity);
+		Results result = millstoneClient.freezeForOrder(freezeDto);
 		if (result.getCode() != 0) {
 			throw new ApiException(result.getMessage());
 		}

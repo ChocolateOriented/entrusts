@@ -7,6 +7,7 @@ import com.entrusts.module.dto.result.Results;
 import com.entrusts.module.entity.TradePair;
 import com.entrusts.module.enums.OrderMode;
 import com.entrusts.service.DelegateTranslator;
+import com.entrusts.service.OrderManageService;
 import com.entrusts.service.TradePairService;
 import com.entrusts.util.RedisUtil;
 import com.entrusts.util.StringUtils;
@@ -15,13 +16,13 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,8 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
  * Created by jxli on 2018/3/5.
  */
 @RestController
-@RequestMapping(value = "order")
-public class OrderController extends BaseController {
+@RequestMapping(value = "entrusts/order")
+public class OrderDelegateController extends BaseController {
 
 	@Autowired
 	Disruptor<DelegateEvent> delegateDisruptor;
@@ -51,7 +52,7 @@ public class OrderController extends BaseController {
 	 * @param bindingResul delegate的有效性校验结果
 	 * @return com.entrusts.module.dto.result.Results
 	 */
-	@RequestMapping(value = "delegateLimit", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "delegateLimit")
 	@ResponseBody
 	public Results delegateLimit(@RequestHeader(ACCOUNT_CODE) String userCode,@RequestHeader(TIMESTAMP) Long clientTime, @RequestHeader
 			("Request-Token") String requestToken, @RequestBody @Validated Delegate delegate, BindingResult bindingResul) {
@@ -88,7 +89,12 @@ public class OrderController extends BaseController {
 		if (minTradeQuantity!=null && delegate.getQuantity().compareTo(minTradeQuantity) < 0){
 			return new Results(ResultConstant.EMPTY_PARAM.code, "交易数额错误, 最小值" + minTradeQuantity.toString());
 		}
-		//TODO 最多同时发布20条托单
+
+		String userTotalKey = OrderManageService.totalCurrentOrderUserKey + userCode;
+		String totalValue = RedisUtil.get(userTotalKey);
+		if (StringUtils.isNotBlank(totalValue) && Integer.parseInt(totalValue) > 20){
+			return new Results(ResultConstant.EMPTY_PARAM.code, "最多同时发布20条托单");
+		}
 
 		delegate.setUserCode(userCode);
 		delegate.setClientTime(new Date(clientTime));
@@ -101,7 +107,7 @@ public class OrderController extends BaseController {
 	 * @Description 防止请求重复提交 下单前先请求获取token, 每个用户在*生成token至使用或失效期间*只能发起一笔交易, 同一token只会处理一次 若交易1请求了token收到结果A, 但服务器未收到交易消息, 交易2请求token时还会返回A,
 	 * 交易1与交易2只有一个能成功
 	 */
-	@RequestMapping(value = "requestToken", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "requestToken")
 	@ResponseBody
 	public Results requestToken(@RequestHeader(ACCOUNT_CODE) String userCode) {
 		String key = CACHE_DELEGATE_REQUEST_TOKEN_PREFIX + userCode;
