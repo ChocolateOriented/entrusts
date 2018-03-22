@@ -2,26 +2,35 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.entrusts.mapper.DealMapper">
 	<resultMap id="BaseResultMap" type="com.entrusts.module.entity.Deal">
-		<id column="trade_code" jdbcType="BIGINT" property="tradeCode" />
-		<result column="order_code" jdbcType="BIGINT" property="orderCode" />
+		<id column="trade_code" jdbcType="VARCHAR" property="tradeCode" />
+		<result column="code" jdbcType="VARCHAR" property="code" />
+		<result column="order_code" jdbcType="CHAR" property="orderCode" />
+		<result column="order_type" jdbcType="VARCHAR" property="orderType" />
+		<result column="trade_type" jdbcType="VARCHAR" property="tradeType" />
+		<result column="trade_fee" jdbcType="DECIMAL" property="tradeFee" />
 		<result column="deal_price" jdbcType="DECIMAL" property="dealPrice" />
 		<result column="deal_quantity" jdbcType="DECIMAL" property="dealQuantity" />
-		<result column="deal_amount" jdbcType="DECIMAL" property="dealAmount" />
-		<result column="service_fee" jdbcType="DECIMAL" property="serviceFee" />
-		<result column="deal_time" jdbcType="BIGINT" property="dealTime" />
+		<result column="base_currencyId" jdbcType="INTEGER" property="baseCurrencyid" />
+		<result column="target_currencyId" jdbcType="INTEGER" property="targetCurrencyid" />
+		<result column="created_time" jdbcType="BIGINT" property="createdTime" />
+		<result column="is_initiator" jdbcType="TINYINT" property="isInitiator" />
 		<result column="trade_pair_id" jdbcType="INTEGER" property="tradePairId" />
 	</resultMap>
 	<insert id="insert" parameterType="com.entrusts.module.entity.Deal">
-		insert ignore into deal (trade_code, order_code, deal_price, 
-			deal_quantity, deal_amount, service_fee, 
-			deal_time,trade_pair_id)
-		values (#{tradeCode,jdbcType=BIGINT}, #{orderCode,jdbcType=BIGINT}, #{dealPrice,jdbcType=DECIMAL}, 
-			#{dealQuantity,jdbcType=DECIMAL}, #{dealAmount,jdbcType=DECIMAL}, #{serviceFee,jdbcType=DECIMAL}, 
-			#{dealTime,jdbcType=BIGINT},#{tradePairId,jdbcType=INTEGER})
+		insert ignore into deal (trade_code, code, order_code, 
+			order_type, trade_type, trade_fee, 
+			deal_price, deal_quantity, base_currencyId, 
+			target_currencyId, created_time, is_initiator, 
+			trade_pair_id)
+		values (#{tradeCode,jdbcType=VARCHAR}, #{code,jdbcType=VARCHAR}, #{orderCode,jdbcType=CHAR}, 
+			#{orderType,jdbcType=VARCHAR}, #{tradeType,jdbcType=VARCHAR}, #{tradeFee,jdbcType=DECIMAL}, 
+			#{dealPrice,jdbcType=DECIMAL}, #{dealQuantity,jdbcType=DECIMAL}, #{baseCurrencyid,jdbcType=INTEGER}, 
+			#{targetCurrencyid,jdbcType=INTEGER}, #{createdTime,jdbcType=BIGINT}, #{isInitiator,jdbcType=TINYINT}, 
+			#{tradePairId,jdbcType=INTEGER})
 	</insert>
 	<select id="selectAll" resultMap="BaseResultMap">
-		select trade_code, order_code, deal_price, deal_quantity, deal_amount, service_fee, 
-		deal_time,trade_pair_id
+		select trade_code, code, order_code, order_type, trade_type, trade_fee, deal_price, 
+		deal_quantity, base_currencyId, target_currencyId, created_time, is_initiator, trade_pair_id
 		from deal
 	</select>
 	<select id="getRecentDeal" resultMap="BaseResultMap">

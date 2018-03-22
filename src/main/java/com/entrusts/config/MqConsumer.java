@@ -1,17 +1,23 @@
 package com.entrusts.config;
 
 import com.entrusts.listener.DefaultListener;
+import com.entrusts.util.Mo9MqConsumer;
+import com.mo9.mqclient.IMqMsgListener;
+import com.mo9.mqclient.MqSubscription;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConfigurationProperties(prefix = "mq")
 public class MqConsumer {
 
-	private String consumerId;
-	
-	private String riskConsumerId;
+	private String millstoneConsumerId;
 
 	private String accessKey;
 
@@ -23,27 +29,17 @@ public class MqConsumer {
 
 	private int consumeThreadNums;
 
-	private String dandelionTopic;
-
-	private String riskTopic;
+	private String millstoneTopic;
 
 	@Autowired
-	private DefaultListener defaultListener;
+	private DefaultListener millstoneListener;
 
-	public String getConsumerId() {
-		return consumerId;
+	public String getMillstoneConsumerId() {
+		return millstoneConsumerId;
 	}
 
-	public void setConsumerId(String consumerId) {
-		this.consumerId = consumerId;
-	}
-
-	public String getRiskConsumerId() {
-		return riskConsumerId;
-	}
-
-	public void setRiskConsumerId(String riskConsumerId) {
-		this.riskConsumerId = riskConsumerId;
+	public void setMillstoneConsumerId(String millstoneConsumerId) {
+		this.millstoneConsumerId = millstoneConsumerId;
 	}
 
 	public String getAccessKey() {
@@ -86,22 +82,37 @@ public class MqConsumer {
 		this.consumeThreadNums = consumeThreadNums;
 	}
 
-	public String getDandelionTopic() {
-		return dandelionTopic;
+	public String getMillstoneTopic() {
+		return millstoneTopic;
 	}
 
-	public void setDandelionTopic(String dandelionTopic) {
-		this.dandelionTopic = dandelionTopic;
+	public void setMillstoneTopic(String millstoneTopic) {
+		this.millstoneTopic = millstoneTopic;
 	}
 
-	public String getRiskTopic() {
-		return riskTopic;
+	@Bean(initMethod = "start", destroyMethod = "shutdown")
+	public Mo9MqConsumer millstoneConsumerFactory() {
+		Mo9MqConsumer consumer = new Mo9MqConsumer();
+		consumer.setConsumerId(millstoneConsumerId);
+		consumer.setAccessKey(accessKey);
+		consumer.setSecretKey(secretKey);
+		consumer.setOnsAddr(onsAddr);
+		consumer.setMessageModelString(messageModelString);
+		consumer.setConsumeThreadNums(consumeThreadNums);
+		consumer.setSubscriptionMap(instantiateListener());
+		
+		return consumer;
 	}
-
-	public void setRiskTopic(String riskTopic) {
-		this.riskTopic = riskTopic;
-	}
-
 	
-	
+	private Map<MqSubscription, IMqMsgListener> instantiateListener() {
+		Map<MqSubscription, IMqMsgListener> subscriptionMap = new HashMap<>();
+
+		MqSubscription subscription = new MqSubscription();
+		subscription.setTopic(millstoneTopic);
+		subscription.setExpression("*");
+		IMqMsgListener listener = millstoneListener;
+		subscriptionMap.put(subscription, listener);
+		
+		return subscriptionMap;
+	}
 }

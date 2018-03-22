@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import com.alibaba.fastjson.annotation.JSONField;
 
 public class Deal {
-    private String tradeCode;
 
     private String code;
 
@@ -32,11 +31,7 @@ public class Deal {
     private Integer tradePairId;
 
     public String getTradeCode() {
-        return tradeCode;
-    }
-
-    public void setTradeCode(String tradeCode) {
-        this.tradeCode = tradeCode;
+        return (orderCode == null ? "" : orderCode) + (code == null ? "" : code);
     }
 
     public String getCode() {
