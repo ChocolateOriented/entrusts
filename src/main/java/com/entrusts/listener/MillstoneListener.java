@@ -38,8 +38,7 @@ public class MillstoneListener implements IMqMsgListener {
     public MqAction customeTagDeal(MqMessage msg) {
         try {
             String json = msg.getBody();
-            json = "{\"code\":\"asdasd12312321\",\"bidOrder\":{\"userCode\":\"\",\"orderCode\":\"171620386742603776000022\",\"orderType\":\"\",\"tradeType\":\"\",\"createdTime\":10201010,\"tradeFee\":0.9,\"dealPrice\":0.8,\"dealEncryptCurrencyId\":1,\"tradeEncryptCurrencyQuantity\":17.0,\"tradeEncryptCurrencyId\":2,\"isInitiator\":1},\"askOrder\":{\"userCode\":\"\",\"orderCode\":\"171620386742603776000022\",\"orderType\":\"\",\"tradeType\":\"\",\"tradeFee\":0.9,\"createdTime\":10201010,\"dealPrice\":0.8,\"dealEncryptCurrencyId\":1,\"tradeEncryptCurrencyQuantity\":17.0,\"tradeEncryptCurrencyId\":2,\"isInitiator\":0}}";
-            logger.info("成交信息：" + json);
+            logger.info("成交信息:" + json);
             
             DealNotify dealNotify = JSON.parseObject(json, DealNotify.class);
             dealService.dealNotify(dealNotify);

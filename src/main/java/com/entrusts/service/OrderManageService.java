@@ -23,9 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
 import com.entrusts.mapper.OrderMapper;
+import com.entrusts.module.dto.DealNotify.OrderDealDetail;
 import com.entrusts.module.dto.Page;
 import com.entrusts.module.entity.Order;
-import com.entrusts.module.entity.Deal;
 import com.entrusts.module.vo.HistoryOrderView;
 import com.entrusts.util.RedisUtil;
 import com.entrusts.module.vo.OrderQuery;
@@ -416,10 +416,10 @@ public class OrderManageService extends BaseService {
 
 	/**
 	 * 更新托单成交信息
-	 * @param deal
+	 * @param orderDealDetail
 	 */
-	public void updateOrderNewDeal(Deal deal) {
-		orderMapper.updateOrderNewDeal(deal);
+	public void updateOrderNewDeal(OrderDealDetail orderDealDetail) {
+		orderMapper.updateOrderNewDeal(orderDealDetail);
 	}
 
 	/**
@@ -759,14 +759,14 @@ public class OrderManageService extends BaseService {
 			int start = 0;
 			int end = pageSize - 1;
 			for (int i = 0; i < page; i++) {
-				reduceUserHitCount(start, end, jedis);
+				reduceUserHitCountAndClearExcessCache(start, end, jedis);
 				
 				start = end + 1;
 				end += pageSize;
 			}
 			
 			//最后一页
-			reduceUserHitCount(start, -1, jedis);
+			reduceUserHitCountAndClearExcessCache(start, -1, jedis);
 		} catch (Exception e) {
 			logger.error("定时清理缓存失败", e);
 		} finally {
@@ -800,16 +800,25 @@ public class OrderManageService extends BaseService {
 	}
 
 	/**
-	 * 缩减过去的访问计数
+	 * 缩减过去的访问计数,并清除超额缓存
 	 * @param start
 	 * @param end
 	 * @param jedis
 	 */
-	private void reduceUserHitCount(int start, int end, Jedis jedis) {
+	private void reduceUserHitCountAndClearExcessCache(int start, int end, Jedis jedis) {
 		Set<Tuple> tuples = jedis.zrangeWithScores(historyCacheUserHitCountKey, start, end);
+		int limit = perUserOrderCacheLimit * 2;
 		
 		for (Tuple tuple : tuples) {
 			String userCode = tuple.getElement();
+			String userKey = historyOrderUserKey + userCode;
+			Long size = jedis.hlen(userKey);
+			
+			//缓存的数据量大于限额2倍时清除
+			if (size > limit) {
+				deleteUserHistoryOrderCache(userKey, jedis);
+			}
+			
 			long score = (long) tuple.getScore();
 			score = score / 2;
 			jedis.zadd(historyCacheUserHitCountKey, score, userCode);

@@ -3,66 +3,49 @@
 <mapper namespace="com.entrusts.mapper.DealMapper">
 	<resultMap id="BaseResultMap" type="com.entrusts.module.entity.Deal">
 		<id column="trade_code" jdbcType="VARCHAR" property="tradeCode" />
-		<result column="code" jdbcType="VARCHAR" property="code" />
-		<result column="order_code" jdbcType="CHAR" property="orderCode" />
-		<result column="order_type" jdbcType="VARCHAR" property="orderType" />
-		<result column="trade_type" jdbcType="VARCHAR" property="tradeType" />
+		<result column="bid_order_code" jdbcType="CHAR" property="bidOrderCode" />
+		<result column="ask_order_code" jdbcType="CHAR" property="askOrderCode" />
 		<result column="trade_fee" jdbcType="DECIMAL" property="tradeFee" />
 		<result column="deal_price" jdbcType="DECIMAL" property="dealPrice" />
 		<result column="deal_quantity" jdbcType="DECIMAL" property="dealQuantity" />
 		<result column="base_currencyId" jdbcType="INTEGER" property="baseCurrencyid" />
 		<result column="target_currencyId" jdbcType="INTEGER" property="targetCurrencyid" />
 		<result column="created_time" jdbcType="BIGINT" property="createdTime" />
-		<result column="is_initiator" jdbcType="TINYINT" property="isInitiator" />
 		<result column="trade_pair_id" jdbcType="INTEGER" property="tradePairId" />
 	</resultMap>
 	<insert id="insert" parameterType="com.entrusts.module.entity.Deal">
-		insert ignore into deal (trade_code, code, order_code, 
-			order_type, trade_type, trade_fee, 
-			deal_price, deal_quantity, base_currencyId, 
-			target_currencyId, created_time, is_initiator, 
+		insert ignore into deal (trade_code, bid_order_code, ask_order_code, 
+			trade_fee, deal_price, deal_quantity, 
+			base_currencyId, target_currencyId, created_time, 
 			trade_pair_id)
-		values (#{tradeCode,jdbcType=VARCHAR}, #{code,jdbcType=VARCHAR}, #{orderCode,jdbcType=CHAR}, 
-			#{orderType,jdbcType=VARCHAR}, #{tradeType,jdbcType=VARCHAR}, #{tradeFee,jdbcType=DECIMAL}, 
-			#{dealPrice,jdbcType=DECIMAL}, #{dealQuantity,jdbcType=DECIMAL}, #{baseCurrencyid,jdbcType=INTEGER}, 
-			#{targetCurrencyid,jdbcType=INTEGER}, #{createdTime,jdbcType=BIGINT}, #{isInitiator,jdbcType=TINYINT}, 
+		values (#{tradeCode,jdbcType=VARCHAR}, #{bidOrderCode,jdbcType=CHAR}, #{askOrderCode,jdbcType=CHAR}, 
+			#{tradeFee,jdbcType=DECIMAL}, #{dealPrice,jdbcType=DECIMAL}, #{dealQuantity,jdbcType=DECIMAL}, 
+			#{baseCurrencyid,jdbcType=INTEGER}, #{targetCurrencyid,jdbcType=INTEGER}, #{createdTime,jdbcType=BIGINT}, 
 			#{tradePairId,jdbcType=INTEGER})
 	</insert>
 	<select id="selectAll" resultMap="BaseResultMap">
-		select trade_code, code, order_code, order_type, trade_type, trade_fee, deal_price, 
-		deal_quantity, base_currencyId, target_currencyId, created_time, is_initiator, trade_pair_id
+		select trade_code, bid_order_code, ask_order_code, trade_fee, deal_price, deal_quantity, 
+		base_currencyId, target_currencyId, created_time, trade_pair_id
 		from deal
 	</select>
 	<select id="getRecentDeal" resultMap="BaseResultMap">
 		SELECT
-			t.trade_code AS trade_code,
-			t.code AS code,
-			t.order_code AS order_code,
-			t.order_type AS order_type,
-			t.trade_type AS trade_type,
-			t.trade_fee AS trade_fee,
-			t.deal_price AS deal_price,
-			t.deal_quantity AS deal_quantity,
-			t.base_currencyId AS base_currencyId,
-			t.target_currencyId AS target_currencyId,
-			t.created_time AS created_time,
-			t.is_initiator AS is_initiator,
-			t.trade_pair_id AS trade_pair_id
+			t.trade_code,
+			t.deal_price,
+			t.deal_quantity,
+			t.base_currencyId,
+			t.target_currencyId,
+			t.created_time,
+			t.trade_pair_id
 		FROM
 			(
 				SELECT
 				trade_code,
-				code,
-				order_code,
-				order_type,
-				trade_type,
-				trade_fee,
 				deal_price,
 				deal_quantity,
 				base_currencyId,
 				target_currencyId,
 				created_time,
-				is_initiator,
 				trade_pair_id
 				FROM
 					deal

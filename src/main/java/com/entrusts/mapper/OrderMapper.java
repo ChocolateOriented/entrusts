@@ -1,8 +1,8 @@
 package com.entrusts.mapper;
 
+import com.entrusts.module.dto.DealNotify.OrderDealDetail;
 import com.entrusts.module.dto.UnfreezeEntity;
 import com.entrusts.module.entity.Order;
-import com.entrusts.module.entity.Deal;
 import com.entrusts.module.enums.OrderStatus;
 import com.entrusts.module.vo.CurrentEntrusts;
 import com.entrusts.module.vo.HistoryOrderView;
@@ -43,9 +43,7 @@ public interface OrderMapper {
 	 */
 	List<CurrentEntrusts> findCurrentOrder(@Param("userCode") String userCode);
 
-
-    void updateOrderNewDeal(Deal trade);
-
+    void updateOrderNewDeal(OrderDealDetail orderDealDetail);
 
 	int completeOrder(Order order);
 

@@ -2,17 +2,13 @@ package com.entrusts.module.entity;
 
 import java.math.BigDecimal;
 
-import com.alibaba.fastjson.annotation.JSONField;
-
 public class Deal {
 
-    private String code;
+    private String tradeCode;
 
-    private String orderCode;
+    private String bidOrderCode;
 
-    private String orderType;
-
-    private String tradeType;
+    private String askOrderCode;
 
     private BigDecimal tradeFee;
 
@@ -26,44 +22,30 @@ public class Deal {
 
     private Long createdTime;
 
-    private Byte isInitiator;
-
     private Integer tradePairId;
 
     public String getTradeCode() {
-        return (orderCode == null ? "" : orderCode) + (code == null ? "" : code);
+        return tradeCode;
     }
 
-    public String getCode() {
-        return code;
+    public void setTradeCode(String tradeCode) {
+        this.tradeCode = tradeCode;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public String getBidOrderCode() {
+        return bidOrderCode;
     }
 
-    public String getOrderCode() {
-        return orderCode;
+    public void setBidOrderCode(String bidOrderCode) {
+        this.bidOrderCode = bidOrderCode;
     }
 
-    public void setOrderCode(String orderCode) {
-        this.orderCode = orderCode;
+    public String getAskOrderCode() {
+        return askOrderCode;
     }
 
-    public String getOrderType() {
-        return orderType;
-    }
-
-    public void setOrderType(String orderType) {
-        this.orderType = orderType;
-    }
-
-    public String getTradeType() {
-        return tradeType;
-    }
-
-    public void setTradeType(String tradeType) {
-        this.tradeType = tradeType;
+    public void setAskOrderCode(String askOrderCode) {
+        this.askOrderCode = askOrderCode;
     }
 
     public BigDecimal getTradeFee() {
@@ -86,7 +68,6 @@ public class Deal {
         return dealQuantity;
     }
 
-    @JSONField(name = "tradeEncryptCurrencyQuantity")
     public void setDealQuantity(BigDecimal dealQuantity) {
         this.dealQuantity = dealQuantity;
     }
@@ -95,7 +76,6 @@ public class Deal {
         return baseCurrencyid;
     }
 
-    @JSONField(name = "dealEncryptCurrencyId")
     public void setBaseCurrencyid(Integer baseCurrencyid) {
         this.baseCurrencyid = baseCurrencyid;
     }
@@ -104,7 +84,6 @@ public class Deal {
         return targetCurrencyid;
     }
 
-    @JSONField(name = "tradeEncryptCurrencyId")
     public void setTargetCurrencyid(Integer targetCurrencyid) {
         this.targetCurrencyid = targetCurrencyid;
     }
@@ -115,14 +94,6 @@ public class Deal {
 
     public void setCreatedTime(Long createdTime) {
         this.createdTime = createdTime;
-    }
-
-    public Byte getIsInitiator() {
-        return isInitiator;
-    }
-
-    public void setIsInitiator(Byte isInitiator) {
-        this.isInitiator = isInitiator;
     }
 
     public Integer getTradePairId() {
