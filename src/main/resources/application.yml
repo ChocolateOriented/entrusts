@@ -114,8 +114,11 @@ ribbon:
   MaxAutoRetriesNextServer: 0
   MaxAutoRetries: 0
 
-feignName:
+feignClient:
   #钱包系统
-  millstoneName: millstone
+  millstone:
+    name: millstone
+    containerName: millstoneApi
   #撮单系统
-  dealmakingName: springcloud-client
+  dealmaking:
+    name: springcloud-client
