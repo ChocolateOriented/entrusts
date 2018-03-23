@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * Created by jxli on 2018/3/21.
  * 账户操作代理
  */
-@FeignClient("${feignName.millstoneName}")
-@RequestMapping("api/millstone/v1/account")
+@FeignClient("${feignClient.millstone.name}")
+@RequestMapping("${feignClient.millstone.containerName}/api/millstone/v1/account")
 public interface AccountProxyController {
 
 	/**
