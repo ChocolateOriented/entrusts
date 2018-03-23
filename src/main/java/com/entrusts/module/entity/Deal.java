@@ -16,9 +16,9 @@ public class Deal {
 
     private BigDecimal dealQuantity;
 
-    private Integer baseCurrencyid;
+    private Integer baseCurrencyId;
 
-    private Integer targetCurrencyid;
+    private Integer targetCurrencyId;
 
     private Long createdTime;
 
@@ -72,20 +72,20 @@ public class Deal {
         this.dealQuantity = dealQuantity;
     }
 
-    public Integer getBaseCurrencyid() {
-        return baseCurrencyid;
+    public Integer getBaseCurrencyId() {
+        return baseCurrencyId;
     }
 
-    public void setBaseCurrencyid(Integer baseCurrencyid) {
-        this.baseCurrencyid = baseCurrencyid;
+    public void setBaseCurrencyId(Integer baseCurrencyId) {
+        this.baseCurrencyId = baseCurrencyId;
     }
 
-    public Integer getTargetCurrencyid() {
-        return targetCurrencyid;
+    public Integer getTargetCurrencyId() {
+        return targetCurrencyId;
     }
 
-    public void setTargetCurrencyid(Integer targetCurrencyid) {
-        this.targetCurrencyid = targetCurrencyid;
+    public void setTargetCurrencyId(Integer targetCurrencyId) {
+        this.targetCurrencyId = targetCurrencyId;
     }
 
     public Long getCreatedTime() {

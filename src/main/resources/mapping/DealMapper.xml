@@ -8,15 +8,15 @@
 		<result column="trade_fee" jdbcType="DECIMAL" property="tradeFee" />
 		<result column="deal_price" jdbcType="DECIMAL" property="dealPrice" />
 		<result column="deal_quantity" jdbcType="DECIMAL" property="dealQuantity" />
-		<result column="base_currencyId" jdbcType="INTEGER" property="baseCurrencyid" />
-		<result column="target_currencyId" jdbcType="INTEGER" property="targetCurrencyid" />
+		<result column="base_currency_id" jdbcType="INTEGER" property="baseCurrencyid" />
+		<result column="target_currency_id" jdbcType="INTEGER" property="targetCurrencyid" />
 		<result column="created_time" jdbcType="BIGINT" property="createdTime" />
 		<result column="trade_pair_id" jdbcType="INTEGER" property="tradePairId" />
 	</resultMap>
 	<insert id="insert" parameterType="com.entrusts.module.entity.Deal">
 		insert ignore into deal (trade_code, bid_order_code, ask_order_code, 
 			trade_fee, deal_price, deal_quantity, 
-			base_currencyId, target_currencyId, created_time, 
+			base_currency_id, target_currency_id, created_time, 
 			trade_pair_id)
 		values (#{tradeCode,jdbcType=VARCHAR}, #{bidOrderCode,jdbcType=CHAR}, #{askOrderCode,jdbcType=CHAR}, 
 			#{tradeFee,jdbcType=DECIMAL}, #{dealPrice,jdbcType=DECIMAL}, #{dealQuantity,jdbcType=DECIMAL}, 
@@ -25,7 +25,7 @@
 	</insert>
 	<select id="selectAll" resultMap="BaseResultMap">
 		select trade_code, bid_order_code, ask_order_code, trade_fee, deal_price, deal_quantity, 
-		base_currencyId, target_currencyId, created_time, trade_pair_id
+		base_currency_id, target_currency_id, created_time, trade_pair_id
 		from deal
 	</select>
 	<select id="getRecentDeal" resultMap="BaseResultMap">
@@ -33,8 +33,8 @@
 			t.trade_code,
 			t.deal_price,
 			t.deal_quantity,
-			t.base_currencyId,
-			t.target_currencyId,
+			t.base_currency_id,
+			t.target_currency_id,
 			t.created_time,
 			t.trade_pair_id
 		FROM
@@ -43,8 +43,8 @@
 				trade_code,
 				deal_price,
 				deal_quantity,
-				base_currencyId,
-				target_currencyId,
+				base_currency_id,
+				target_currency_id,
 				created_time,
 				trade_pair_id
 				FROM

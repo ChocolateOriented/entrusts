@@ -310,8 +310,8 @@ public class CurrencyListService extends BaseService {
             return;
         }
         try {
-			DigitalCurrency baseCurrency = tradePairService.findCurrencyById(deal.getBaseCurrencyid());
-			DigitalCurrency targetCurrency = tradePairService.findCurrencyById(deal.getTargetCurrencyid());
+			DigitalCurrency baseCurrency = tradePairService.findCurrencyById(deal.getBaseCurrencyId());
+			DigitalCurrency targetCurrency = tradePairService.findCurrencyById(deal.getTargetCurrencyId());
 			String key = RedisKeyNameEnum.keyNow.getValue() + baseCurrency.getAlias();
 			String feild= RedisKeyNameEnum.fieldNow.getValue() + targetCurrency.getAlias();
 			setCurrencyList(key, feild, deal.getDealPrice());

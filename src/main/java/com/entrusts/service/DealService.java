@@ -138,8 +138,8 @@ public class DealService extends BaseService {
 		deal.setBidOrderCode(bidOrder.getOrderCode());
 		deal.setDealPrice(askOrder.getDealPrice());
 		deal.setDealQuantity(askOrder.getTradeEncryptCurrencyQuantity());
-		deal.setBaseCurrencyid(askOrder.getDealEncryptCurrencyId());
-		deal.setTargetCurrencyid(askOrder.getTradeEncryptCurrencyId());
+		deal.setBaseCurrencyId(askOrder.getDealEncryptCurrencyId());
+		deal.setTargetCurrencyId(askOrder.getTradeEncryptCurrencyId());
 		deal.setCreatedTime(askOrder.getCreatedTime());
 		deal.setTradeFee(askOrder.getTradeFee());
 		
