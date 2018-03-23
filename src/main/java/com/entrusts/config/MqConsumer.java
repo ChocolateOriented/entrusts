@@ -1,6 +1,6 @@
 package com.entrusts.config;
 
-import com.entrusts.listener.DefaultListener;
+import com.entrusts.listener.MillstoneListener;
 import com.entrusts.util.Mo9MqConsumer;
 import com.mo9.mqclient.IMqMsgListener;
 import com.mo9.mqclient.MqSubscription;
@@ -32,7 +32,7 @@ public class MqConsumer {
 	private String millstoneTopic;
 
 	@Autowired
-	private DefaultListener millstoneListener;
+	private MillstoneListener millstoneListener;
 
 	public String getMillstoneConsumerId() {
 		return millstoneConsumerId;
