@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * Created by jxli on 2018/3/21.
  * 账户操作代理
  */
-@FeignClient("${feignName.account}")
+@FeignClient("millstone")
 @RequestMapping("api/millstone/v1/account")
 public interface AccountProxyController {
 
