@@ -116,8 +116,6 @@ ribbon:
 
 feignName:
   #钱包系统
-  millstoneName: client-service
+  millstoneName: millstone
   #撮单系统
   dealmakingName: springcloud-client
-  #钱包系统
-  account: account
