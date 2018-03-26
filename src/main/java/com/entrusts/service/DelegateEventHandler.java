@@ -32,6 +32,7 @@ public class DelegateEventHandler extends BaseService {
 			orderService.saveNewOrderByEvent(delegateEvent);
 		} catch (Exception e) {
 			delegateEvent.setDelegateEventstatus(DelegateEventstatus.INSERT_ORDERDB_ERROR);
+			delegateEvent.setRemark(e.getMessage());
 			logger.info("用户：" + delegateEvent.getUserCode() + "订单:" + delegateEvent.getOrderCode() + "新增托单数据失败:", e);
 			return;
 		}
@@ -42,6 +43,7 @@ public class DelegateEventHandler extends BaseService {
 			this.lockCoin(delegateEvent);
 		} catch (Exception e) {
 			delegateEvent.setDelegateEventstatus(DelegateEventstatus.RREQUESTACCOUNT_ERROR);
+			delegateEvent.setRemark(e.getMessage());
 			orderService.updateOrderStatus(OrderStatus.DELEGATE_FAILED,orderCode,userCode);
 			logger.info("用户：" + userCode + " 订单: " + orderCode + " 锁币失败:" + e.getMessage(), e);
 			return;
@@ -52,8 +54,9 @@ public class DelegateEventHandler extends BaseService {
 		try {
 			orderService.push2Match(delegateEvent);
 		} catch (Exception e) {
-			orderService.updateOrderStatus(OrderStatus.DELEGATE_FAILED,orderCode,userCode);
+			delegateEvent.setRemark(e.getMessage());
 			delegateEvent.setDelegateEventstatus(DelegateEventstatus.PUSH_MATCH_ERROR);
+			orderService.updateOrderStatus(OrderStatus.DELEGATE_FAILED,orderCode,userCode);
 			logger.info("用户：" + userCode + "订单:" + orderCode + "通知撮合系统失败", e);
 			return;
 		}

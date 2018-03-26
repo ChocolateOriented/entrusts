@@ -118,7 +118,7 @@ feignClient:
   #钱包系统
   millstone:
     name: millstone
-    containerName: millstoneApi
+    containerName:
   #撮单系统
   dealmaking:
     name: springcloud-client
