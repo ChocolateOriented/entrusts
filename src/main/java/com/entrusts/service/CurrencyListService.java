@@ -47,7 +47,7 @@ public class CurrencyListService extends BaseService {
 
         List<BaseCurrency> baseCurrencies = this.getCurrencyList(RedisKeyNameEnum.baseCurrency.getValue(),null,BaseCurrency.class);
 
-        if(baseCurrencies.size() == 0){
+        if(baseCurrencies==null||baseCurrencies.size() == 0){
             //查数据库
             baseCurrencies =tradePairMapper.getBaseCurrency();
             String baseCurrency = setCurrencyList(RedisKeyNameEnum.baseCurrency.getValue(), null, baseCurrencies);
