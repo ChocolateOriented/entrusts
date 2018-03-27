@@ -65,7 +65,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select id, name, alias, unit, icon, link, service_charge_rate, transfer_account_charge_rate, 
+    select id, `name`, alias, unit, icon, link, service_charge_rate, transfer_account_charge_rate,
     blockchain_charge_rate, min_trade_volume, is_deleted, is_supported, min_trade_limit_time, 
     max_trade_limit_time, created_id, updated_id, created_time, updated_time, deleted_time
     from digital_currency
@@ -76,5 +76,17 @@
     blockchain_charge_rate, min_trade_volume, is_deleted, is_supported, min_trade_limit_time, 
     max_trade_limit_time, created_id, updated_id, created_time, updated_time, deleted_time
     from digital_currency
+  </select>
+  <select id="selectByPrimaryKeys" resultMap="BaseResultMap">
+    select id, `name`, alias, unit, icon, link, service_charge_rate, transfer_account_charge_rate,
+    blockchain_charge_rate, min_trade_volume, is_deleted, is_supported, min_trade_limit_time,
+    max_trade_limit_time, created_id, updated_id, created_time, updated_time, deleted_time
+    from digital_currency
+    where
+    id in
+    <foreach collection="ids" open="(" close=")"
+                   item="id" separator=",">
+    #{id}
+  </foreach>
   </select>
 </mapper>

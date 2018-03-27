@@ -28,11 +28,13 @@ public interface TradePairMapper{
 
     List<BaseCurrency> getBaseCurrency();
 
-    List<TargetMapCurrency> updateTargetCurrency();
+//    List<TargetMapCurrency> updateTargetCurrency();
 
-    AliasMap getAllAlias(Integer tradePairId);
+//    AliasMap getAllAlias(Integer tradePairId);
 
-	List<TargetMapCurrency> getTargetCurrency();
+//	List<TargetMapCurrency> getTargetCurrency();
 
 	TradePair findCurrencyById(int currencyId);
+
+	List<TradePair> getAllTradePair();
 }

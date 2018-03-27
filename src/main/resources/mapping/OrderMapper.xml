@@ -24,23 +24,23 @@
 		<result column="is_deleted" jdbcType="TINYINT" property="isDeleted" />
 	</resultMap>
 	<sql id="orderColumns">
-		o.order_code AS "order_code",
-		o.user_code AS "user_code",
-		o.client_time AS "client_time",
-		o.order_time AS "order_time",
-		o.trade_pair_id AS "trade_pair_id",
-		o.convert_rate AS "convert_rate",
-		o.trade_type AS "trade_type",
-		o.quantity AS "quantity",
-		o.mode AS "mode" ,
-		o.status AS "status" ,
-		o.service_fee_rate AS "service_fee_rate",
-		o.deal_amount AS "deal_amount",
-		o.deal_quantity AS "deal_quantity" ,
-		o.lasted_deal_time AS "lasted_deal_time" ,
-		o.created_time AS "created_time",
-		o.updated_time AS "updated_time",
-		o.is_deleted AS "is_deleted"
+		o.order_code as orderCode,
+		o.user_code as userCode,
+		o.client_time as clientTime,
+		o.order_time as orderTime,
+		o.trade_pair_id as tradePairId,
+		o.convert_rate as convertRate,
+		o.trade_type as tradeType,
+		o.quantity as quantity,
+		o.mode as mode,
+		o.status as status,
+		o.service_fee_rate as serviceFeeRate,
+		o.deal_amount as dealAmount,
+		o.deal_quantity as dealQuantity,
+		o.lasted_deal_time as lastedDealTime,
+		o.created_time as createdTime,
+		o.updated_time as updatedTime,
+		o.is_deleted as isDeleted
 	</sql>
 	<insert id="insertOrder" parameterType="com.entrusts.module.entity.Order">
   INSERT INTO `order` (
@@ -246,30 +246,18 @@
 		and status = 20
 	</update>
 
-    <select id="queryUnfreezeInfo" parameterType="String" resultMap="UnfreezeEntity">
+    <select id="queryUnfreezeInfo" parameterType="String" resultType="com.entrusts.module.entity.Order">
         SELECT
-        <include refid="orderColumns"/>,
-        c.id AS 'encryptCurrencyId',
-        p.base_currency_id AS 'baseCurrencyId',
-        p.target_currency_id AS 'targetCurrencyId',
-        (o.quantity-o.deal_quantity) AS 'residuequantity'
+        <include refid="orderColumns"/>
         FROM
         `order` AS o
-        INNER JOIN trade_pair AS p ON o.trade_pair_id = p.id
-        INNER JOIN digital_currency AS c ON p.base_currency_id = c.id
         WHERE o.order_code = #{orderCode} AND o.`status`=20
     </select>
-    <select id="queryAllUnfreezeInfo" parameterType="String" resultMap="UnfreezeEntity">
+    <select id="queryAllUnfreezeInfo" resultType="com.entrusts.module.entity.Order">
         SELECT
-        <include refid="orderColumns"/>,
-        c.id AS 'encryptCurrencyId',
-        p.base_currency_id AS 'baseCurrencyId',
-        p.target_currency_id AS 'targetCurrencyId',
-        (o.quantity-o.deal_quantity) AS 'residuequantity'
+        <include refid="orderColumns"/>
         FROM
         `order` AS o
-        INNER JOIN trade_pair AS p ON o.trade_pair_id = p.id
-        INNER JOIN digital_currency AS c ON p.base_currency_id = c.id
         WHERE o.user_code = #{userCode} AND o.`status`=20
     </select>
 
