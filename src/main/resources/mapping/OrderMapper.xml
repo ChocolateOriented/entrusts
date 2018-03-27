@@ -110,10 +110,10 @@
 
 	<sql id="orderCondition">
 		<if test="startTime != null">
-			<![CDATA[ and unix_timestamp(o.created_time) >= #{startTime} / 1000 ]]>
+			<![CDATA[ and unix_timestamp(o.order_time) >= #{startTime} / 1000 ]]>
 		</if>
 		<if test="endTime != null">
-			<![CDATA[ and unix_timestamp(o.created_time) <= #{endTime} / 1000 ]]>
+			<![CDATA[ and unix_timestamp(o.order_time) <= #{endTime} / 1000 ]]>
 		</if>
 		<if test="direction != null">
 			and o.trade_type = #{direction}
@@ -129,7 +129,7 @@
 	<select id="findHistoryOrderByPage" resultType="com.entrusts.module.vo.HistoryOrderView">
 		select
 			o.order_code as orderCode,
-			o.created_time as date,
+			o.order_time as date,
 			c1.alias as baseCurrency,
 			c2.alias as targetCurrency,
 			if(o.trade_type = 1, 'buy', 'sell') as tradeType,
@@ -150,7 +150,7 @@
 	<select id="findHistoryOrderByTime" resultType="com.entrusts.module.vo.HistoryOrderView">
 		select
 			o.order_code as orderCode,
-			o.created_time as date,
+			o.order_time as date,
 			c1.alias as baseCurrency,
 			c2.alias as targetCurrency,
 			if(o.trade_type = 1, 'buy', 'sell') as tradeType,
@@ -166,13 +166,13 @@
 		where user_code = #{userCode}
 		and status in (30, 40)
 		<if test="orderQuery.toCreatedTime != null">
-			<![CDATA[ and unix_timestamp(o.created_time) < #{orderQuery.toCreatedTime} / 1000 ]]>
+			<![CDATA[ and unix_timestamp(o.order_time) < #{orderQuery.toCreatedTime} / 1000 ]]>
 		</if>
 		<if test="orderQuery.startTime != null">
-			<![CDATA[ and unix_timestamp(o.created_time) >= #{orderQuery.startTime} / 1000 ]]>
+			<![CDATA[ and unix_timestamp(o.order_time) >= #{orderQuery.startTime} / 1000 ]]>
 		</if>
 		<if test="orderQuery.endTime != null">
-			<![CDATA[ and unix_timestamp(o.created_time) <= #{orderQuery.endTime} / 1000 ]]>
+			<![CDATA[ and unix_timestamp(o.order_time) <= #{orderQuery.endTime} / 1000 ]]>
 		</if>
 		<if test="orderQuery.direction != null">
 			and o.trade_type = #{orderQuery.direction}
@@ -183,7 +183,7 @@
 		<if test="orderQuery.targetCurrency != null and orderQuery.targetCurrency != ''">
 			and c2.alias = #{orderQuery.targetCurrency}
 		</if>
-		order by o.created_time desc
+		order by o.order_time desc
 		limit #{limit}
 	</select>
 	
@@ -197,7 +197,7 @@
 		where user_code = #{userCode}
 		and status in (30, 40)
 		<if test="toCreatedTime != null">
-			<![CDATA[ and unix_timestamp(o.created_time) < #{toCreatedTime} / 1000 ]]>
+			<![CDATA[ and unix_timestamp(o.order_time) < #{toCreatedTime} / 1000 ]]>
 		</if>
 		<include refid="orderCondition" />
 	</select>
@@ -205,7 +205,7 @@
 	<select id="findLimitHistoryOrder" resultType="com.entrusts.module.vo.HistoryOrderView">
 		select
 			o.order_code as orderCode,
-			o.created_time as date,
+			o.order_time as date,
 			c1.alias as baseCurrency,
 			c2.alias as targetCurrency,
 			if(o.trade_type = 1, 'buy', 'sell') as tradeType,
@@ -220,7 +220,7 @@
 		left join digital_currency c2 on c2.id = p.target_currency_id 
 		where user_code = #{userCode}
 		and status in (30, 40)
-		order by o.created_time desc
+		order by o.order_time desc
 		limit #{limit}
 	</select>
 	
@@ -276,7 +276,7 @@
 	<select id="findCurrentOrder" resultType="com.entrusts.module.vo.CurrentEntrusts">
 		select
 		o.order_code as orderCode,
-		o.created_time as date,
+		o.order_time as date,
 		c1.alias as baseCurrency,
 		c2.alias as targetCurrency,
 		if(o.trade_type = 1, 'buy', 'sell') as tradeType,
@@ -291,7 +291,7 @@
 		where user_code = #{userCode}
 		and status in (10, 20)
 		AND o.is_deleted ='0'
-		order by o.created_time desc
+		order by o.order_time desc
 	</select>
 
 </mapper>
