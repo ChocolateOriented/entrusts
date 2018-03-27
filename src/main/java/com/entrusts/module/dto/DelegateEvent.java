@@ -26,6 +26,7 @@ public class DelegateEvent {
 	private OrderMode mode;//交易模式
 
 	private DelegateEventstatus delegateEventstatus; // 队列执行状态
+	private String remark;//备注
 
 	public String getOrderCode() {
 		return orderCode;
@@ -129,5 +130,13 @@ public class DelegateEvent {
 
 	public void setDelegateEventstatus(DelegateEventstatus delegateEventstatus) {
 		this.delegateEventstatus = delegateEventstatus;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 }
