@@ -12,6 +12,8 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 public class Delegate {
 
+	@NotBlank(message = "请求令牌能为空")
+	private String requestToken;
 	@NotNull(message = "买卖方向不能为空")
 	private TradeType tradeType;
 	@NotBlank(message = "基准货币不能为空")
@@ -25,6 +27,14 @@ public class Delegate {
 
 	private String userCode;
 	private Date clientTime;
+
+	public String getRequestToken() {
+		return requestToken;
+	}
+
+	public void setRequestToken(String requestToken) {
+		this.requestToken = requestToken;
+	}
 
 	public TradeType getTradeType() {
 		return tradeType;
