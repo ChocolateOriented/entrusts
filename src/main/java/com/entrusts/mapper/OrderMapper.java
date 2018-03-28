@@ -47,8 +47,17 @@ public interface OrderMapper {
 
 	int completeOrder(Order order);
 
-    UnfreezeEntity queryUnfreezeInfo(String orderCode);
+	/**
+	 * 获取撤销订单
+	 * @param orderCode
+	 * @return
+	 */
+	Order queryUnfreezeInfo(String orderCode);
 
-	List<UnfreezeEntity> queryAllUnfreezeInfo(String userCode);
-
+	/**
+	 * 根据用户code获取所有撤销订单
+	 * @param userCode
+	 * @return
+	 */
+	List<Order> queryAllUnfreezeInfo(String userCode);
 }

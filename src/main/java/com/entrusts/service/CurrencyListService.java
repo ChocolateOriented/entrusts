@@ -235,9 +235,11 @@ public class CurrencyListService extends BaseService {
         for (TargetMapCurrency targetMapCurrency : tradePairList) {
             for (TargetCurrency targetCurrency : targetMapCurrency.getTargetCurrencies()) {
                 //给tradePairList赋值(从数据库中查出的数据)
-                for (Deal d : dealList) {
-                    if (targetCurrency.getTradePareId() == d.getTradePairId()) {
-                        targetCurrency.setTodayStartPrice(d.getDealPrice());
+                if(dealList != null && dealList.size()!=0){
+                    for (Deal d : dealList) {
+                        if (targetCurrency.getTradePareId() == d.getTradePairId()) {
+                            targetCurrency.setTodayStartPrice(d.getDealPrice());
+                        }
                     }
                 }
                 //说明数据库没有查出此数据,使用redis中的数据给tradePairList赋值

@@ -19,6 +19,15 @@
             <result property="alias" column="alias"/>
         </collection>
     </resultMap>
+    <sql id="baseSql" >
+        id,
+        base_currency_id,
+        target_currency_id,
+        min_trade_quantity,
+        is_deleted,
+        order_by_num
+
+    </sql>
   <select id="findTradePairByCoinName" resultMap="BaseResultMap">
     select a.id, a.base_currency_id, a.target_currency_id, a.min_trade_quantity, a.is_deleted
     from trade_pair a
@@ -52,61 +61,68 @@
         GROUP BY
         p.base_currency_id
     </select>
-    <select id="updateTargetCurrency" resultMap="mapTarget">
-        SELECT
-        t.baseAlias AS 'baseAlias',
-        t.targetCurrencyId AS 'targetCurrencyId',
-        t.`name`AS 'name',
-        t.alias AS 'alias',
-        t.todayStartPrice AS 'todayStartPrice'
-        FROM
-        (
-        SELECT
-        c.id AS 'baseCurrencyId',
-        c.alias AS 'baseAlias',
-        p.order_by_num AS 'order_by_num',
-        d.trade_pair_id AS 'trade_pair_id',
-        x.id AS 'targetCurrencyId',
-        x.`name` AS 'name',
-        x.alias AS 'alias',
-        d.deal_price AS 'todayStartPrice'
-        FROM
-        `deal` AS d
-        INNER JOIN trade_pair AS p ON d.trade_pair_id = p.id
-        INNER JOIN digital_currency AS c ON p.base_currency_id = c.id
-        INNER JOIN digital_currency AS x ON p.target_currency_id = x.id
-        ORDER BY
-        d.`deal_time` DESC
-        ) t
-        GROUP BY
-        t.trade_pair_id
-        ORDER BY
-        t.order_by_num
-    </select>
-    <select id="getAllAlias"  resultType="com.entrusts.module.dto.AliasMap">
-        SELECT
-        c.alias AS 'baseAlias',
-        x.alias AS 'targetAlias'
-        FROM
-        trade_pair AS p
-        INNER JOIN digital_currency AS c ON p.base_currency_id = c.id
-        INNER JOIN digital_currency AS x ON p.target_currency_id = x.id
-        WHERE p.id = #{tradePairId};
-    </select>
-    <select id="getTargetCurrency"  resultMap="mapTarget">
-        SELECT
-            p.id AS 'tradePareId',
-            c.alias AS 'baseAlias',
-            p.target_currency_id AS 'targetCurrencyId',
-            x.`name` AS 'name',
-            x.alias AS 'alias'
-        FROM
-            trade_pair AS p
-        INNER JOIN digital_currency AS c ON p.base_currency_id = c.id
-        INNER JOIN digital_currency AS x ON p.target_currency_id = x.id
-        WHERE
-            p.is_deleted=0
-        ORDER BY
-            p.order_by_num
+    <!--<select id="updateTargetCurrency" resultMap="mapTarget">-->
+        <!--SELECT-->
+        <!--t.baseAlias AS 'baseAlias',-->
+        <!--t.targetCurrencyId AS 'targetCurrencyId',-->
+        <!--t.`name`AS 'name',-->
+        <!--t.alias AS 'alias',-->
+        <!--t.todayStartPrice AS 'todayStartPrice'-->
+        <!--FROM-->
+        <!--(-->
+        <!--SELECT-->
+        <!--c.id AS 'baseCurrencyId',-->
+        <!--c.alias AS 'baseAlias',-->
+        <!--p.order_by_num AS 'order_by_num',-->
+        <!--d.trade_pair_id AS 'trade_pair_id',-->
+        <!--x.id AS 'targetCurrencyId',-->
+        <!--x.`name` AS 'name',-->
+        <!--x.alias AS 'alias',-->
+        <!--d.deal_price AS 'todayStartPrice'-->
+        <!--FROM-->
+        <!--`deal` AS d-->
+        <!--INNER JOIN trade_pair AS p ON d.trade_pair_id = p.id-->
+        <!--INNER JOIN digital_currency AS c ON p.base_currency_id = c.id-->
+        <!--INNER JOIN digital_currency AS x ON p.target_currency_id = x.id-->
+        <!--ORDER BY-->
+        <!--d.`deal_time` DESC-->
+        <!--) t-->
+        <!--GROUP BY-->
+        <!--t.trade_pair_id-->
+        <!--ORDER BY-->
+        <!--t.order_by_num-->
+    <!--</select>-->
+    <!--<select id="getAllAlias"  resultType="com.entrusts.module.dto.AliasMap">-->
+        <!--SELECT-->
+        <!--c.alias AS 'baseAlias',-->
+        <!--x.alias AS 'targetAlias'-->
+        <!--FROM-->
+        <!--trade_pair AS p-->
+        <!--INNER JOIN digital_currency AS c ON p.base_currency_id = c.id-->
+        <!--INNER JOIN digital_currency AS x ON p.target_currency_id = x.id-->
+        <!--WHERE p.id = #{tradePairId};-->
+    <!--</select>-->
+    <!--<select id="getTargetCurrency"  resultMap="mapTarget">-->
+        <!--SELECT-->
+            <!--p.id AS 'tradePareId',-->
+            <!--c.alias AS 'baseAlias',-->
+            <!--p.target_currency_id AS 'targetCurrencyId',-->
+            <!--x.`name` AS 'name',-->
+            <!--x.alias AS 'alias'-->
+        <!--FROM-->
+            <!--trade_pair AS p-->
+        <!--INNER JOIN digital_currency AS c ON p.base_currency_id = c.id-->
+        <!--INNER JOIN digital_currency AS x ON p.target_currency_id = x.id-->
+        <!--WHERE-->
+            <!--p.is_deleted=0-->
+        <!--ORDER BY-->
+            <!--p.order_by_num-->
+    <!--</select>-->
+    <select id="getAllTradePair"  resultMap="BaseResultMap">
+      SELECT
+      <include refid="baseSql"/>
+        FROM trade_pair
+        WHERE is_deleted=0
+        ORDER BY order_by_num
     </select>
 </mapper>

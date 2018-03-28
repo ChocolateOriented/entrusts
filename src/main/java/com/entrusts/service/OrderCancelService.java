@@ -6,6 +6,7 @@ import com.entrusts.manager.MillstoneClient;
 import com.entrusts.mapper.OrderMapper;
 import com.entrusts.module.dto.UnfreezeEntity;
 import com.entrusts.module.entity.Order;
+import com.entrusts.module.entity.TradePair;
 import com.entrusts.module.enums.OrderStatus;
 import com.entrusts.module.enums.TradeType;
 import org.slf4j.Logger;
@@ -39,10 +40,12 @@ public class OrderCancelService {
     @Autowired
     private ExecutorService orderCancelExecutorService;
     @Autowired
+    private TradePairService tradePairService;
+    @Autowired
     private OrderMapper orderMapper;
     public Order cancelOrder(String orderCode) {
 
-        UnfreezeEntity unfreezeEntity = orderMapper.queryUnfreezeInfo(orderCode);
+        UnfreezeEntity unfreezeEntity = queryUnfreezeInfo(orderCode);
         if(unfreezeEntity == null){
             logger.info("订单号:"+orderCode+",没有此订单");
             return null;
@@ -52,11 +55,23 @@ public class OrderCancelService {
 
         return order;
     }
-
+    public UnfreezeEntity queryUnfreezeInfo(String orderCode){
+        //获取对应的order
+        Order order = orderMapper.queryUnfreezeInfo(orderCode);
+        if(order == null){
+            return null;
+        }
+        TradePair tradePairById = tradePairService.findTradePairById(order.getTradePairId());
+        UnfreezeEntity unfreezeEntity = new UnfreezeEntity();
+        unfreezeEntity.setBaseCurrencyId(tradePairById.getBaseCurrencyId());
+        unfreezeEntity.setTargetCurrencyId(tradePairById.getTargetCurrencyId());
+        unfreezeEntity.setOrder(order);
+        return unfreezeEntity;
+    }
     public Map<OrderStatus,List<Order>> cancelAll(String userCode) {
 
         Map<OrderStatus,List<Order>> map = new HashMap<>();
-        List<UnfreezeEntity> unfreezeEntities = orderMapper.queryAllUnfreezeInfo(userCode);
+        List<UnfreezeEntity> unfreezeEntities = queryAllUnfreezeInfo(userCode);
         if(unfreezeEntities == null || unfreezeEntities.size() == 0){
             return null;
         }
@@ -89,7 +104,22 @@ public class OrderCancelService {
         }
         return map;
     }
-
+    public List<UnfreezeEntity> queryAllUnfreezeInfo(String userCode){
+        List<Order> orderList = orderMapper.queryAllUnfreezeInfo(userCode);
+        List<UnfreezeEntity> unfreezeEntityList = new ArrayList<>();
+        for (Order o : orderList){
+            TradePair tradePairById = tradePairService.findTradePairById(o.getTradePairId());
+            if(tradePairById == null){
+                continue;
+            }
+            UnfreezeEntity unfreezeEntity = new UnfreezeEntity();
+            unfreezeEntity.setOrder(o);
+            unfreezeEntity.setTargetCurrencyId(tradePairById.getTargetCurrencyId());
+            unfreezeEntity.setBaseCurrencyId(tradePairById.getBaseCurrencyId());
+            unfreezeEntityList.add(unfreezeEntity);
+        }
+        return unfreezeEntityList;
+    }
     /**
      * 单个撤销订单
      * @param unfreezeEntity
