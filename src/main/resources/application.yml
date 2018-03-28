@@ -35,7 +35,7 @@ redis:
   host: 192.168.3.31
   password: dev@Mo9.com
 
-  database2: 21
+  database2: 6
   host2: 192.168.3.31
   password2: dev@Mo9.com
 
