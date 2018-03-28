@@ -47,18 +47,18 @@ public class OrderDelegateController extends BaseController {
 	 * @Description  限价交易委托
 	 * @param userCode
 	 * @param clientTime
-	 * @param requestToken 请求令牌, 见方法requestToken
 	 * @param delegate 委托信息
 	 * @param bindingResul delegate的有效性校验结果
 	 * @return com.entrusts.module.dto.result.Results
 	 */
 	@PostMapping(value = "delegateLimit")
 	@ResponseBody
-	public Results delegateLimit(@RequestHeader(ACCOUNT_CODE) String userCode,@RequestHeader(TIMESTAMP) Long clientTime, @RequestHeader
-			("Request-Token") String requestToken, @RequestBody @Validated Delegate delegate, BindingResult bindingResul) {
+	public Results delegateLimit(@RequestHeader(ACCOUNT_CODE) String userCode,@RequestHeader(TIMESTAMP) Long clientTime,
+			@RequestBody @Validated Delegate delegate, BindingResult bindingResul) {
 
 		String validTokenKey = CACHE_DELEGATE_REQUEST_TOKEN_PREFIX + userCode;
 		String validToken = RedisUtil.get(validTokenKey);
+		String requestToken = delegate.getRequestToken();
 		String handledTokenKey = CACHE_DELEGATE_HANDLED_TOKEN_PREFIX + userCode + requestToken;
 
 		//无效token

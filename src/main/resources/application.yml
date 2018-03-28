@@ -92,7 +92,7 @@ nest:
   group: DandelionGroup
   mode: ALONE
   exclude:
-    urls: /auth/**,/error,/captcha/**,/order/requestToken,/order/delegateLimit,/entrusts/currency/listBase,/entrusts/currency/listTarget,/entrusts/currency/allListTarget,/entrusts/order/cancel,/entrusts/order/cancelAll
+    urls: /auth/**,/error,/captcha/**,/entrusts/currency/listBase,/entrusts/currency/listTarget,/entrusts/currency/allListTarget
 
 
 mybatis:
