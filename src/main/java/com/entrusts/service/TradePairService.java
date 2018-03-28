@@ -10,8 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -80,6 +79,8 @@ public class TradePairService extends BaseService {
 			targetCurrency.setName(targetDC.getName());
 			targetCurrency.setAlias(targetDC.getAlias());
 			targetCurrency.setTradePareId(t.getId());
+			targetCurrency.setCurrentPrice(new BigDecimal(0));
+			targetCurrency.setTodayStartPrice(new BigDecimal(0));
 			//判断是否包含key就放入key对应的list中
 			if(listMap.containsKey(baseDC.getAlias())){
 				listMap.get(baseDC.getAlias()).add(targetCurrency);
