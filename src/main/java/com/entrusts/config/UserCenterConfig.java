@@ -65,7 +65,7 @@ public class UserCenterConfig {
      */
     @Bean
     public AuthInterceptor authenticationInterceptor(@Value("${nest.exclude.urls}") String[] excludeUrls) {
-        AuthInterceptor authInterceptor = new AuthInterceptor(authenticationClient, redisHolder);
+        AuthInterceptor authInterceptor = new AuthInterceptor(redisHolder);
         //这里的配置后面会说到
         authInterceptor.setRequestInfoFetcher(requestInfoFetcher);
         if (excludeUrls != null) {
