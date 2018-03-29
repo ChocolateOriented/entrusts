@@ -15,7 +15,7 @@
   <insert id="insertOrderEvent" parameterType="com.entrusts.module.entity.OrderEvent">
     insert into order_event (id, order_code, status, 
       deal_amout, deal_quantity, created_time, 
-      lasted_deal_time, remark)
+      lasted_deal_time, remark, delegate_event_status)
     values (#{id,jdbcType=BIGINT}, #{orderCode,jdbcType=BIGINT}, #{status,jdbcType=TINYINT}, 
       #{dealAmout,jdbcType=DECIMAL}, #{dealQuantity,jdbcType=DECIMAL}, now(),
       #{lastedDealTime,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR}, #{delegateEventstatus,jdbcType=TINYINT})

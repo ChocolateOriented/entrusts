@@ -5,7 +5,8 @@
 		<id column="trade_code" jdbcType="VARCHAR" property="tradeCode" />
 		<result column="bid_order_code" jdbcType="CHAR" property="bidOrderCode" />
 		<result column="ask_order_code" jdbcType="CHAR" property="askOrderCode" />
-		<result column="trade_fee" jdbcType="DECIMAL" property="tradeFee" />
+		<result column="bid_trade_fee" jdbcType="DECIMAL" property="bidTradeFee" />
+		<result column="ask_trade_fee" jdbcType="DECIMAL" property="askTradeFee" />
 		<result column="deal_price" jdbcType="DECIMAL" property="dealPrice" />
 		<result column="deal_quantity" jdbcType="DECIMAL" property="dealQuantity" />
 		<result column="base_currency_id" jdbcType="INTEGER" property="baseCurrencyId" />
@@ -15,16 +16,16 @@
 	</resultMap>
 	<insert id="insert" parameterType="com.entrusts.module.entity.Deal">
 		insert ignore into deal (trade_code, bid_order_code, ask_order_code, 
-			trade_fee, deal_price, deal_quantity, 
+			bid_trade_fee, ask_trade_fee, deal_price, deal_quantity, 
 			base_currency_id, target_currency_id, created_time, 
 			trade_pair_id)
 		values (#{tradeCode,jdbcType=VARCHAR}, #{bidOrderCode,jdbcType=CHAR}, #{askOrderCode,jdbcType=CHAR}, 
-			#{tradeFee,jdbcType=DECIMAL}, #{dealPrice,jdbcType=DECIMAL}, #{dealQuantity,jdbcType=DECIMAL}, 
+			#{bidTradeFee,jdbcType=DECIMAL}, #{askTradeFee,jdbcType=DECIMAL}, #{dealPrice,jdbcType=DECIMAL}, #{dealQuantity,jdbcType=DECIMAL}, 
 			#{baseCurrencyId,jdbcType=INTEGER}, #{targetCurrencyId,jdbcType=INTEGER}, #{createdTime,jdbcType=BIGINT}, 
 			#{tradePairId,jdbcType=INTEGER})
 	</insert>
 	<select id="selectAll" resultMap="BaseResultMap">
-		select trade_code, bid_order_code, ask_order_code, trade_fee, deal_price, deal_quantity, 
+		select trade_code, bid_order_code, ask_order_code, bidTradeFee, ask_trade_fee, deal_price, deal_quantity, 
 		base_currency_id, target_currency_id, created_time, trade_pair_id
 		from deal
 	</select>

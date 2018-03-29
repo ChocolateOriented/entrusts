@@ -24,6 +24,7 @@ public class Order implements Serializable {
 	private OrderMode mode;//交易模式
 	private OrderStatus status;//状态
 	private BigDecimal serviceFeeRate;//交易费率
+	private BigDecimal serviceFee;//交易费
 	private BigDecimal dealAmount;//已成交金额
 	private BigDecimal dealQuantity;//已成交数量
 	private Date lastedDealTime;
@@ -117,6 +118,14 @@ public class Order implements Serializable {
 
 	public void setServiceFeeRate(BigDecimal serviceFeeRate) {
 		this.serviceFeeRate = serviceFeeRate;
+	}
+
+	public BigDecimal getServiceFee() {
+		return serviceFee;
+	}
+
+	public void setServiceFee(BigDecimal serviceFee) {
+		this.serviceFee = serviceFee;
 	}
 
 	public BigDecimal getDealAmount() {
