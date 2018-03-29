@@ -243,7 +243,7 @@ public class CurrencyListService extends BaseService {
                     }
                 }
                 //说明数据库没有查出此数据,使用redis中的数据给tradePairList赋值
-                if(targetMapCurrenciesredis != null && targetCurrency.getTodayStartPrice() == null){
+                if(targetMapCurrenciesredis != null && targetCurrency.getTodayStartPrice().equals(new BigDecimal(0))){
                     dataFromRedis(targetMapCurrenciesredis,targetCurrency);
                 }
             }
