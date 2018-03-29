@@ -10,7 +10,9 @@ public class Deal {
 
     private String askOrderCode;
 
-    private BigDecimal tradeFee;
+    private BigDecimal bidTradeFee;
+
+    private BigDecimal askTradeFee;
 
     private BigDecimal dealPrice;
 
@@ -48,15 +50,23 @@ public class Deal {
         this.askOrderCode = askOrderCode;
     }
 
-    public BigDecimal getTradeFee() {
-        return tradeFee;
-    }
+    public BigDecimal getBidTradeFee() {
+		return bidTradeFee;
+	}
 
-    public void setTradeFee(BigDecimal tradeFee) {
-        this.tradeFee = tradeFee;
-    }
+	public void setBidTradeFee(BigDecimal bidTradeFee) {
+		this.bidTradeFee = bidTradeFee;
+	}
 
-    public BigDecimal getDealPrice() {
+	public BigDecimal getAskTradeFee() {
+		return askTradeFee;
+	}
+
+	public void setAskTradeFee(BigDecimal askTradeFee) {
+		this.askTradeFee = askTradeFee;
+	}
+
+	public BigDecimal getDealPrice() {
         return dealPrice;
     }
 

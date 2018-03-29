@@ -1,9 +1,5 @@
 package com.entrusts.service;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,15 +46,7 @@ public class DealService extends BaseService {
 			return order;
 		}
 		
-		BigDecimal serviceFeeRate = order.getServiceFeeRate();
-		if (serviceFeeRate == null) {
-			serviceFeeRate = new BigDecimal("0");
-		}
-		
-		//计算扣除手续费后可成交的数量
-		BigDecimal dealableQuantity = order.getQuantity().multiply(
-				new BigDecimal("1").subtract(order.getServiceFeeRate()), new MathContext(8, RoundingMode.FLOOR));
-		if (order.getDealQuantity().compareTo(dealableQuantity) < 0) {
+		if (order.getQuantity().compareTo(order.getDealQuantity()) > 0) {
 			return order;
 		}
 		
@@ -142,11 +130,11 @@ public class DealService extends BaseService {
 			throw new IllegalArgumentException("托单编号为空");
 		}
 		
-		if (askOrder.getTradeEncryptCurrencyQuantity() == null || bidOrder.getTradeEncryptCurrencyQuantity() == null) {
+		if (dealNotify.getDealQuantity() == null) {
 			throw new IllegalArgumentException("托单成交量为空");
 		}
 		
-		if (askOrder.getDealPrice() == null || bidOrder.getDealPrice() == null) {
+		if ((dealNotify.getDealPrice() == null)) {
 			throw new IllegalArgumentException("托单成交价格为空");
 		}
 		
@@ -154,12 +142,13 @@ public class DealService extends BaseService {
 		deal.setTradeCode(dealNotify.getCode());
 		deal.setAskOrderCode(askOrder.getOrderCode());
 		deal.setBidOrderCode(bidOrder.getOrderCode());
-		deal.setDealPrice(askOrder.getDealPrice());
-		deal.setDealQuantity(askOrder.getTradeEncryptCurrencyQuantity());
-		deal.setBaseCurrencyId(askOrder.getDealEncryptCurrencyId());
-		deal.setTargetCurrencyId(askOrder.getTradeEncryptCurrencyId());
-		deal.setCreatedTime(askOrder.getCreatedTime());
-		deal.setTradeFee(askOrder.getTradeFee());
+		deal.setDealPrice(dealNotify.getDealPrice());
+		deal.setDealQuantity(dealNotify.getDealQuantity());
+		deal.setBaseCurrencyId(dealNotify.getBaseCurrencyId());
+		deal.setTargetCurrencyId(dealNotify.getTargetCurrencyId());
+		deal.setCreatedTime(dealNotify.getCreatedTime());
+		deal.setAskTradeFee(askOrder.getTradeFee());
+		deal.setBidTradeFee(bidOrder.getTradeFee());
 		
 		return deal;
 	}

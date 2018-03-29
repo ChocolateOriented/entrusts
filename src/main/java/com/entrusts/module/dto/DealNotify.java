@@ -6,6 +6,16 @@ public class DealNotify {
 
 	private String code;
 	
+	private Integer baseCurrencyId;
+
+	private Integer targetCurrencyId;
+
+	private BigDecimal dealPrice;
+
+	private BigDecimal dealQuantity;
+
+	private Long createdTime;
+
 	private OrderDealDetail bidOrder;
 
 	private OrderDealDetail askOrder;
@@ -16,6 +26,46 @@ public class DealNotify {
 
 	public void setCode(String code) {
 		this.code = code;
+	}
+
+	public Integer getBaseCurrencyId() {
+		return baseCurrencyId;
+	}
+
+	public void setBaseCurrencyId(Integer baseCurrencyId) {
+		this.baseCurrencyId = baseCurrencyId;
+	}
+
+	public Integer getTargetCurrencyId() {
+		return targetCurrencyId;
+	}
+
+	public void setTargetCurrencyId(Integer targetCurrencyId) {
+		this.targetCurrencyId = targetCurrencyId;
+	}
+
+	public BigDecimal getDealPrice() {
+		return dealPrice;
+	}
+
+	public void setDealPrice(BigDecimal dealPrice) {
+		this.dealPrice = dealPrice;
+	}
+
+	public BigDecimal getDealQuantity() {
+		return dealQuantity;
+	}
+
+	public void setDealQuantity(BigDecimal dealQuantity) {
+		this.dealQuantity = dealQuantity;
+	}
+
+	public Long getCreatedTime() {
+		return createdTime;
+	}
+
+	public void setCreatedTime(Long createdTime) {
+		this.createdTime = createdTime;
 	}
 
 	public OrderDealDetail getBidOrder() {

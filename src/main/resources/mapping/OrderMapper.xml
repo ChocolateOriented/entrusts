@@ -15,7 +15,7 @@
 		<result column="quantity" jdbcType="DECIMAL" property="quantity" />
 		<result column="mode" jdbcType="TINYINT"    property="mode" />
 		<result column="status" jdbcType="TINYINT"  property="status" />
-		<result column="service_fee_rate" jdbcType="DECIMAL" property="serviceFeeRate" />
+		<result column="service_fee" jdbcType="DECIMAL" property="serviceFee" />
 		<result column="deal_amount" jdbcType="DECIMAL" property="dealAmount" />
 		<result column="deal_quantity" jdbcType="DECIMAL" property="dealQuantity" />
 		<result column="lasted_deal_time" jdbcType="TIMESTAMP" property="lastedDealTime" />
@@ -34,7 +34,7 @@
 		o.quantity as quantity,
 		o.mode as mode,
 		o.status as status,
-		o.service_fee_rate as serviceFeeRate,
+		o.service_fee as serviceFee,
 		o.deal_amount as dealAmount,
 		o.deal_quantity as dealQuantity,
 		o.lasted_deal_time as lastedDealTime,
@@ -94,10 +94,9 @@
 			o.convert_rate as convertRate,
 			o.trade_type as tradeType,
 			o.quantity as quantity,
-			o.amount as amount,
 			o.mode as mode,
 			o.status as status,
-			o.service_fee_rate as serviceFeeRate,
+			o.service_fee as serviceFee,
 			o.deal_amount as dealAmount,
 			o.deal_quantity as dealQuantity,
 			o.lasted_deal_time as lastedDealTime,
@@ -125,19 +124,23 @@
 			and c2.alias = #{targetCurrency}
 		</if>
 	</sql>
+	
+	<sql id="orderViewColumn">
+		o.order_code as orderCode,
+		o.order_time as date,
+		c1.alias as baseCurrency,
+		c2.alias as targetCurrency,
+		if(o.trade_type = 1, 'buy', 'sell') as tradeType,
+		o.convert_rate as orderPrice,
+		o.deal_quantity as dealTargetQuantity,
+		convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
+		o.serviceFee as serviceFee,
+		status
+	</sql>
 
 	<select id="findHistoryOrderByPage" resultType="com.entrusts.module.vo.HistoryOrderView">
 		select
-			o.order_code as orderCode,
-			o.order_time as date,
-			c1.alias as baseCurrency,
-			c2.alias as targetCurrency,
-			if(o.trade_type = 1, 'buy', 'sell') as tradeType,
-			o.convert_rate as orderPrice,
-			o.deal_quantity as dealTargetQuantity,
-			convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
-			convert(o.convert_rate * (o.quantity - o.deal_quantity, decimal(17,8)) as serviceFee,
-			status
+			<include refid="orderViewColumn" />
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
 		left join digital_currency c1 on c1.id = p.base_currency_id
@@ -149,16 +152,7 @@
 	
 	<select id="findHistoryOrderByTime" resultType="com.entrusts.module.vo.HistoryOrderView">
 		select
-			o.order_code as orderCode,
-			o.order_time as date,
-			c1.alias as baseCurrency,
-			c2.alias as targetCurrency,
-			if(o.trade_type = 1, 'buy', 'sell') as tradeType,
-			o.convert_rate as orderPrice,
-			o.deal_quantity as dealTargetQuantity,
-			convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
-			convert(o.convert_rate * (o.quantity - o.deal_quantity, decimal(17,8)) as serviceFee,
-			status
+			<include refid="orderViewColumn" />
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
 		left join digital_currency c1 on c1.id = p.base_currency_id
@@ -204,16 +198,7 @@
 	
 	<select id="findLimitHistoryOrder" resultType="com.entrusts.module.vo.HistoryOrderView">
 		select
-			o.order_code as orderCode,
-			o.order_time as date,
-			c1.alias as baseCurrency,
-			c2.alias as targetCurrency,
-			if(o.trade_type = 1, 'buy', 'sell') as tradeType,
-			o.convert_rate as orderPrice,
-			o.deal_quantity as dealTargetQuantity,
-			convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
-			convert(o.convert_rate * (o.quantity - o.deal_quantity, decimal(17,8)) as serviceFee,
-			status
+			<include refid="orderViewColumn" />
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
 		left join digital_currency c1 on c1.id = p.base_currency_id
@@ -235,6 +220,7 @@
 	<update id="updateOrderNewDeal">
 		update `order` set
 		deal_quantity = ifnull(deal_quantity, 0) + #{tradeEncryptCurrencyQuantity},
+		service_fee = ifnull(service_fee, 0) + #{tradeFee},
 		lasted_deal_time = if(unix_timestamp(lasted_deal_time) * 1000 > #{createdTime}, lasted_deal_time, from_unixtime(#{createdTime} / 1000))
 		where order_code = #{orderCode}
 	</update>
