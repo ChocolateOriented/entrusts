@@ -74,6 +74,9 @@ public class TradePairService extends BaseService {
 		for(TradePair t : tradePairList){
 			DigitalCurrency baseDC = currencyMap.get(t.getBaseCurrencyId());
 			DigitalCurrency targetDC = currencyMap.get(t.getTargetCurrencyId());
+			if(baseDC == null || targetDC == null){
+				continue;
+			}
 			TargetCurrency targetCurrency = new TargetCurrency();
 			targetCurrency.setTargetCurrencyId(targetDC.getId());
 			targetCurrency.setName(targetDC.getName());
