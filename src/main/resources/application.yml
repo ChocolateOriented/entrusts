@@ -115,7 +115,7 @@ feign:
 
 ribbon:
   ConnectTimeout: 500
-  ReadTimeout: 10000
+  ReadTimeout: 30000
   OkToRetryOnAllOperations: false
   MaxAutoRetriesNextServer: 0
   MaxAutoRetries: 0

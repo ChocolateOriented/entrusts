@@ -36,6 +36,7 @@ public class OrderEventService extends BaseService implements EventHandler<Deleg
 		OrderEvent orderEvent = new OrderEvent();
 		orderEvent.setOrderCode(delegateEvent.getOrderCode());
 		orderEvent.setDelegateEventstatus(delegateEvent.getDelegateEventstatus());
+		orderEvent.setRemark(delegateEvent.getRemark());
 		orderEvent.setId(super.generateId());
 
 		if (DelegateEventstatus.PUBLISH_ORDER_SUCCESS.equals(delegateEvent.getDelegateEventstatus())) {
