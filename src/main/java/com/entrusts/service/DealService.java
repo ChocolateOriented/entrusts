@@ -1,9 +1,14 @@
 package com.entrusts.service;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.entrusts.exception.ServiceException;
 import com.entrusts.mapper.DealMapper;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.entity.OrderEvent;
@@ -41,7 +46,19 @@ public class DealService extends BaseService {
 	public Order updateNewDeal(OrderDealDetail orderDealDetail) {
 		orderManageService.updateOrderNewDeal(orderDealDetail);
 		Order order = orderManageService.get(orderDealDetail.getOrderCode());
-		if (order == null || order.getDealQuantity() == null || order.getQuantity() == null || !order.getDealQuantity().equals(order.getQuantity())) {
+		if (order == null || order.getDealQuantity() == null || order.getQuantity() == null) {
+			return order;
+		}
+		
+		BigDecimal serviceFeeRate = order.getServiceFeeRate();
+		if (serviceFeeRate == null) {
+			serviceFeeRate = new BigDecimal("0");
+		}
+		
+		//计算扣除手续费后可成交的数量
+		BigDecimal dealableQuantity = order.getQuantity().multiply(
+				new BigDecimal("1").subtract(order.getServiceFeeRate()), new MathContext(8, RoundingMode.FLOOR));
+		if (order.getDealQuantity().compareTo(dealableQuantity) < 0) {
 			return order;
 		}
 		
@@ -79,27 +96,28 @@ public class DealService extends BaseService {
 	/**
 	 * 接收到成交通知
 	 * @param dealNotify
+	 * @throws ServiceException 
 	 */
 	@Transactional
-	public void dealNotify(DealNotify dealNotify) {
+	public void dealNotify(DealNotify dealNotify) throws ServiceException {
 		Deal deal = createDealFromNotify(dealNotify);
 		Order askOrder = orderManageService.get(deal.getAskOrderCode());
 		if (askOrder == null) {
 			logger.info("不存在此托单,托单号" + deal.getAskOrderCode());
-			return;
+			throw new ServiceException("托单不存在");
 		}
 		
 		Order bidOrder = orderManageService.get(deal.getBidOrderCode());
 		if (bidOrder == null) {
 			logger.info("不存在此托单,托单号" + deal.getBidOrderCode());
-			return;
+			throw new ServiceException("托单不存在");
 		}
 		
 		deal.setTradePairId(askOrder.getTradePairId());
 		
 		if (!save(deal)) {
 			logger.info("此成交信息已处理,交易流水号:" + deal.getTradeCode());
-			return;
+			throw new ServiceException("重复成交信息");
 		}
 		currencyListService.updateCurrentPrice(deal);
 		handleOrderDeal(dealNotify.getAskOrder());
