@@ -83,7 +83,9 @@
     max_trade_limit_time, created_id, updated_id, created_time, updated_time, deleted_time
     from digital_currency
     where
-    id in
+    is_deleted=0
+    AND is_supported=1
+    AND id in
     <foreach collection="ids" open="(" close=")"
                    item="id" separator=",">
     #{id}
