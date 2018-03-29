@@ -8,8 +8,8 @@
 		<result column="trade_fee" jdbcType="DECIMAL" property="tradeFee" />
 		<result column="deal_price" jdbcType="DECIMAL" property="dealPrice" />
 		<result column="deal_quantity" jdbcType="DECIMAL" property="dealQuantity" />
-		<result column="base_currency_id" jdbcType="INTEGER" property="baseCurrencyid" />
-		<result column="target_currency_id" jdbcType="INTEGER" property="targetCurrencyid" />
+		<result column="base_currency_id" jdbcType="INTEGER" property="baseCurrencyId" />
+		<result column="target_currency_id" jdbcType="INTEGER" property="targetCurrencyId" />
 		<result column="created_time" jdbcType="BIGINT" property="createdTime" />
 		<result column="trade_pair_id" jdbcType="INTEGER" property="tradePairId" />
 	</resultMap>
@@ -20,7 +20,7 @@
 			trade_pair_id)
 		values (#{tradeCode,jdbcType=VARCHAR}, #{bidOrderCode,jdbcType=CHAR}, #{askOrderCode,jdbcType=CHAR}, 
 			#{tradeFee,jdbcType=DECIMAL}, #{dealPrice,jdbcType=DECIMAL}, #{dealQuantity,jdbcType=DECIMAL}, 
-			#{baseCurrencyid,jdbcType=INTEGER}, #{targetCurrencyid,jdbcType=INTEGER}, #{createdTime,jdbcType=BIGINT}, 
+			#{baseCurrencyId,jdbcType=INTEGER}, #{targetCurrencyId,jdbcType=INTEGER}, #{createdTime,jdbcType=BIGINT}, 
 			#{tradePairId,jdbcType=INTEGER})
 	</insert>
 	<select id="selectAll" resultMap="BaseResultMap">
