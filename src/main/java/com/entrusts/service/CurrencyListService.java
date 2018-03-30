@@ -307,10 +307,10 @@ public class CurrencyListService extends BaseService {
      */
     @Transactional(readOnly = false)
     public void updateCurrentPrice(Deal deal){
-        if(deal.getTradePairId()==null){
-            logger.info("订单中没有交易对");
-            return;
-        }
+//        if(deal.getTradePairId()==null){
+//            logger.info("订单中没有交易对");
+//            return;
+//        }
         try {
 			DigitalCurrency baseCurrency = tradePairService.findCurrencyById(deal.getBaseCurrencyId());
 			DigitalCurrency targetCurrency = tradePairService.findCurrencyById(deal.getTargetCurrencyId());
