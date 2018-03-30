@@ -6,8 +6,17 @@ import java.util.List;
  * Created by cyuan on 2018/3/12.
  */
 public class TargetMapCurrency {
+    private Integer baseCurrencyId;//基准货币
     private String baseAlias;
     private List<TargetCurrency> targetCurrencies;
+
+    public Integer getBaseCurrencyId() {
+        return baseCurrencyId;
+    }
+
+    public void setBaseCurrencyId(Integer baseCurrencyId) {
+        this.baseCurrencyId = baseCurrencyId;
+    }
 
     public String getBaseAlias() {
         return baseAlias;
