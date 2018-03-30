@@ -1,5 +1,6 @@
 package com.entrusts.module.dto;
 
+import com.entrusts.module.enums.OrderMode;
 import com.entrusts.module.enums.TradeType;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -11,6 +12,9 @@ import org.hibernate.validator.constraints.NotBlank;
  * Created by jxli on 2018/3/5.
  */
 public class Delegate {
+	private String userCode;
+	private OrderMode orderMode;
+	private Date clientTime;
 
 	@NotBlank(message = "请求令牌能为空")
 	private String requestToken;
@@ -25,8 +29,29 @@ public class Delegate {
 	@Min(value = 0,message = "交易数量必须大于0")
 	private BigDecimal quantity;
 
-	private String userCode;
-	private Date clientTime;
+	public String getUserCode() {
+		return userCode;
+	}
+
+	public void setUserCode(String userCode) {
+		this.userCode = userCode;
+	}
+
+	public OrderMode getOrderMode() {
+		return orderMode;
+	}
+
+	public void setOrderMode(OrderMode orderMode) {
+		this.orderMode = orderMode;
+	}
+
+	public Date getClientTime() {
+		return clientTime;
+	}
+
+	public void setClientTime(Date clientTime) {
+		this.clientTime = clientTime;
+	}
 
 	public String getRequestToken() {
 		return requestToken;
@@ -74,21 +99,5 @@ public class Delegate {
 
 	public void setQuantity(BigDecimal quantity) {
 		this.quantity = quantity;
-	}
-
-	public String getUserCode() {
-		return userCode;
-	}
-
-	public void setUserCode(String userCode) {
-		this.userCode = userCode;
-	}
-
-	public Date getClientTime() {
-		return clientTime;
-	}
-
-	public void setClientTime(Date clientTime) {
-		this.clientTime = clientTime;
 	}
 }
