@@ -150,4 +150,38 @@ public interface MillstoneClient {
 	String transferAccountDetail(@RequestParam("userCode") String userCode,
 			@RequestParam(value = "transferAccountId") String transferAccountId);
 
+	/**
+	 * 提币
+	 * @param withdrawnRequest
+	 * @return
+	 */
+	@RequestMapping(value = MILLSTONE_ACCOUNT_PATH + "withdrawn", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	String withdrawn(@RequestBody String withdrawnRequest);
+
+	/**
+	 * 获取用户资产列表
+	 * @param userCode
+	 * @return
+	 */
+	@RequestMapping(value = MILLSTONE_ACCOUNT_PATH + "search_account_asset", method = RequestMethod.GET)
+	String searchAccountAsset(@RequestParam("userCode") String userCode, @RequestParam("pageNo") String pageNo, @RequestParam("pageSize") String pageSize);
+
+	/**
+	 * 获取账户信息
+	 * @param userCode
+	 * @param encryptCurrencyId
+	 * @return
+	 */
+	@RequestMapping(value = MILLSTONE_ACCOUNT_PATH + "get_account_asset_by_user_code_and_encrypt_currency_id", method = RequestMethod.GET)
+	String getAccountAssetByUserCodeAndEncryptCurrencyId(@RequestParam("userCode") String userCode, @RequestParam("encryptCurrencyId") Integer encryptCurrencyId);
+
+	/**
+	 * 获取钱包地址
+	 * @param userCode
+	 * @param encryptCurrencyId
+	 * @return
+	 */
+	@RequestMapping(value = MILLSTONE_ACCOUNT_PATH + "get_wallet_address", method = RequestMethod.GET)
+	String getWalletAddress(@RequestParam("userCode") String userCode, @RequestParam("encryptCurrencyId") Integer encryptCurrencyId);
+
 }

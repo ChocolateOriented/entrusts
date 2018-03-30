@@ -130,7 +130,7 @@ public class DealService extends BaseService {
 			throw new IllegalArgumentException("托单编号为空");
 		}
 		
-		if (dealNotify.getDealQuantity() == null) {
+		if (dealNotify.getDealQuantity() == null || askOrder.getTradeEncryptCurrencyQuantity() == null || bidOrder.getTradeEncryptCurrencyQuantity() == null) {
 			throw new IllegalArgumentException("托单成交量为空");
 		}
 		

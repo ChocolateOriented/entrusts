@@ -1,8 +1,12 @@
 package com.entrusts.web;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.entrusts.manager.MillstoneClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -162,5 +166,49 @@ public class AccountProxyController extends BaseController {
 	public String transferAccountDetail(@RequestHeader(ACCOUNT_CODE) String userCode,
 			@RequestParam(value = "transferAccountId") String transferAccountId){
 		return millstoneClient.transferAccountDetail(userCode, transferAccountId);
+	}
+	
+	/**
+	 * 提币
+	 * @param withdrawnRequest
+	 * @return
+	 */
+	@PostMapping(value = "withdrawn")
+	public String withdrawn(@RequestHeader(ACCOUNT_CODE) String userCode, @RequestBody String withdrawnRequest) {
+		JSONObject jsonObj = JSON.parseObject(withdrawnRequest);
+		jsonObj.put("userCode", userCode);
+		return millstoneClient.withdrawn(jsonObj.toJSONString());
+	}
+
+	/**
+	 * 获取用户资产列表
+	 * @param userCode
+	 * @return
+	 */
+	@GetMapping(value = "search_account_asset")
+	public String searchAccountAsset(@RequestHeader(ACCOUNT_CODE) String userCode, @RequestParam("pageNo") String pageNo, @RequestParam("pageSize") String pageSize) {
+		return millstoneClient.searchAccountAsset(userCode, pageNo, pageSize);
+	}
+
+	/**
+	 * 获取账户信息
+	 * @param userCode
+	 * @param encryptCurrencyId
+	 * @return
+	 */
+	@GetMapping(value = "get_account_asset_by_user_code_and_encrypt_currency_id")
+	public String getAccountAssetByUserCodeAndEncryptCurrencyId(@RequestHeader(ACCOUNT_CODE) String userCode, @RequestParam("encryptCurrencyId") Integer encryptCurrencyId) {
+		return millstoneClient.getAccountAssetByUserCodeAndEncryptCurrencyId(userCode, encryptCurrencyId);
+	}
+	
+	/**
+	 * 获取钱包地址
+	 * @param userCode
+	 * @param encryptCurrencyId
+	 * @return
+	 */
+	@GetMapping(value = "get_wallet_address")
+	public String getWalletAddress(@RequestHeader(ACCOUNT_CODE) String userCode, @RequestParam("encryptCurrencyId") Integer encryptCurrencyId) {
+		return millstoneClient.getWalletAddress(userCode, encryptCurrencyId);
 	}
 }
