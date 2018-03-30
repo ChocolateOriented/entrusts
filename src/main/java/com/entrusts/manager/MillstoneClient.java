@@ -150,7 +150,7 @@ public interface MillstoneClient {
 	 * @param withdrawnRequest
 	 * @return
 	 */
-	@RequestMapping(value = MILLSTONE_ACCOUNT_PATH + "withdrawn", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping( MILLSTONE_ACCOUNT_PATH + "withdrawn")
 	String withdrawn(@RequestBody String withdrawnRequest);
 
 	/**
@@ -158,7 +158,7 @@ public interface MillstoneClient {
 	 * @param userCode
 	 * @return
 	 */
-	@RequestMapping(value = MILLSTONE_ACCOUNT_PATH + "search_account_asset", method = RequestMethod.GET)
+	@GetMapping( MILLSTONE_ACCOUNT_PATH + "search_account_asset")
 	String searchAccountAsset(@RequestParam("userCode") String userCode, @RequestParam("pageNo") String pageNo, @RequestParam("pageSize") String pageSize);
 
 	/**
@@ -167,7 +167,7 @@ public interface MillstoneClient {
 	 * @param encryptCurrencyId
 	 * @return
 	 */
-	@RequestMapping(value = MILLSTONE_ACCOUNT_PATH + "get_account_asset_by_user_code_and_encrypt_currency_id", method = RequestMethod.GET)
+	@GetMapping(MILLSTONE_ACCOUNT_PATH + "get_account_asset_by_user_code_and_encrypt_currency_id")
 	String getAccountAssetByUserCodeAndEncryptCurrencyId(@RequestParam("userCode") String userCode, @RequestParam("encryptCurrencyId") Integer encryptCurrencyId);
 
 	/**
@@ -176,7 +176,7 @@ public interface MillstoneClient {
 	 * @param encryptCurrencyId
 	 * @return
 	 */
-	@RequestMapping(value = MILLSTONE_ACCOUNT_PATH + "get_wallet_address", method = RequestMethod.GET)
+	@GetMapping(MILLSTONE_ACCOUNT_PATH + "get_wallet_address")
 	String getWalletAddress(@RequestParam("userCode") String userCode, @RequestParam("encryptCurrencyId") Integer encryptCurrencyId);
 
 }
