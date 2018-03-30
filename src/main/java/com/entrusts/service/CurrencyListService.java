@@ -331,6 +331,7 @@ public class CurrencyListService extends BaseService {
         for (BaseCurrency baseCurrency1 : baseCurrency){
             TargetMapCurrency targetMapCurrency = new TargetMapCurrency();
             targetMapCurrency.setBaseAlias(baseCurrency1.getAlias());
+            targetMapCurrency.setBaseCurrencyId(baseCurrency1.getBaseCurrencyId());
             List<TargetCurrency> targetCurrency = getTargetCurrency(baseCurrency1.getAlias(), time);
             if(targetCurrency == null){
                 return null;
