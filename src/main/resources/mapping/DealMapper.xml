@@ -25,7 +25,7 @@
 			#{tradePairId,jdbcType=INTEGER})
 	</insert>
 	<select id="selectAll" resultMap="BaseResultMap">
-		select trade_code, bid_order_code, ask_order_code, bidTradeFee, ask_trade_fee, deal_price, deal_quantity, 
+		select trade_code, bid_order_code, ask_order_code, bid_trade_fee, ask_trade_fee, deal_price, deal_quantity,
 		base_currency_id, target_currency_id, created_time, trade_pair_id
 		from deal
 	</select>
