@@ -186,7 +186,8 @@ public class AccountProxyController extends BaseController {
 	 * @return
 	 */
 	@GetMapping(value = "search_account_asset")
-	public String searchAccountAsset(@RequestHeader(ACCOUNT_CODE) String userCode, @RequestParam("pageNo") String pageNo, @RequestParam("pageSize") String pageSize) {
+	public String searchAccountAsset(@RequestHeader(ACCOUNT_CODE) String userCode, @RequestParam(value = "pageNo", required = false) String pageNo,
+			@RequestParam(value = "pageSize", required = false) String pageSize) {
 		return millstoneClient.searchAccountAsset(userCode, pageNo, pageSize);
 	}
 
