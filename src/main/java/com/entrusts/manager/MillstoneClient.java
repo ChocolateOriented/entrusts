@@ -4,10 +4,9 @@ import com.entrusts.module.dto.FreezeDto;
 import com.entrusts.module.dto.result.Results;
 import java.util.Map;
 import org.springframework.cloud.netflix.feign.FeignClient;
-import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -24,15 +23,14 @@ public interface MillstoneClient {
 	 * @return java.lang.String
 	 * @Description 解锁货币
 	 */
-	@RequestMapping(value = MILLSTONE_ACCOUNT_PATH + "unfreeze_for_order", produces = "application/json", method = RequestMethod.POST)
+	@PostMapping(MILLSTONE_ACCOUNT_PATH + "unfreeze_for_order")
 	String unfreezeForOrder(@RequestBody Map<String, Object> map);
 
 	/**
 	 * @return com.entrusts.module.dto.result.Results
 	 * @Description 锁币
 	 */
-	@RequestMapping(method = RequestMethod.POST, value = MILLSTONE_ACCOUNT_PATH + "freeze_for_order", produces = MediaType.APPLICATION_JSON_VALUE,
-			consumes = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(MILLSTONE_ACCOUNT_PATH + "freeze_for_order")
 	Results freezeForOrder(FreezeDto freezeDto);
 
 	/**
@@ -44,7 +42,7 @@ public interface MillstoneClient {
 	 * @return java.lang.String
 	 * @Description 获取用户数字账户的划转记录
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = MILLSTONE_ACCOUNT_PATH + "search_transfer_record", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(MILLSTONE_ACCOUNT_PATH + "search_transfer_record")
 	String searchTransferRecord(@RequestParam("userCode") String userCode,
 			@RequestParam(value = "encryptCurrencyId", required = false) String encryptCurrencyId,
 			@RequestParam(value = "direction", required = false) String direction,
@@ -60,8 +58,7 @@ public interface MillstoneClient {
 	 * @return java.lang.String
 	 * @Description 获取用户数字账户的划转记录(按时间分页)
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = MILLSTONE_ACCOUNT_PATH
-			+ "search_transfer_record_by_created_time", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping( MILLSTONE_ACCOUNT_PATH + "search_transfer_record_by_created_time")
 	String searchTransferRecordByCreatedTime(@RequestParam("userCode") String userCode,
 			@RequestParam(value = "encryptCurrencyId", required = false) String encryptCurrencyId,
 			@RequestParam(value = "direction", required = false) String direction,
@@ -74,7 +71,7 @@ public interface MillstoneClient {
 	 * @return java.lang.String
 	 * @Description 获取用户数字账户的钱包记录
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = MILLSTONE_ACCOUNT_PATH + "search_record", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping( MILLSTONE_ACCOUNT_PATH + "search_record")
 	String searchRecord(@RequestParam("userCode") String userCode,
 			@RequestParam(value = "tradeType") String tradeType,
 			@RequestParam(value = "encryptCurrencyId", required = false) String encryptCurrencyId,
@@ -89,8 +86,7 @@ public interface MillstoneClient {
 	 * @return java.lang.String
 	 * @Description 获取用户数字账户的钱包记录(按时间分页)
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = MILLSTONE_ACCOUNT_PATH
-			+ "search_record_by_created_time", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping( MILLSTONE_ACCOUNT_PATH + "search_record_by_created_time")
 	String searchRecordByCreatedTime(@RequestParam("userCode") String userCode,
 			@RequestParam(value = "tradeType") String tradeType,
 			@RequestParam(value = "encryptCurrencyId", required = false) String encryptCurrencyId,
@@ -103,7 +99,7 @@ public interface MillstoneClient {
 	 * @return java.lang.String
 	 * @Description 获取用户的交易记录
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = MILLSTONE_ACCOUNT_PATH + "search_trade_record", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping( MILLSTONE_ACCOUNT_PATH + "search_trade_record")
 	String searchTradeRecord(@RequestParam("userCode") String userCode,
 			@RequestParam(value = "baseCurrencyId", required = false) String baseCurrencyId,
 			@RequestParam(value = "targetCurrencyId", required = false) String targetCurrencyId,
@@ -118,8 +114,7 @@ public interface MillstoneClient {
 	 * @return java.lang.String
 	 * @Description 获取用户的交易记录(按时间分页)
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = MILLSTONE_ACCOUNT_PATH
-			+ "search_trade_record_by_created_time", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping( MILLSTONE_ACCOUNT_PATH + "search_trade_record_by_created_time")
 	String searchTradeRecordByCreatedTime(@RequestParam("userCode") String userCode,
 			@RequestParam(value = "baseCurrencyId", required = false) String baseCurrencyId,
 			@RequestParam(value = "targetCurrencyId", required = false) String targetCurrencyId,
@@ -130,7 +125,7 @@ public interface MillstoneClient {
 	 * @return java.lang.String
 	 * @Description 获取划转详情
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = MILLSTONE_ACCOUNT_PATH + "get_transfer_detail", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping( MILLSTONE_ACCOUNT_PATH + "get_transfer_detail")
 	String transferDetail(@RequestParam("userCode") String userCode,
 			@RequestParam(value = "transferId") String transferId);
 
@@ -138,7 +133,7 @@ public interface MillstoneClient {
 	 * @return java.lang.String
 	 * @Description 获取交易详情
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = MILLSTONE_TRADE_PATH + "record/get_detail", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping( MILLSTONE_TRADE_PATH + "record/get_detail")
 	String tradeDetail(@RequestParam("userCode") String userCode,
 			@RequestParam(value = "tradeRecordId") String tradeRecordId);
 
@@ -146,7 +141,7 @@ public interface MillstoneClient {
 	 * @return java.lang.String
 	 * @Description 获取转账详情
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = ACCOUNT_TRANSFER_PATH + "get_transfer_account_detail", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping( ACCOUNT_TRANSFER_PATH + "get_transfer_account_detail")
 	String transferAccountDetail(@RequestParam("userCode") String userCode,
 			@RequestParam(value = "transferAccountId") String transferAccountId);
 
