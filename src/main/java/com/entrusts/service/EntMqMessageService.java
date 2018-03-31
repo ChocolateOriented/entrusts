@@ -28,8 +28,8 @@ public class EntMqMessageService extends BaseService {
 	 * @return void
 	 */
 	public void orderSend (String topic, String tag, String key, String body, String shardingKey) {
+		logger.info("{} {} {} {} {} 发送有序mq", topic, tag, key, body, shardingKey);
 		MqMessage message = new MqMessage(topic, tag, key,body);
 		mqOrderProducer.send(message, shardingKey);
-		logger.info("{} {} {} {} {} 有序mq发送成功", topic, tag, key, body, shardingKey);
 	}
 }
