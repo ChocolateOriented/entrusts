@@ -125,10 +125,10 @@ feignClient:
   millstone:
     name: millstone
     containerName:
-   #撮单系统
-   dealmaking:
-     name: bull
-     containerName: /api/bull/v1/dealmaking
+  #撮单系统
+  dealmaking:
+    name: bull
+    containerName: /api/bull/v1/dealmaking
 sign:
   privateKey: 3B306A12B0D24CAFA191EBD446417CC5
   signEffectiveTime: 180
