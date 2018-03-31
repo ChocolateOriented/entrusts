@@ -525,7 +525,7 @@ public class OrderManageService extends BaseService {
 		cacheLimitCurrentOrder(userCode, total, limitOrders);
 
 		TimePage<CurrentEntrusts> page = new TimePage<>();
-		page.setEntities(limitOrders.subList(0, limit));
+		page.setEntities(limitOrders.subList(0, limit > total ? total : limit));
 		page.setTotal((long) total);
 		return page;
 	}
@@ -538,25 +538,27 @@ public class OrderManageService extends BaseService {
 	 */
 	@Transactional(readOnly = true)
 	private void cacheLimitCurrentOrder(String userCode, int total, List<CurrentEntrusts> limitOrders) {
-		String userKey = currentOrderUserKey + userCode;
-		String userTotalKey = totalCurrentOrderUserKey + userCode;
-		Map<String, String> cacheMap = new HashMap<>();;
-		for (CurrentEntrusts currentEntrusts : limitOrders) {
-			cacheMap.put(currentEntrusts.getOrderCode(), JSON.toJSONString(currentEntrusts));
-		}
-		Jedis jedis = null;
-		try {
-			jedis = RedisUtil.getResource();
-			jedis.watch(userKey);
-			Transaction trans = jedis.multi();
-			trans.hmset(userKey, cacheMap);
-			trans.set(userTotalKey, String.valueOf(total));
-			trans.exec();
-		} catch (Exception e) {
+		if (limitOrders.size() > 0){
+			String userKey = currentOrderUserKey + userCode;
+			String userTotalKey = totalCurrentOrderUserKey + userCode;
+			Map<String, String> cacheMap = new HashMap<>();
+			for (CurrentEntrusts currentEntrusts : limitOrders) {
+				cacheMap.put(currentEntrusts.getOrderCode(), JSON.toJSONString(currentEntrusts));
+			}
+			Jedis jedis = null;
+			try {
+				jedis = RedisUtil.getResource();
+				jedis.watch(userKey);
+				Transaction trans = jedis.multi();
+				trans.hmset(userKey, cacheMap);
+				trans.set(userTotalKey, String.valueOf(total));
+				trans.exec();
+			} catch (Exception e) {
 
-		}finally {
-			if (jedis != null) {
-				jedis.close();
+			}finally {
+				if (jedis != null) {
+					jedis.close();
+				}
 			}
 		}
 	}
@@ -615,8 +617,8 @@ public class OrderManageService extends BaseService {
 			trans.hmset(userKey, currentOrders);
 			trans.set(userTotalKey, String.valueOf(total+1));
 			if (cacheSeconds != 0) {
-				jedis.expire(userTotalKey, cacheSeconds);
-				jedis.expire(userKey, cacheSeconds);
+				trans.expire(userTotalKey, cacheSeconds);
+				trans.expire(userKey, cacheSeconds);
 			}
 			trans.exec();
 		} catch (Exception e) {
