@@ -58,6 +58,12 @@ public class DelegateEventHandler extends BaseService {
 			delegateEvent.setDelegateEventstatus(DelegateEventstatus.PUSH_MATCH_ERROR);
 			orderService.updateOrderStatus(OrderStatus.DELEGATE_FAILED,orderCode,userCode);
 			logger.info("用户：" + userCode + "订单:" + orderCode + "通知撮合系统失败", e);
+			//解锁货币
+			try {
+				millstoneClient.unfreezeForOrder(this.creatFreezeCoin(delegateEvent));
+			}catch (Exception unfreezeE){
+				logger.info("用户：" + userCode + " 订单: " + orderCode + " 解锁货币失败:" + e.getMessage(), e);
+			}
 			return;
 		}
 
@@ -71,6 +77,13 @@ public class DelegateEventHandler extends BaseService {
 	 * 卖出时锁目标货币
 	 */
 	private void lockCoin(DelegateEvent delegateEvent) throws ApiException {
+		Results result = millstoneClient.freezeForOrder(this.creatFreezeCoin(delegateEvent));
+		if (result.getCode() != 0) {
+			throw new ApiException(result.getMessage());
+		}
+	}
+
+	private FreezeDto creatFreezeCoin(DelegateEvent delegateEvent){
 		Integer lockCurrencyId ;
 		BigDecimal lockQuantity ;
 		switch (delegateEvent.getTradeType()){
@@ -83,10 +96,6 @@ public class DelegateEventHandler extends BaseService {
 				lockQuantity = delegateEvent.getQuantity();
 		}
 
-		FreezeDto freezeDto = new FreezeDto(delegateEvent.getOrderCode(),delegateEvent.getUserCode(),lockCurrencyId,lockQuantity);
-		Results result = millstoneClient.freezeForOrder(freezeDto);
-		if (result.getCode() != 0) {
-			throw new ApiException(result.getMessage());
-		}
+		return new FreezeDto(delegateEvent.getOrderCode(),delegateEvent.getUserCode(),lockCurrencyId,lockQuantity);
 	}
 }

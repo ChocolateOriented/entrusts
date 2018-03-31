@@ -1,14 +1,13 @@
 package com.entrusts.config;
 
+import com.mo9.mqclient.impl.aliyun.AliyunMqOrderProducer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.mo9.mqclient.impl.aliyun.AliyunMqProducer;
-
 @Configuration
 @ConfigurationProperties(prefix = "mq")
-public class MqProducer {
+public class MqOrderProducer {
 
 	private String productId;
 
@@ -61,8 +60,8 @@ public class MqProducer {
 	}
 
 	@Bean(initMethod = "init", destroyMethod = "destory")
-	public AliyunMqProducer producerFactory() {
-		AliyunMqProducer producer = new AliyunMqProducer();
+	public AliyunMqOrderProducer producerFactory() {
+		AliyunMqOrderProducer producer = new AliyunMqOrderProducer();
 		producer.setProductId(productId);
 		producer.setAccessKey(accessKey);
 		producer.setSecretKey(secretKey);

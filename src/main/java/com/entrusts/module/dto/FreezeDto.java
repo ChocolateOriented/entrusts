@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 
 /**
  * Created by jxli on 2018/3/21.
- * 冻结货币
+ * 解冻, 冻结货币
  */
 public class FreezeDto implements Serializable {
 	private String orderCode;

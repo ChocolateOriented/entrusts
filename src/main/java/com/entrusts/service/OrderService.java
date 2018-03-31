@@ -6,6 +6,7 @@ import com.entrusts.mapper.OrderMapper;
 import com.entrusts.module.dto.DelegateEvent;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.enums.OrderStatus;
+import java.util.Date;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,14 +41,17 @@ public class OrderService extends BaseService {
 		Order order = new Order();
 		BeanUtils.copyProperties(delegateEvent, order);
 		order.setStatus(OrderStatus.DELEGATING);
-		this.save(order);
+		this.saveNewOrder(order);
 	}
 
 	/**
 	 * 插入托单数据
 	 */
 	@Transactional
-	public void save(Order order) {
+	public void saveNewOrder(Order order) {
+		Date now = new Date();
+		order.setCreatedTime(now);
+		order.setUpdatedTime(now);
 		orderMapper.insertOrder(order);
 		orderManageService.addUserCurrentOrderListFromRedis(order, 3600*12);
 	}
@@ -57,7 +61,7 @@ public class OrderService extends BaseService {
 	 */
 	@Transactional
 	public void updateOrderStatus(OrderStatus status, String orderCode, String userCode) {
-		orderMapper.updateOrderStatus(status, orderCode);
+		orderMapper.updateOrderStatus(status, orderCode,new Date());
 		orderManageService.updateUserCurrentOrderListFromRedis(status, orderCode, userCode, 3600*12);
 	}
 
@@ -78,7 +82,10 @@ public class OrderService extends BaseService {
 		body.put("tradeType", delegateEvent.getTradeType());
 		body.put("createdTime", delegateEvent.getOrderTime().getTime());
 
-		mqMessageService.send(delegatePushTopic, delegatePushTag, delegateEvent.getOrderCode(), body.toJSONString());
+		//有序队列分区键, 使用交易对+交易类型组成
+		String shardingKey = delegateEvent.getTradePairId() + delegateEvent.getTradeType().name();
 		this.updateOrderStatus(OrderStatus.TRADING, delegateEvent.getOrderCode(), delegateEvent.getUserCode());
+
+		mqMessageService.orderSend(delegatePushTopic, delegatePushTag, delegateEvent.getOrderCode(), body.toJSONString(),shardingKey);
 	}
 }
