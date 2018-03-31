@@ -24,7 +24,7 @@ public class Delegate {
 	private String baseCurrency;
 	@NotBlank(message = "目标货币不能为空")
 	private String targetCurrency;
-	@NotNull(message = "交易数量不能为空")
+	@NotNull(message = "价格不能为空")
 	@Min(value = 0,message = "价格必须大于0")
 	private BigDecimal price;
 	@NotNull(message = "交易数量不能为空")
