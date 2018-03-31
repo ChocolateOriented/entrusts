@@ -69,7 +69,7 @@ public class OrderService extends BaseService {
 	 * 推送订单至撮合
 	 */
 	@Transactional
-	public void push2Match(DelegateEvent delegateEvent) {
+	public String push2Match(DelegateEvent delegateEvent) {
 		JSONObject body = new JSONObject();
 		body.put("orderCode", delegateEvent.getOrderCode());
 		body.put("price", delegateEvent.getConvertRate());
@@ -86,6 +86,6 @@ public class OrderService extends BaseService {
 		String shardingKey = delegateEvent.getTradePairId() + delegateEvent.getTradeType().name();
 		this.updateOrderStatus(OrderStatus.TRADING, delegateEvent.getOrderCode(), delegateEvent.getUserCode());
 
-		mqMessageService.orderSend(delegatePushTopic, delegatePushTag, delegateEvent.getOrderCode(), body.toJSONString(),shardingKey);
+		return mqMessageService.orderSend(delegatePushTopic, delegatePushTag, delegateEvent.getOrderCode(), body.toJSONString(),shardingKey);
 	}
 }

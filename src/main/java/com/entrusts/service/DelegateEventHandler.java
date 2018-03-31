@@ -52,7 +52,8 @@ public class DelegateEventHandler extends BaseService {
 
 		//通知撮合系统
 		try {
-			orderService.push2Match(delegateEvent);
+			String msgId = orderService.push2Match(delegateEvent);
+			delegateEvent.setRemark("msgId: "+msgId);
 		} catch (Exception e) {
 			delegateEvent.setRemark(e.getMessage());
 			delegateEvent.setDelegateEventstatus(DelegateEventstatus.PUSH_MATCH_ERROR);
