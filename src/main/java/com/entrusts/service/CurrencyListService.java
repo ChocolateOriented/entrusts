@@ -86,7 +86,7 @@ public class CurrencyListService extends BaseService {
                 String s = map.get(RedisKeyNameEnum.fieldNow.getValue()+targetCurrency.getAlias());
                 if(s==null){
                     targetCurrency.setCurrentPrice(new BigDecimal(0));
-                    logger.info("没有获取到最新价格");
+                    logger.info("交易对id:"+targetCurrency.getTradePareId()+",没有获取到最新价格");
                 }else {
                     targetCurrency.setCurrentPrice(new BigDecimal(s));
                 }
