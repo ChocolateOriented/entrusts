@@ -1,8 +1,9 @@
 package com.entrusts.interceptor;
 
-
-//import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+
+import com.entrusts.util.SignatureUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -33,35 +34,35 @@ public class Signature {
      * @param needLogin 请求是否需要用户身份信息
      * @return
      */
-//    public boolean validateSign(HttpServletRequest request, boolean needLogin) {
-//        String sTimestamp = request.getHeader(HEAD_TIMESTAMP);
-//        String sign = request.getHeader(HEAD_SIGN);
-//        if (StringUtils.isBlank(sTimestamp) || StringUtils.isBlank(sign)) {
-////            log.info("时间戳{}或签名{}为空", sTimestamp, sign);
-//            return false;
-//        }
-//        long timestamp = Long.parseLong(sTimestamp);
-//        long currentTimeMillis = getCurrentTimeMillis();
-//        if (currentTimeMillis - timestamp > signEffectiveTime * 1000L) {
-////            log.info("签名时间超时无效");
-//            return false;
-//        }
-//        //获得加密时间戳
-//        String mo9Timestamp = SignatureUtils.generateTimestamp(timestamp);
-//        //获得签名内容
-//        String signContent = getSignContent(request);
-//        //将请求body存入attribute
-//        request.setAttribute(JSON_BODY_ATTRIBUTE, signContent);
-//        //获取最终签名
-//        String serverSign = getServerSign(signContent, mo9Timestamp, privateKey, needLogin);
-//        if (!sign.equalsIgnoreCase(serverSign)) {
-//            // 此日志日后需要删除
-////            log.info("签名不正确 request sign {},Timestamp {},server sign{} ", sign, sTimestamp, serverSign);
-////            log.info("签名过程 mo9Timestamp:{},signContent:{},needLogin:{}", mo9Timestamp, signContent, needLogin);
-//            return false;
-//        }
-//        return true;
-//    }
+    public boolean validateSign(HttpServletRequest request, boolean needLogin) {
+        String sTimestamp = request.getHeader(HEAD_TIMESTAMP);
+        String sign = request.getHeader(HEAD_SIGN);
+        if (StringUtils.isBlank(sTimestamp) || StringUtils.isBlank(sign)) {
+//            log.info("时间戳{}或签名{}为空", sTimestamp, sign);
+            return false;
+        }
+        long timestamp = Long.parseLong(sTimestamp);
+        long currentTimeMillis = getCurrentTimeMillis();
+        if (currentTimeMillis - timestamp > signEffectiveTime * 1000L) {
+//            log.info("签名时间超时无效");
+            return false;
+        }
+        //获得加密时间戳
+        String mo9Timestamp = SignatureUtils.generateTimestamp(timestamp);
+        //获得签名内容
+        String signContent = getSignContent(request);
+        //将请求body存入attribute
+        request.setAttribute(JSON_BODY_ATTRIBUTE, signContent);
+        //获取最终签名
+        String serverSign = getServerSign(signContent, mo9Timestamp, privateKey, needLogin);
+        if (!sign.equalsIgnoreCase(serverSign)) {
+            // 此日志日后需要删除
+//            log.info("签名不正确 request sign {},Timestamp {},server sign{} ", sign, sTimestamp, serverSign);
+//            log.info("签名过程 mo9Timestamp:{},signContent:{},needLogin:{}", mo9Timestamp, signContent, needLogin);
+            return false;
+        }
+        return true;
+    }
 
     public void setPrivateKey(String privateKey) {
         this.privateKey = privateKey;
@@ -77,26 +78,26 @@ public class Signature {
      * @param request 请求对象
      * @return 签名内容
      */
-//    private String getSignContent(HttpServletRequest request) {
-//        String content = null;
-//        if ("POST".equalsIgnoreCase(request.getMethod())) {
-//            InputStream inputStream = null;
-//            try {
-//                inputStream = request.getInputStream();
-//                content = IOUtils.toString(inputStream, "utf-8");
-//            } catch (IOException e) {
-////                log.error("获取请求body失败{}", e);
-//            } finally {
-//                IOUtils.closeQuietly(inputStream);
-//            }
-//        } else {
-//            content = request.getQueryString();
-//        }
-//        if (StringUtils.isBlank(content) || EMPTY_JSON.equals(content)) {
-//            content = StringUtils.EMPTY;
-//        }
-//        return content;
-//    }
+    private String getSignContent(HttpServletRequest request) {
+        String content = null;
+        if ("POST".equalsIgnoreCase(request.getMethod())) {
+            InputStream inputStream = null;
+            try {
+                inputStream = request.getInputStream();
+                content = IOUtils.toString(inputStream, "utf-8");
+            } catch (IOException e) {
+//                log.error("获取请求body失败{}", e);
+            } finally {
+                IOUtils.closeQuietly(inputStream);
+            }
+        } else {
+            content = request.getQueryString();
+        }
+        if (StringUtils.isBlank(content) || EMPTY_JSON.equals(content)) {
+            content = StringUtils.EMPTY;
+        }
+        return content;
+    }
 
     /**
      * 获得最后签名

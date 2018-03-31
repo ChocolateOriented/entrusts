@@ -1,4 +1,4 @@
-package com.entrusts.interceptor;
+package com.entrusts.util;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
