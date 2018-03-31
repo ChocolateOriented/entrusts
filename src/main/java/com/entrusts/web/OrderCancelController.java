@@ -9,10 +9,7 @@ import com.entrusts.service.OrderManageService;
 import net.sf.ehcache.search.Result;
 import net.sf.ehcache.search.expression.Or;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -32,8 +29,8 @@ public class OrderCancelController extends BaseController  {
     private OrderManageService orderManageService;
 
     @PostMapping(value = "/cancel")
-    public Object cancel(@RequestParam("orderCode") String orderCode, HttpServletRequest request){
-        Order order = orderCancelService.cancelOrder(orderCode);
+    public Object cancel(@RequestBody Order orderRequest, HttpServletRequest request){
+        Order order = orderCancelService.cancelOrder(orderRequest.getOrderCode());
         if(order==null){
             //说明此订单不存在
             return new Results(ResultConstant.EMPTY_ENTITY.code,"此订单不存在");
@@ -41,7 +38,7 @@ public class OrderCancelController extends BaseController  {
         }else if (order.getStatus() == OrderStatus.WITHDRAW ){
             //撤销成功
             String userCode = request.getHeader("Account-Code");
-            orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, orderCode, 3600*12);
+            orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, orderRequest.getOrderCode(), 3600*12);
             orderManageService.updateUserHistoryCache(order);
             return Results.ok();
         }else if (order.getStatus() == OrderStatus.TRADING){
