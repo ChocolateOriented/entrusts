@@ -1,7 +1,7 @@
 package com.entrusts.exception;
 
 /**
- * API接口调用失败异常
+ * 内部API接口调用失败异常
  */
 public class ApiException extends Exception {
 

@@ -81,6 +81,15 @@ public class Results {
         this.data = data;
     }
 
+    @Override
+    public String toString() {
+        return "Results{" +
+            "code=" + code +
+            ", message='" + message + '\'' +
+            ", data=" + data +
+            '}';
+    }
+
     //示例
     public static void main(String[] args) {
         Results results1 = Results.ok();
