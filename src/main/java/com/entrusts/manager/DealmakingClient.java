@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 /**
  * Created by cyuan on 2018/3/20.
  */
-@FeignClient(name = "${feignClient.dealmaking.name}",path = "/dealmaking")
+@FeignClient(name = "${feignClient.dealmaking.name}",path = "${feignClient.dealmaking.containerName}")
 public interface DealmakingClient {
     @RequestMapping(value = "/cancel_order",produces = "application/json",method = RequestMethod.POST)
     String delCancelOrder(@RequestBody Map<String,Object> map);
