@@ -1,4 +1,4 @@
-package com.entrusts.interceptor;
+package com.entrusts.util;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -64,15 +64,15 @@ public class SignatureUtils {
     }
 
     public static String buildCoreWebSign(String json, long timestamp, String secrt, String[] exclude) {
-        Set<String> excludeFields = new HashSet();
+        Set<String> excludeFields = new HashSet<>();
         if (exclude != null && exclude.length > 0) {
             excludeFields.addAll(Arrays.asList(exclude));
         }
 
         JSONObject jsonObject = JSON.parseObject(json);
-        Map<String, String> arguments = new HashMap();
+        Map<String, String> arguments = new HashMap<>();
         Set<String> keySet = jsonObject.keySet();
-        Iterator var9 = keySet.iterator();
+        Iterator<String> var9 = keySet.iterator();
 
         while (true) {
             String key;
@@ -91,7 +91,7 @@ public class SignatureUtils {
     }
 
     private static String sign(Map<String, String> params, long timestamp, String privateKey) {
-        List<String> keys = new ArrayList(params.keySet());
+        List<String> keys = new ArrayList<>(params.keySet());
         Collections.sort(keys, new Comparator<String>() {
             public int compare(String o1, String o2) {
                 return o1.compareTo(o2);
@@ -126,7 +126,6 @@ public class SignatureUtils {
 
     private static String md5(String source) {
         MessageDigest md = null;
-        Object var2 = null;
 
         try {
             byte[] bt = source.getBytes("UTF-8");
