@@ -4,11 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.entrusts.manager.DealmakingClient;
 import com.entrusts.manager.MillstoneClient;
 import com.entrusts.mapper.OrderMapper;
+import com.entrusts.module.dto.FreezeDto;
 import com.entrusts.module.dto.UnfreezeEntity;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.entity.TradePair;
 import com.entrusts.module.enums.OrderStatus;
 import com.entrusts.module.enums.TradeType;
+import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,7 @@ public class OrderCancelService {
     private TradePairService tradePairService;
     @Autowired
     private OrderMapper orderMapper;
+
     public Order cancelOrder(String orderCode) {
 
         UnfreezeEntity unfreezeEntity = queryUnfreezeInfo(orderCode);
@@ -138,7 +141,7 @@ public class OrderCancelService {
         String s1 = unfreezeForOrder(unfreezeEntity);
         if(s1 == null || (Integer)JSON.parseObject(s1).get("code") != 0){
             logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+",撮单系统取消成功,但是货币解锁失败");
-            orderMapper.updateOrderStatus(OrderStatus.WITHDRAW_UNTHAWING,order.getOrderCode());
+            orderMapper.updateOrderStatus(OrderStatus.WITHDRAW_UNTHAWING,order.getOrderCode(), new Date());
             order.setStatus(OrderStatus.WITHDRAW_UNTHAWING);
         }else {
             //修改数据库状态
@@ -154,7 +157,7 @@ public class OrderCancelService {
      */
     public Order updateOrderAfterCancel(UnfreezeEntity unfreezeEntity){
         Order order = unfreezeEntity.getOrder();
-        orderMapper.updateOrderStatus(OrderStatus.WITHDRAW,order.getOrderCode());
+        orderMapper.updateOrderStatus(OrderStatus.WITHDRAW,order.getOrderCode(), new Date());
         order.setStatus(OrderStatus.WITHDRAW);
         return order;
     }
@@ -220,13 +223,9 @@ public class OrderCancelService {
             encryptCurrencyId=unfreezeEntity.getTargetCurrencyId();
             quantity= order.getQuantity().subtract(order.getDealQuantity());
         }
-        Map<String,Object>  map = new HashMap<>();
-        map.put("orderCode",unfreezeEntity.getOrder().getOrderCode());
-        map.put("userCode",unfreezeEntity.getOrder().getUserCode());
-        map.put("encryptCurrencyId",encryptCurrencyId);
-        map.put("quantity",quantity);
 
-        String s = millstoneClient.unfreezeForOrder(map);
+        FreezeDto freezeDto = new FreezeDto(unfreezeEntity.getOrder().getOrderCode(), unfreezeEntity.getOrder().getUserCode(), encryptCurrencyId, quantity);
+        String s = millstoneClient.unfreezeForOrder(freezeDto);
 //        String s = "{\n" +
 //                "  \"code\": 0,\n" +
 //                "  \"message\": \"ok\"\n" +
