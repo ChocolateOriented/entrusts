@@ -62,6 +62,13 @@ public class CustomRequestInfoFetcher  extends DefaultRequestInfoFetcher {
     }
 
     /**
+     * 获取产品地区
+     */
+    public String getCountry(HttpServletRequest request) {
+        return request.getHeader("Country");
+    }
+
+    /**
      * 获取登录失效时间, 这里一般按照WEB/APP区分一下, 如果不传默认30分钟
      */
     @Override
