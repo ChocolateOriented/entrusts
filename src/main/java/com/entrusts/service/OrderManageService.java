@@ -745,6 +745,7 @@ public class OrderManageService extends BaseService {
 	 */
 	@Scheduled(cron = "0 0 0 * * ?")
 	public void clearUserHistoryOrderCache() {
+		logger.info("清除历史托单缓存开始");
 		Jedis jedis = null;
 		try {
 			jedis = RedisUtil.getResource();
@@ -770,12 +771,13 @@ public class OrderManageService extends BaseService {
 			//最后一页
 			reduceUserHitCountAndClearExcessCache(start, -1, jedis);
 		} catch (Exception e) {
-			logger.error("定时清理缓存失败", e);
+			logger.error("除历史托单缓存失败", e);
 		} finally {
 			if (jedis != null) {
 				jedis.close();
 			}
 		}
+		logger.info("清除历史托单缓存结束");
 	}
 
 	/**
@@ -819,9 +821,16 @@ public class OrderManageService extends BaseService {
 			//缓存的数据量大于限额2倍时清除
 			if (size > limit) {
 				deleteUserHistoryOrderCache(userKey, jedis);
+				continue;
 			}
 			
 			long score = (long) tuple.getScore();
+			//计数为0时删除
+			if (score == 0) {
+				deleteUserHistoryOrderCache(userKey, jedis);
+				continue;
+			}
+			
 			score = score / 2;
 			jedis.zadd(historyCacheUserHitCountKey, score, userCode);
 		}
