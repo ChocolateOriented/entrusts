@@ -191,7 +191,7 @@ public class OrderCancelService {
         params.put("baseCurrencyId",unfreezeEntity.getBaseCurrencyId());
         params.put("tradeType",unfreezeEntity.getOrder().getTradeType().name());
         params.put("createdTime",unfreezeEntity.getOrder().getCreatedTime());
-        String s = dealmakingClient.delCancelOrder(params);
+       String s = dealmakingClient.delCancelOrder(params);
 
 //        String s = "{\n" +
 //                "  \"code\": 0,\n" +
@@ -217,11 +217,11 @@ public class OrderCancelService {
             //说明是买方,基准货币金额相减
             encryptCurrencyId=unfreezeEntity.getBaseCurrencyId();
             //托单单价*(托单总数量-已成交数量)
-            quantity = order.getConvertRate().multiply(order.getQuantity().subtract(order.getDealAmount()));
+            quantity = order.getConvertRate().multiply(order.getQuantity().subtract(order.getDealAmount()==null?new BigDecimal(0):order.getDealAmount()));
         }else {
             //说明是卖方,托单总数量-已成交数量
             encryptCurrencyId=unfreezeEntity.getTargetCurrencyId();
-            quantity= order.getQuantity().subtract(order.getDealQuantity());
+            quantity= order.getQuantity().subtract(order.getDealQuantity() == null? new BigDecimal(0) : order.getDealQuantity());
         }
 
         FreezeDto freezeDto = new FreezeDto(unfreezeEntity.getOrder().getOrderCode(), unfreezeEntity.getOrder().getUserCode(), encryptCurrencyId, quantity);
