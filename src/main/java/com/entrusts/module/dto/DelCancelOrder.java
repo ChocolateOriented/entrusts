@@ -57,8 +57,8 @@ public class DelCancelOrder implements Serializable {
         this.price = price;
     }
 
-    public String getCreatedTime() {
-        return createdTime.toString();
+    public LocalDateTime getCreatedTime() {
+        return createdTime;
     }
 
     public void setCreatedTime(LocalDateTime createdTime) {
