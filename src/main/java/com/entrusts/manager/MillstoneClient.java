@@ -24,7 +24,7 @@ public interface MillstoneClient {
 	 * @return java.lang.String
 	 * @Description 解锁货币
 	 */
-	@PostMapping(MILLSTONE_ACCOUNT_PATH + "unfreeze_for_order")
+	@PostMapping(value = MILLSTONE_ACCOUNT_PATH + "unfreeze_for_order",produces = MediaType.APPLICATION_JSON_UTF8_VALUE,consumes = "application/json")
 	String unfreezeForOrder(FreezeDto freezeDto);
 
 	/**
