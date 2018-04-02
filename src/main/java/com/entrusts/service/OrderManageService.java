@@ -232,7 +232,7 @@ public class OrderManageService extends BaseService {
 		}
 		
 		historyOrders = stream.sorted((HistoryOrderView o1, HistoryOrderView o2) -> o1.getDate() == null ? 1 :
-				o2.getDate() == null ? -1 : o2.getDate().compareTo(o2.getDate()))
+				o2.getDate() == null ? -1 : o2.getDate().compareTo(o1.getDate()))
 					.collect(Collectors.toList());
 		
 		return historyOrders;
@@ -582,7 +582,7 @@ public class OrderManageService extends BaseService {
 		}
 		list = list.stream().filter(currentEntrusts -> orderQuery.matchConditionsByCurrent(currentEntrusts))
 				.sorted((CurrentEntrusts o1, CurrentEntrusts o2) -> o1.getDate() == null ? 1 :
-						o2.getDate() == null ? -1 : o2.getDate().compareTo(o2.getDate()))
+						o2.getDate() == null ? -1 : o2.getDate().compareTo(o1.getDate()))
 				.collect(Collectors.toList());
 
 		return list;
@@ -603,18 +603,13 @@ public class OrderManageService extends BaseService {
 		CurrentEntrusts currentEntrusts = copyPropertiesOrder(order, new CurrentEntrusts());
 		String userKey = currentOrderUserKey + order.getUserCode();
 		String userTotalKey = totalCurrentOrderUserKey + order.getUserCode();
-		Map<String, String> currentOrders = RedisUtil.getMap(userKey);
-		if (currentOrders == null){
-			currentOrders = new HashMap<String, String>();
-		}
-		currentOrders.put(currentEntrusts.getOrderCode(), JSON.toJSONString(currentEntrusts));
 		int total = Integer.valueOf(RedisUtil.get(userTotalKey) == null? "0" : RedisUtil.get(userTotalKey));
 		Jedis jedis = null;
 		try {
 			jedis = RedisUtil.getResource();
 			jedis.watch(userKey);
 			Transaction trans = jedis.multi();
-			trans.hmset(userKey, currentOrders);
+			jedis.hset(userKey, currentEntrusts.getOrderCode(), JSON.toJSONString(currentEntrusts));
 			trans.set(userTotalKey, String.valueOf(total+1));
 			if (cacheSeconds != 0) {
 				trans.expire(userTotalKey, cacheSeconds);
