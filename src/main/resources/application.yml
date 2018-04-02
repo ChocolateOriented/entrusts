@@ -47,12 +47,12 @@ redis:
   minIdle: 0
 
 mq:
-  productId: PID_MO9_CLONE_ENTRUSTS
-  millstoneConsumerId: CID_MO9_CLONE_ENTRUSTS
+  productId: PID_MO9_DEV_ENTRUSTS
+  millstoneConsumerId: CID_MO9_DEV_ENTRUSTS
   accessKey: LTAIyDR4k37NBuJu
   secretKey: XRDykcat39ONcoCi1OZ7cpfohm1Yyk
-  delegatePushTopic: TOPIC_MO9_CLONE_ENTRUSTS_DELEGATE_PUSH
-  delegatePushTag: TAG_MO9_CLONE_ENTRUSTS_DELEGATE_PUSH
+  delegatePushTopic: TOPIC_MO9_DEV_ENTRUSTS_DELEGATE_PUSH
+  delegatePushTag: TAG_MO9_DEV_ENTRUSTS_DELEGATE_PUSH
   sendMsgTimeoutMillis: 3000
   onsAddr: http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet
   messageModelString: CLUSTERING
