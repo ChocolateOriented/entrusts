@@ -24,7 +24,7 @@ public interface MillstoneClient {
 	 * @Description 解锁货币
 	 */
 	@PostMapping(MILLSTONE_ACCOUNT_PATH + "unfreeze_for_order")
-	String unfreezeForOrder(@RequestBody Map<String, Object> map);
+	String unfreezeForOrder(@RequestBody FreezeDto freezeDto);
 
 	/**
 	 * @return com.entrusts.module.dto.result.Results

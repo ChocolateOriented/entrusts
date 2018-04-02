@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.entrusts.manager.DealmakingClient;
 import com.entrusts.manager.MillstoneClient;
 import com.entrusts.mapper.OrderMapper;
+import com.entrusts.module.dto.DelCancelOrder;
+import com.entrusts.module.dto.FreezeDto;
 import com.entrusts.module.dto.UnfreezeEntity;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.entity.TradePair;
@@ -16,10 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -177,18 +179,34 @@ public class OrderCancelService {
     }
      */
     public String delCancelOrder(UnfreezeEntity unfreezeEntity){
-        Map<String,Object> params = new HashMap<>();
-        params.put("orderCode",unfreezeEntity.getOrder().getOrderCode());
-        params.put("price",unfreezeEntity.getOrder().getConvertRate());
-        params.put("quantity",unfreezeEntity.getOrder().getQuantity());
-        params.put("orderType",unfreezeEntity.getOrder().getMode().name());
-        params.put("targetCurrencyId",unfreezeEntity.getTargetCurrencyId());
-        params.put("userCode",unfreezeEntity.getOrder().getUserCode());
-        params.put("marketId",unfreezeEntity.getOrder().getTradePairId());
-        params.put("baseCurrencyId",unfreezeEntity.getBaseCurrencyId());
-        params.put("tradeType",unfreezeEntity.getOrder().getTradeType().name());
-        params.put("createdTime",unfreezeEntity.getOrder().getCreatedTime());
-       String s = dealmakingClient.delCancelOrder(params);
+//        Map<String,Object> params = new HashMap<>();
+//        params.put("orderCode",unfreezeEntity.getOrder().getOrderCode());
+//        params.put("price",unfreezeEntity.getOrder().getConvertRate());
+//        params.put("quantity",unfreezeEntity.getOrder().getQuantity());
+//        params.put("orderType",unfreezeEntity.getOrder().getMode().name());
+//        params.put("targetCurrencyId",unfreezeEntity.getTargetCurrencyId());
+//        params.put("userCode",unfreezeEntity.getOrder().getUserCode());
+//        params.put("marketId",unfreezeEntity.getOrder().getTradePairId());
+//        params.put("baseCurrencyId",unfreezeEntity.getBaseCurrencyId());
+//        params.put("tradeType",unfreezeEntity.getOrder().getTradeType().name());
+//        params.put("createdTime",unfreezeEntity.getOrder().getCreatedTime());
+        Order order = unfreezeEntity.getOrder();
+        Date createdTime = order.getCreatedTime();
+        Instant instant = createdTime.toInstant();
+        ZoneId zone = ZoneId.systemDefault();
+        LocalDateTime createdDate = LocalDateTime.ofInstant(instant, zone);
+        DelCancelOrder delCancelOrder = new DelCancelOrder();
+        delCancelOrder.setOrderCode(order.getOrderCode());
+        delCancelOrder.setPrice(order.getConvertRate());
+        delCancelOrder.setQuantity(order.getQuantity());
+        delCancelOrder.setOrderType(order.getMode().name());
+        delCancelOrder.setTargetCurrencyId(unfreezeEntity.getTargetCurrencyId());
+        delCancelOrder.setUserCode(order.getUserCode());
+        delCancelOrder.setMarketId(order.getTradePairId());
+        delCancelOrder.setBaseCurrencyId(unfreezeEntity.getBaseCurrencyId());
+        delCancelOrder.setTradeType(order.getTradeType().name());
+        delCancelOrder.setCreatedTime(createdDate);
+        String s = dealmakingClient.delCancelOrder(delCancelOrder);
 
 //        String s = "{\n" +
 //                "  \"code\": 0,\n" +
@@ -220,13 +238,18 @@ public class OrderCancelService {
             encryptCurrencyId=unfreezeEntity.getTargetCurrencyId();
             quantity= order.getQuantity().subtract(order.getDealQuantity() == null? new BigDecimal(0) : order.getDealQuantity());
         }
-        Map<String,Object>  map = new HashMap<>();
-        map.put("orderCode",unfreezeEntity.getOrder().getOrderCode());
-        map.put("userCode",unfreezeEntity.getOrder().getUserCode());
-        map.put("encryptCurrencyId",encryptCurrencyId);
-        map.put("quantity",quantity);
+//        Map<String,Object>  map = new HashMap<>();
+//        map.put("orderCode",unfreezeEntity.getOrder().getOrderCode());
+//        map.put("userCode",unfreezeEntity.getOrder().getUserCode());
+//        map.put("encryptCurrencyId",encryptCurrencyId);
+//        map.put("quantity",quantity);
+        FreezeDto freezeDto = new FreezeDto();
+        freezeDto.setOrderCode(order.getOrderCode());
+        freezeDto.setUserCode(order.getUserCode());
+        freezeDto.setEncryptCurrencyId(encryptCurrencyId);
+        freezeDto.setQuantity(quantity);
 
-        String s = millstoneClient.unfreezeForOrder(map);
+        String s = millstoneClient.unfreezeForOrder(freezeDto);
 //        String s = "{\n" +
 //                "  \"code\": 0,\n" +
 //                "  \"message\": \"ok\"\n" +
