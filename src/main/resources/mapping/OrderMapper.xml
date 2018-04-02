@@ -69,8 +69,8 @@
 			#{quantity,jdbcType=DECIMAL},
 			#{mode,jdbcType=TINYINT},
 			#{status,jdbcType=TINYINT},
-      now(),
-      now(),
+      #{createdTime,jdbcType=TIMESTAMP},
+      #{updatedTime,jdbcType=TIMESTAMP},
       0
 		)
 	</insert>
@@ -78,7 +78,7 @@
   <update id="updateOrderStatus">
 	    UPDATE `order`
 		    SET
-		    updated_time = now(),
+		    updated_time = #{updatedTime},
 		    `status` = #{status}
 	    WHERE
 	    	order_code = #{orderCode}
@@ -134,7 +134,7 @@
 		o.convert_rate as orderPrice,
 		o.deal_quantity as dealTargetQuantity,
 		convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
-		o.serviceFee as serviceFee,
+		o.service_fee as serviceFee,
 		status
 	</sql>
 

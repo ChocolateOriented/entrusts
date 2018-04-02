@@ -1,15 +1,13 @@
 package com.entrusts.mapper;
 
 import com.entrusts.module.dto.DealNotify.OrderDealDetail;
-import com.entrusts.module.dto.UnfreezeEntity;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.enums.OrderStatus;
 import com.entrusts.module.vo.CurrentEntrusts;
 import com.entrusts.module.vo.HistoryOrderView;
 import com.entrusts.module.vo.OrderQuery;
-
+import java.util.Date;
 import java.util.List;
-
 import org.apache.ibatis.annotations.Param;
 
 public interface OrderMapper {
@@ -22,7 +20,7 @@ public interface OrderMapper {
 	/**
 	 * 更新托单状态（交易中）
 	 */
-	int updateOrderStatus(@Param("status") OrderStatus status, @Param("orderCode") String orderCode);
+	int updateOrderStatus(@Param("status") OrderStatus status, @Param("orderCode") String orderCode,@Param("updatedTime") Date updatedTime);
 
 	Order get(String orderCode);
 

@@ -1,19 +1,12 @@
 package com.entrusts.service;
 
 
-
-import com.entrusts.mapper.EntMqMessageMapper;
-import com.entrusts.module.entity.EntMqMessage;
-import com.mo9.mqclient.IMqProducer;
+import com.mo9.mqclient.IMqOrderProducer;
 import com.mo9.mqclient.MqMessage;
-import com.mo9.mqclient.MqSendResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /**
  * Created by yuanchao
@@ -24,57 +17,19 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class EntMqMessageService extends BaseService {
 	@Autowired
-	IMqProducer mqProducer;
-	@Autowired
-	EntMqMessageMapper dao;
+	IMqOrderProducer mqOrderProducer;
 
 	/**
-	 * @Description 发送消息到消息队列, 并持久化到数据库, 若是失败, 定时重发
+	 * @Description 发送有序消息到消息队列
 	 * @param topic 消息主题
 	 * @param tag 消息标签(主题下的分类)
 	 * @param key 业务主键
 	 * @param body 消息体
 	 * @return void
 	 */
-	@Transactional
-	public void send (String topic, String tag, String key, String body) {
-		EntMqMessage entMqMessage = new EntMqMessage(topic, tag, key, body);
-		entMqMessage.setId(generateId());
-		dao.insert(entMqMessage);
-		//更改MQ状态与新增MQ在同一事务中, 保证重发任务不会读到未尝试发送的信息
-		this.trySendMqMessage(entMqMessage);
+	public String orderSend (String topic, String tag, String key, String body, String shardingKey) {
+		logger.info("{} {} {} {} {} 发送有序mq", topic, tag, key, body, shardingKey);
+		MqMessage message = new MqMessage(topic, tag, key,body);
+		return mqOrderProducer.send(message, shardingKey).getMessageId();
 	}
-
-	/**
-	 * @Description 定时重试推送消息
-	 * @param
-	 * @return void
-	 */
-	@Scheduled(cron = "0 0/10 * * * ?")
-	@Transactional
-	public void messageResendTask () {
-		List<EntMqMessage> messages= dao.findResendMessages();
-		logger.info("正在重发消息, 共"+messages.size()+"条");
-		for (EntMqMessage entMqMessage : messages) {
-			this.trySendMqMessage(entMqMessage);
-		}
-	}
-
-	/**
-	 * @Description 推送消息
-	 * @param entMqMessage
-	 * @return void
-	 */
-	@Transactional
-	private void trySendMqMessage(EntMqMessage entMqMessage) {
-		MqMessage message = new MqMessage(entMqMessage.getTopic(), entMqMessage.getTag(), entMqMessage.getKey(), entMqMessage.getBody());
-		try {
-			MqSendResult result = mqProducer.send(message);
-			entMqMessage.setMsgId(result.getMessageId());
-			dao.update(entMqMessage);
-		} catch (Exception e) {//消息发送失败
-			logger.info("消息发送失败,等待重发" + entMqMessage.toString(), e);
-		}
-	}
-
 }

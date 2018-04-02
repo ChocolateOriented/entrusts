@@ -249,7 +249,7 @@ public class OrderCancelService {
         freezeDto.setEncryptCurrencyId(encryptCurrencyId);
         freezeDto.setQuantity(quantity);
 
-        String s = millstoneClient.unfreezeForOrder(freezeDto);
+        String s = millstoneClient.unfreezeForOrder(map);
 //        String s = "{\n" +
 //                "  \"code\": 0,\n" +
 //                "  \"message\": \"ok\"\n" +
