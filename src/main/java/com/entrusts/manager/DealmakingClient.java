@@ -12,6 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public interface DealmakingClient {
     String DEAL_MAKING_PATH = "/api/bull/v1/dealmaking/";
     @RequestMapping(value = DEAL_MAKING_PATH+"cancel_order",produces = "application/json",method = RequestMethod.POST)
-    String delCancelOrder(DelCancelOrder delCancelOrder);
+    String delCancelOrder(String delCancelOrder);
 
 }

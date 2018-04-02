@@ -1,6 +1,7 @@
 package com.entrusts.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.entrusts.manager.DealmakingClient;
 import com.entrusts.manager.MillstoneClient;
 import com.entrusts.mapper.OrderMapper;
@@ -206,7 +207,8 @@ public class OrderCancelService {
         delCancelOrder.setBaseCurrencyId(unfreezeEntity.getBaseCurrencyId());
         delCancelOrder.setTradeType(order.getTradeType().name());
         delCancelOrder.setCreatedTime(createdDate);
-        String s = dealmakingClient.delCancelOrder(delCancelOrder);
+        String delOrder = JSON.toJSONString(delCancelOrder, SerializerFeature.UseISO8601DateFormat);
+        String s = dealmakingClient.delCancelOrder(delOrder);
 
 //        String s = "{\n" +
 //                "  \"code\": 0,\n" +
