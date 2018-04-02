@@ -132,6 +132,7 @@ public class OrderCancelService {
         Order order = unfreezeEntity.getOrder();
         //调用搓单系统取消订单
         String s = delCancelOrder(unfreezeEntity);
+        logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+s);
         if(s == null || (Integer)JSON.parseObject(s).get("code") != 0){
             logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+",调用通知撮单系统撤销接口失败");
             return order;

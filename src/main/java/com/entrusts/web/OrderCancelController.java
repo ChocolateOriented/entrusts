@@ -33,7 +33,7 @@ public class OrderCancelController extends BaseController  {
         Order order = orderCancelService.cancelOrder(orderRequest.getOrderCode());
         if(order==null){
             //说明此订单不存在
-            return new Results(ResultConstant.EMPTY_ENTITY.code,"此订单不存在");
+            return new Results(ResultConstant.EMPTY_ENTITY.code,"此订单不存在或者是非交易中订单");
 
         }else if (order.getStatus() == OrderStatus.WITHDRAW ){
             //撤销成功
