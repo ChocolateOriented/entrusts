@@ -724,6 +724,7 @@ public class OrderManageService extends BaseService {
 		currentEntrusts.setStatus(order.getStatus().getValue()+"");
 		currentEntrusts.setDealTargetQuantity(order.getDealQuantity() == null ? new BigDecimal(0):order.getDealQuantity());
 		currentEntrusts.setOrderTargetQuantity(order.getQuantity());
+		currentEntrusts.setOrderPrice(order.getConvertRate());
 		TradePair tradePair = tradePairService.findTradePairById(order.getTradePairId());
 		currentEntrusts.setTargetCurrency(tradePair.getTargetCurrencyName());
 		currentEntrusts.setBaseCurrency(tradePair.getBaseCurrencyName());
