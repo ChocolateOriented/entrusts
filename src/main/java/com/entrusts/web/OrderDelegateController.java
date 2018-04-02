@@ -85,7 +85,7 @@ public class OrderDelegateController extends BaseController {
 
 			String userTotalKey = OrderManageService.totalCurrentOrderUserKey + userCode;
 			String totalValue = jedis.get(userTotalKey);
-			if (StringUtils.isNotBlank(totalValue) && Integer.parseInt(totalValue) > 20) {
+			if (StringUtils.isNotBlank(totalValue) && Integer.parseInt(totalValue) > 100) {
 				return new Results(ResultConstant.EMPTY_PARAM.code, "最多同时发布20条托单");
 			}
 		} catch (Exception e) {
