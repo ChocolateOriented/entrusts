@@ -4,6 +4,7 @@ import com.entrusts.module.dto.FreezeDto;
 import com.entrusts.module.dto.result.Results;
 import java.util.Map;
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -150,7 +151,7 @@ public interface MillstoneClient {
 	 * @param withdrawnRequest
 	 * @return
 	 */
-	@PostMapping( MILLSTONE_ACCOUNT_PATH + "withdrawn")
+	@PostMapping(value = MILLSTONE_ACCOUNT_PATH + "withdrawn", produces = MediaType.APPLICATION_JSON_VALUE)
 	String withdrawn(@RequestBody String withdrawnRequest);
 
 	/**
