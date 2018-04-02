@@ -140,7 +140,7 @@ public class OrderCancelService {
         String s1 = unfreezeForOrder(unfreezeEntity);
         if(s1 == null || (Integer)JSON.parseObject(s1).get("code") != 0){
             logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+",撮单系统取消成功,但是货币解锁失败");
-            orderMapper.updateOrderStatus(OrderStatus.WITHDRAW_UNTHAWING,order.getOrderCode());
+            orderMapper.updateOrderStatus(OrderStatus.WITHDRAW_UNTHAWING,order.getOrderCode(),new Date());
             order.setStatus(OrderStatus.WITHDRAW_UNTHAWING);
         }else {
             //修改数据库状态
@@ -156,7 +156,7 @@ public class OrderCancelService {
      */
     public Order updateOrderAfterCancel(UnfreezeEntity unfreezeEntity){
         Order order = unfreezeEntity.getOrder();
-        orderMapper.updateOrderStatus(OrderStatus.WITHDRAW,order.getOrderCode());
+        orderMapper.updateOrderStatus(OrderStatus.WITHDRAW,order.getOrderCode(),new Date());
         order.setStatus(OrderStatus.WITHDRAW);
         return order;
     }
@@ -249,7 +249,7 @@ public class OrderCancelService {
         freezeDto.setEncryptCurrencyId(encryptCurrencyId);
         freezeDto.setQuantity(quantity);
 
-        String s = millstoneClient.unfreezeForOrder(map);
+        String s = millstoneClient.unfreezeForOrder(freezeDto);
 //        String s = "{\n" +
 //                "  \"code\": 0,\n" +
 //                "  \"message\": \"ok\"\n" +
