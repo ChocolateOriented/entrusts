@@ -1,8 +1,9 @@
 package com.entrusts.web;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.entrusts.manager.MillstoneClient;
+import com.entrusts.module.dto.WithdrawnDto;
+import com.entrusts.module.dto.WithdrawnRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -174,10 +175,15 @@ public class AccountProxyController extends BaseController {
 	 * @return
 	 */
 	@PostMapping(value = "withdrawn")
-	public String withdrawn(@RequestHeader(ACCOUNT_CODE) String userCode, @RequestBody String withdrawnRequest) {
-		JSONObject jsonObj = JSON.parseObject(withdrawnRequest);
-		jsonObj.put("userCode", userCode);
-		return millstoneClient.withdrawn(jsonObj.toJSONString());
+	public String withdrawn(@RequestHeader(ACCOUNT_CODE) String userCode, @RequestBody WithdrawnRequest withdrawnRequest) {
+		WithdrawnDto withdrawnDto = new WithdrawnDto();
+		withdrawnDto.setUserCode(userCode);
+		withdrawnDto.setEncryptCurrencyId(withdrawnRequest.getCoinId());
+		withdrawnDto.setAddress(withdrawnRequest.getAddress());
+		withdrawnDto.setMessageCode(withdrawnRequest.getCode());
+		withdrawnDto.setQuantity(withdrawnRequest.getAmount());
+		withdrawnDto.setTradePassword(withdrawnRequest.getPassword());
+		return millstoneClient.withdrawn(withdrawnDto);
 	}
 
 	/**
