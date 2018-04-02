@@ -2,6 +2,7 @@ package com.entrusts.manager;
 
 import com.entrusts.module.dto.FreezeDto;
 import com.entrusts.module.dto.result.Results;
+import java.util.Map;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +24,7 @@ public interface MillstoneClient {
 	 * @Description 解锁货币
 	 */
 	@PostMapping(MILLSTONE_ACCOUNT_PATH + "unfreeze_for_order")
-	String unfreezeForOrder(FreezeDto freezeDto);
+	String unfreezeForOrder(@RequestBody FreezeDto freezeDto);
 
 	/**
 	 * @return com.entrusts.module.dto.result.Results

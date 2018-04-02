@@ -19,6 +19,9 @@ public class FreezeDto implements Serializable {
 		this.encryptCurrencyId = encryptCurrencyId;
 		this.quantity = quantity;
 	}
+	public FreezeDto(){
+
+	}
 
 	public String getOrderCode() {
 		return orderCode;
