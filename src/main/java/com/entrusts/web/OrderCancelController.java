@@ -37,9 +37,9 @@ public class OrderCancelController extends BaseController  {
 
         }else if (order.getStatus() == OrderStatus.WITHDRAW ){
             //撤销成功
-            String userCode = request.getHeader("Account-Code");
-            orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, orderRequest.getOrderCode(), 3600*12);
-            orderManageService.updateUserHistoryCache(order);
+//            String userCode = request.getHeader("Account-Code");
+//            orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, orderRequest.getOrderCode(), 3600*12);
+//            orderManageService.updateUserHistoryCache(order);
             return Results.ok();
         }else if (order.getStatus() == OrderStatus.TRADING){
             //撤销失败

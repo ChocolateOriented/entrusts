@@ -140,6 +140,7 @@ public class OrderCancelService {
 
         //解锁
         String s1 = unfreezeForOrder(unfreezeEntity);
+        logger.info("解锁货币订单号:"+unfreezeEntity.getOrder().getOrderCode()+s1);
         if(s1 == null || (Integer)JSON.parseObject(s1).get("code") != 0){
             logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+",撮单系统取消成功,但是货币解锁失败");
             orderMapper.updateOrderStatus(OrderStatus.WITHDRAW_UNTHAWING,order.getOrderCode(),new Date());
