@@ -151,7 +151,7 @@ public interface MillstoneClient {
 	 * @param withdrawnRequest
 	 * @return
 	 */
-	@PostMapping(value = MILLSTONE_ACCOUNT_PATH + "withdrawn", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = MILLSTONE_ACCOUNT_PATH + "withdrawn", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	String withdrawn(@RequestBody String withdrawnRequest);
 
 	/**
