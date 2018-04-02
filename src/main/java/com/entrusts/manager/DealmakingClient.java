@@ -1,8 +1,7 @@
 package com.entrusts.manager;
 
-import java.util.Map;
+import com.entrusts.module.dto.DelCancelOrder;
 import org.springframework.cloud.netflix.feign.FeignClient;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -11,7 +10,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 @FeignClient(name = "${feignClient.dealmaking.name}",path = "${feignClient.dealmaking.containerName}")
 public interface DealmakingClient {
-    @RequestMapping(value = "/cancel_order",produces = "application/json",method = RequestMethod.POST)
-    String delCancelOrder(@RequestBody Map<String,Object> map);
+    String DEAL_MAKING_PATH = "/api/bull/v1/dealmaking/";
+    @RequestMapping(value = DEAL_MAKING_PATH+"cancel_order",produces = "application/json",method = RequestMethod.POST)
+    String delCancelOrder(String delCancelOrder);
 
 }

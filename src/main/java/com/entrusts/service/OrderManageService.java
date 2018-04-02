@@ -232,7 +232,7 @@ public class OrderManageService extends BaseService {
 		}
 		
 		historyOrders = stream.sorted((HistoryOrderView o1, HistoryOrderView o2) -> o1.getDate() == null ? 1 :
-				o2.getDate() == null ? -1 : o2.getDate().compareTo(o2.getDate()))
+				o2.getDate() == null ? -1 : o2.getDate().compareTo(o1.getDate()))
 					.collect(Collectors.toList());
 		
 		return historyOrders;
@@ -582,7 +582,7 @@ public class OrderManageService extends BaseService {
 		}
 		list = list.stream().filter(currentEntrusts -> orderQuery.matchConditionsByCurrent(currentEntrusts))
 				.sorted((CurrentEntrusts o1, CurrentEntrusts o2) -> o1.getDate() == null ? 1 :
-						o2.getDate() == null ? -1 : o2.getDate().compareTo(o2.getDate()))
+						o2.getDate() == null ? -1 : o2.getDate().compareTo(o1.getDate()))
 				.collect(Collectors.toList());
 
 		return list;
