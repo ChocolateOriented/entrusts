@@ -62,7 +62,11 @@ public class OrderService extends BaseService {
 	@Transactional
 	public void updateOrderStatus(OrderStatus status, String orderCode, String userCode) {
 		orderMapper.updateOrderStatus(status, orderCode,new Date());
-		orderManageService.updateUserCurrentOrderListFromRedis(status, orderCode, userCode, 3600*12);
+		if (status.equals(OrderStatus.DELEGATING) || status.equals(OrderStatus.TRADING)){
+			orderManageService.updateUserCurrentOrderListFromRedis(status, orderCode, userCode, 3600*12);
+		}else {
+			orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, orderCode, 3600*12);
+		}
 	}
 
 	/**
