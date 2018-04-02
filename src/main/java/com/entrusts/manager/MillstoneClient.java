@@ -4,6 +4,7 @@ import com.entrusts.module.dto.FreezeDto;
 import com.entrusts.module.dto.result.Results;
 import java.util.Map;
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +24,7 @@ public interface MillstoneClient {
 	 * @return java.lang.String
 	 * @Description 解锁货币
 	 */
-	@PostMapping(MILLSTONE_ACCOUNT_PATH + "unfreeze_for_order")
+	@PostMapping(value = MILLSTONE_ACCOUNT_PATH + "unfreeze_for_order",produces = MediaType.APPLICATION_JSON_UTF8_VALUE,consumes = "application/json")
 	String unfreezeForOrder(FreezeDto freezeDto);
 
 	/**
