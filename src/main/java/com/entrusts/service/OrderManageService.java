@@ -354,7 +354,15 @@ public class OrderManageService extends BaseService {
 			}
 		}
 		
-		
+	}
+
+	/**
+	 * 更新历史托单缓存
+	 * @param order
+	 */
+	public void updateUserHistoryCache(String orderCode) {
+		Order order = get(orderCode);
+		updateUserHistoryCache(order);
 	}
 
 	public void updateUserHistoryCaches(List<Order> orders) {
@@ -383,10 +391,6 @@ public class OrderManageService extends BaseService {
 		
 		if (order.getQuantity() == null) {
 			throw new IllegalArgumentException("委托数量为空");
-		}
-		
-		if (order.getDealQuantity() == null) {
-			throw new IllegalArgumentException("成交数量为空");
 		}
 		
 		if (order.getConvertRate() == null) {

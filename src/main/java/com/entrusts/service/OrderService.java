@@ -64,7 +64,8 @@ public class OrderService extends BaseService {
 		orderMapper.updateOrderStatus(status, orderCode,new Date());
 		if (status.equals(OrderStatus.DELEGATING) || status.equals(OrderStatus.TRADING)){
 			orderManageService.updateUserCurrentOrderListFromRedis(status, orderCode, userCode, 3600*12);
-		}else {
+		} else {
+			orderManageService.updateUserHistoryCache(orderCode);
 			orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, orderCode, 3600*12);
 		}
 	}
