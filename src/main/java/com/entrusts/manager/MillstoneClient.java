@@ -1,8 +1,8 @@
 package com.entrusts.manager;
 
 import com.entrusts.module.dto.FreezeDto;
+import com.entrusts.module.dto.WithdrawnDto;
 import com.entrusts.module.dto.result.Results;
-import java.util.Map;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -152,7 +152,7 @@ public interface MillstoneClient {
 	 * @return
 	 */
 	@PostMapping(value = MILLSTONE_ACCOUNT_PATH + "withdrawn", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-	String withdrawn(@RequestBody String withdrawnRequest);
+	String withdrawn(@RequestBody WithdrawnDto withdrawnDto);
 
 	/**
 	 * 获取用户资产列表
