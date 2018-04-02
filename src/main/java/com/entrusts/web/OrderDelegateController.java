@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import redis.clients.jedis.Jedis;
 
 /**
  * Created by jxli on 2018/3/5.
@@ -57,56 +58,63 @@ public class OrderDelegateController extends BaseController {
 	 */
 	@PostMapping(value = "delegateLimit")
 	@ResponseBody
-	public Results delegateLimit(@RequestHeader(ACCOUNT_CODE) String userCode,@RequestHeader(TIMESTAMP) Long clientTime,
+	public Results delegateLimit(@RequestHeader(ACCOUNT_CODE) String userCode, @RequestHeader(TIMESTAMP) Long clientTime,
 			@RequestBody @Validated Delegate delegate, BindingResult bindingResul) {
-
 		String validTokenKey = CACHE_DELEGATE_REQUEST_TOKEN_PREFIX + userCode;
-		String validToken = RedisUtil.get(validTokenKey);
 		String requestToken = delegate.getRequestToken();
 		String handledTokenKey = CACHE_DELEGATE_HANDLED_TOKEN_PREFIX + userCode + requestToken;
+		Jedis jedis = null;
+		try {
+			jedis = RedisUtil.getResource();
 
-		//无效token
-		if (!requestToken.equals(validToken)) {
-			String handResult = RedisUtil.get(handledTokenKey);
-			if (null == handResult) {//token不是由系统生成or已处理并过期
-				return new Results(ResultConstant.EMPTY_PARAM.code, "无效Request-Token");
+			String validToken = jedis.get(validTokenKey);
+			//无效token
+			if (!requestToken.equals(validToken)) {
+				if (!jedis.exists(handledTokenKey)) {//token不是由系统生成or已处理并过期
+					return new Results(ResultConstant.EMPTY_PARAM.code, "无效Request-Token");
+				}
+				//已处理
+				return new Results(ResultConstant.REPEAT_REQUEST);
 			}
-			//已处理
-			return new Results(ResultConstant.REPEAT_REQUEST);
-		}
+			//有效token
+			String result = jedis.set(handledTokenKey, "", "NX", "PX", 60 * 60 * 1000);
+			if (!"OK".equals(result)) {//已由其他线程处理
+				return new Results(ResultConstant.REPEAT_REQUEST);
+			}
+			jedis.del(validTokenKey);
 
-		//有效token
-		boolean isSuccess = RedisUtil.setIfNotExist(handledTokenKey, "", 60 * 60 * 1000);
-		if (!isSuccess) {//已由其他线程处理
-			return new Results(ResultConstant.REPEAT_REQUEST);
+			String userTotalKey = OrderManageService.totalCurrentOrderUserKey + userCode;
+			String totalValue = jedis.get(userTotalKey);
+			if (StringUtils.isNotBlank(totalValue) && Integer.parseInt(totalValue) > 20) {
+				return new Results(ResultConstant.EMPTY_PARAM.code, "最多同时发布20条托单");
+			}
+		} catch (Exception e) {
+			logger.info(userCode+"托单失败, 获取Redis连接失败",e);
+			return new Results(ResultConstant.INNER_ERROR);
+		} finally {
+			RedisUtil.returnResource(jedis);
 		}
-		RedisUtil.del(validTokenKey);
 
 		//数据校验
-		if (bindingResul.hasErrors()){
+		if (bindingResul.hasErrors()) {
 			return new Results(ResultConstant.EMPTY_PARAM.code, getFieldErrorsMessages(bindingResul));
 		}
-		TradePair tradePair = tradePairService.findTradePairByCoinName(delegate.getBaseCurrency(),delegate.getTargetCurrency());
-		if (tradePair == null){
+		TradePair tradePair = tradePairService.findTradePairByCoinName(delegate.getBaseCurrency(), delegate.getTargetCurrency());
+		if (tradePair == null) {
 			return new Results(ResultConstant.EMPTY_PARAM.code, "未知交易对");
 		}
 		BigDecimal minTradeQuantity = tradePair.getMinTradeQuantity();
-		if (minTradeQuantity!=null && delegate.getQuantity().compareTo(minTradeQuantity) < 0){
+		if (minTradeQuantity != null && delegate.getQuantity().compareTo(minTradeQuantity) < 0) {
 			return new Results(ResultConstant.EMPTY_PARAM.code, "交易数额错误, 最小值" + minTradeQuantity.toString());
-		}
-		String userTotalKey = OrderManageService.totalCurrentOrderUserKey + userCode;
-		String totalValue = RedisUtil.get(userTotalKey);
-		if (StringUtils.isNotBlank(totalValue) && Integer.parseInt(totalValue) > 20){
-			return new Results(ResultConstant.EMPTY_PARAM.code, "最多同时发布20条托单");
 		}
 
 		//发布托单
 		delegate.setUserCode(userCode);
 		delegate.setClientTime(new Date(clientTime));
 		delegate.setOrderMode(OrderMode.limit);
-		String orderCode = generateOrderCode(delegate.getOrderMode(), delegate.getTradeType() , tradePair.getId());
+		String orderCode = generateOrderCode(delegate.getOrderMode(), delegate.getTradeType(), tradePair.getId());
 		delegateDisruptor.publishEvent(delegateTranslator, delegate, tradePair, orderCode);
-		return Results.ok().putData("orderCode",orderCode);
+		return Results.ok().putData("orderCode", orderCode);
 	}
 
 	/**

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
-import redis.clients.jedis.JedisPool;
 
 /**
  * Created by sxu on 2018/2/28.
@@ -18,19 +17,14 @@ public class UserCenterConfig {
 
     @Autowired
     private CustomRequestInfoFetcher requestInfoFetcher;
-
     @Autowired
-    private AuthClient authenticationClient;
-
-    @Autowired
-    private RedisTemplate<String,Object> redisTemplate2;
-
+    private RedisTemplate<String,Object> nestRedisTemplate;
     @Autowired
     private RedisHolder redisHolder;
 
     @Bean
     public RedisHolder redisHolder() {
-        return new RedisHolder(redisTemplate2);
+        return new RedisHolder(nestRedisTemplate);
     }
 
 
