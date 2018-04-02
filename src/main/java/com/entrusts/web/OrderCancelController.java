@@ -64,11 +64,11 @@ public class OrderCancelController extends BaseController  {
             listOrder.addAll(map.get(OrderStatus.WITHDRAW_UNTHAWING));
         }
         
-        orderManageService.updateUserHistoryCaches(listOrder);
+        //orderManageService.updateUserHistoryCaches(listOrder);
 
         if(map.containsKey(OrderStatus.WITHDRAW) && map.size()==1){
             //说明全部撤销成功
-            orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, null, 3600*12);
+            //orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, null, 3600*12);
             return Results.ok();
         }else if(map.containsKey(OrderStatus.TRADING) && map.size()==1){
             //说明全部撤销失败INNER_ERROR
@@ -77,7 +77,7 @@ public class OrderCancelController extends BaseController  {
             //说明部分成功部分失败SYSTEM_BUSY
             List<Order> orders = map.get(OrderStatus.WITHDRAW);
             for (Order order : orders){
-                orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, order.getOrderCode(), 3600*12);
+              //  orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, order.getOrderCode(), 3600*12);
             }
             return new Results(ResultConstant.SYSTEM_BUSY.code,"撤销部分成功");
         }
