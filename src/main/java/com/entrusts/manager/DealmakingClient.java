@@ -2,7 +2,6 @@ package com.entrusts.manager;
 
 import com.entrusts.module.dto.DelCancelOrder;
 import org.springframework.cloud.netflix.feign.FeignClient;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -13,6 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public interface DealmakingClient {
     String DEAL_MAKING_PATH = "/api/bull/v1/dealmaking/";
     @RequestMapping(value = DEAL_MAKING_PATH+"cancel_order",produces = "application/json",method = RequestMethod.POST)
-    String delCancelOrder(@RequestBody DelCancelOrder delCancelOrder);
+    String delCancelOrder(DelCancelOrder delCancelOrder);
 
 }
