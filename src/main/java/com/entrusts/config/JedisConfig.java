@@ -1,17 +1,14 @@
 package com.entrusts.config;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+import org.springframework.context.annotation.Scope;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -140,8 +137,8 @@ public class JedisConfig {
 		this.database2 = database2;
 	}
 
-	@Bean
-	public JedisPool redisPoolFactory() {
+	@Bean(name = "commonRedisPool")
+	public JedisPool commonRedisPool() {
 		JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
 		jedisPoolConfig.setMaxIdle(maxIdle);
 		jedisPoolConfig.setMaxWaitMillis(maxWait);
@@ -152,25 +149,13 @@ public class JedisConfig {
 	}
 
 	@Bean
-	public RedisConnectionFactory redisConnectionFactory(){
-		JedisPoolConfig poolConfig=new JedisPoolConfig();
-		poolConfig.setMaxIdle(maxIdle);
-		poolConfig.setMinIdle(minIdle);
-		JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory(poolConfig);
-		jedisConnectionFactory.setHostName(host);
-		if(!password2.isEmpty()){
-			jedisConnectionFactory.setPassword(password);
-		}
-		jedisConnectionFactory.setPort(port);
-		jedisConnectionFactory.setDatabase(database);
-		return jedisConnectionFactory;
-	}
-	@Bean
-	public RedisConnectionFactory redisConnectionFactory2(){
-		JedisPoolConfig poolConfig=new JedisPoolConfig();
-		poolConfig.setMaxIdle(maxIdle);
-		poolConfig.setMinIdle(minIdle);
-		JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory(poolConfig);
+	public RedisConnectionFactory nestRedisConnectionFactory(){
+		JedisPoolConfig jedisPoolConfig=new JedisPoolConfig();
+		jedisPoolConfig.setMaxIdle(maxIdle);
+		jedisPoolConfig.setMaxWaitMillis(maxWait);
+		jedisPoolConfig.setMaxTotal(maxTotal);
+		jedisPoolConfig.setMinIdle(minIdle);
+		JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory(jedisPoolConfig);
 		jedisConnectionFactory.setHostName(host2);
 		if(!password2.isEmpty()){
 			jedisConnectionFactory.setPassword(password2);
@@ -180,29 +165,13 @@ public class JedisConfig {
 		return jedisConnectionFactory;
 	}
 
-
-	@Bean(name = "redisTemplate1")
-	public RedisTemplate<String, Object> redisTemplateObject() throws Exception {
-		RedisTemplate<String, Object> redisTemplateObject = new RedisTemplate<String, Object>();
-		redisTemplateObject.setConnectionFactory(redisConnectionFactory());
-		setSerializer(redisTemplateObject);
-		redisTemplateObject.afterPropertiesSet();
-		return redisTemplateObject;
-	}
-
-	/*@Bean(name = "redisTemplate2")
-	public RedisTemplate<String, Object> redisTemplateObject2() throws Exception {
-		RedisTemplate<String, Object> redisTemplateObject = new RedisTemplate<String, Object>();
-		redisTemplateObject.setConnectionFactory(redisConnectionFactory2());
-		setSerializer(redisTemplateObject);
-		redisTemplateObject.afterPropertiesSet();
-		return redisTemplateObject;
-	}*/
-
-	@Bean(name = "redisTemplate2")
-	public RedisTemplate<String, Object> redisTemplate() {
+	/**
+	 *  用户中心redis模板操作类
+	 */
+	@Bean(name = "nestRedisTemplate")
+	public RedisTemplate<String, Object> nestRedisTemplate(@Autowired RedisConnectionFactory nestRedisConnectionFactory) {
 		RedisTemplate<String, Object> template = new RedisTemplate<>();
-		template.setConnectionFactory(redisConnectionFactory2());
+		template.setConnectionFactory(nestRedisConnectionFactory);
 		template.setKeySerializer(new StringRedisSerializer());
 		template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
 		template.setHashKeySerializer(template.getKeySerializer());
@@ -210,24 +179,4 @@ public class JedisConfig {
 		return template;
 	}
 
-
-
-	private void setSerializer(RedisTemplate<String, Object> template) {
-		Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<Object>(
-				Object.class);
-		ObjectMapper om = new ObjectMapper();
-		om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-		om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-		jackson2JsonRedisSerializer.setObjectMapper(om);
-		template.setKeySerializer(template.getStringSerializer());
-		template.setValueSerializer(jackson2JsonRedisSerializer);
-		template.setHashValueSerializer(jackson2JsonRedisSerializer);
-		//在使用String的数据结构的时候使用这个来更改序列化方式
-        /*RedisSerializer<String> stringSerializer = new StringRedisSerializer();
-        template.setKeySerializer(stringSerializer );
-        template.setValueSerializer(stringSerializer );
-        template.setHashKeySerializer(stringSerializer );
-        template.setHashValueSerializer(stringSerializer );*/
-
-	}
 }

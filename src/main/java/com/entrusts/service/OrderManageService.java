@@ -603,19 +603,12 @@ public class OrderManageService extends BaseService {
 		CurrentEntrusts currentEntrusts = copyPropertiesOrder(order, new CurrentEntrusts());
 		String userKey = currentOrderUserKey + order.getUserCode();
 		String userTotalKey = totalCurrentOrderUserKey + order.getUserCode();
-		Map<String, String> currentOrders = RedisUtil.getMap(userKey);
-		if (currentOrders == null){
-			currentOrders = new HashMap<String, String>();
-		}
-		currentOrders.put(currentEntrusts.getOrderCode(), JSON.toJSONString(currentEntrusts));
-		int total = Integer.valueOf(RedisUtil.get(userTotalKey) == null? "0" : RedisUtil.get(userTotalKey));
 		Jedis jedis = null;
 		try {
 			jedis = RedisUtil.getResource();
-			jedis.watch(userKey);
 			Transaction trans = jedis.multi();
-			trans.hmset(userKey, currentOrders);
-			trans.set(userTotalKey, String.valueOf(total+1));
+			trans.hset(userKey, currentEntrusts.getOrderCode(), JSON.toJSONString(currentEntrusts));
+			trans.incr(userTotalKey);
 			if (cacheSeconds != 0) {
 				trans.expire(userTotalKey, cacheSeconds);
 				trans.expire(userKey, cacheSeconds);
@@ -624,9 +617,7 @@ public class OrderManageService extends BaseService {
 		} catch (Exception e) {
 			return false;
 		} finally {
-			if (jedis != null) {
-				jedis.close();
-			}
+			RedisUtil.returnResource(jedis);
 		}
 		return true;
 	}

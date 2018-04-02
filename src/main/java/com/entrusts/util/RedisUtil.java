@@ -38,7 +38,7 @@ public class RedisUtil {
 	private static void poolInit() {
 		if (null == jedisPool) {
 			try {
-				jedisPool = ApplicationContextHolder.getBean("redisPoolFactory");
+				jedisPool = ApplicationContextHolder.getBean("commonRedisPool");
 			} catch (Exception e) {
 				logger.error("First create JedisPool error : " + e);
 			}
@@ -76,10 +76,8 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(key)) {
-				value = jedis.hget(key,key2);
-				logger.debug("getMap {} = {}", key, value);
-			}
+			value = jedis.hget(key,key2);
+			logger.debug("getMap {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getMap {} = {}", key, value, e);
 		} finally {
@@ -118,11 +116,9 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(key)) {
-				value = jedis.get(key);
-				value = StringUtils.isNotBlank(value) && !"nil".equalsIgnoreCase(value) ? value : null;
-				logger.debug("get {} = {}", key, value);
-			}
+			value = jedis.get(key);
+			value = StringUtils.isNotBlank(value) && !"nil".equalsIgnoreCase(value) ? value : null;
+			logger.debug("get {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("get {} = {}", key, value, e);
 		} finally {
@@ -142,10 +138,8 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(getBytesKey(key))) {
-				value = toObject(jedis.get(getBytesKey(key)));
-				logger.debug("getObject {} = {}", key, value);
-			}
+			value = toObject(jedis.get(getBytesKey(key)));
+			logger.debug("getObject {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getObject {} = {}", key, value, e);
 		} finally {
@@ -215,10 +209,8 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(key)) {
-				value = jedis.lrange(key, 0, -1);
-				logger.debug("getList {} = {}", key, value);
-			}
+			value = jedis.lrange(key, 0, -1);
+			logger.debug("getList {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getList {} = {}", key, value, e);
 		} finally {
@@ -238,14 +230,12 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(getBytesKey(key))) {
-				List<byte[]> list = jedis.lrange(getBytesKey(key), 0, -1);
-				value = Lists.newArrayList();
-				for (byte[] bs : list) {
-					value.add(toObject(bs));
-				}
-				logger.debug("getObjectList {} = {}", key, value);
+			List<byte[]> list = jedis.lrange(getBytesKey(key), 0, -1);
+			value = Lists.newArrayList();
+			for (byte[] bs : list) {
+				value.add(toObject(bs));
 			}
+			logger.debug("getObjectList {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getObjectList {} = {}", key, value, e);
 		} finally {
@@ -266,9 +256,7 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(key)) {
-				jedis.del(key);
-			}
+			jedis.del(key);
 			result = jedis.rpush(key, (String[]) value.toArray());
 			if (cacheSeconds != 0) {
 				jedis.expire(key, cacheSeconds);
@@ -294,9 +282,7 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(getBytesKey(key))) {
-				jedis.del(key);
-			}
+			jedis.del(key);
 			List<byte[]> list = Lists.newArrayList();
 			for (Object o : value) {
 				list.add(toBytes(o));
@@ -371,10 +357,8 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(key)) {
-				value = jedis.smembers(key);
-				logger.debug("getSet {} = {}", key, value);
-			}
+			value = jedis.smembers(key);
+			logger.debug("getSet {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getSet {} = {}", key, value, e);
 		} finally {
@@ -394,14 +378,12 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(getBytesKey(key))) {
-				value = Sets.newHashSet();
-				Set<byte[]> set = jedis.smembers(getBytesKey(key));
-				for (byte[] bs : set) {
-					value.add(toObject(bs));
-				}
-				logger.debug("getObjectSet {} = {}", key, value);
+			value = Sets.newHashSet();
+			Set<byte[]> set = jedis.smembers(getBytesKey(key));
+			for (byte[] bs : set) {
+				value.add(toObject(bs));
 			}
+			logger.debug("getObjectSet {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getObjectSet {} = {}", key, value, e);
 		} finally {
@@ -422,9 +404,7 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(key)) {
-				jedis.del(key);
-			}
+			jedis.del(key);
 			result = jedis.sadd(key, (String[]) value.toArray());
 			if (cacheSeconds != 0) {
 				jedis.expire(key, cacheSeconds);
@@ -450,9 +430,7 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(getBytesKey(key))) {
-				jedis.del(key);
-			}
+			jedis.del(key);
 			Set<byte[]> set = Sets.newHashSet();
 			for (Object o : value) {
 				set.add(toBytes(o));
@@ -527,10 +505,8 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(key)) {
-				value = jedis.hgetAll(key);
-				logger.debug("getMap {} = {}", key, value);
-			}
+			value = jedis.hgetAll(key);
+			logger.debug("getMap {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getMap {} = {}", key, value, e);
 		} finally {
@@ -550,14 +526,12 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(getBytesKey(key))) {
-				value = Maps.newHashMap();
-				Map<byte[], byte[]> map = jedis.hgetAll(getBytesKey(key));
-				for (Map.Entry<byte[], byte[]> e : map.entrySet()) {
-					value.put(StringUtils.toString(e.getKey()), toObject(e.getValue()));
-				}
-				logger.debug("getObjectMap {} = {}", key, value);
+			value = Maps.newHashMap();
+			Map<byte[], byte[]> map = jedis.hgetAll(getBytesKey(key));
+			for (Map.Entry<byte[], byte[]> e : map.entrySet()) {
+				value.put(StringUtils.toString(e.getKey()), toObject(e.getValue()));
 			}
+			logger.debug("getObjectMap {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getObjectMap {} = {}", key, value, e);
 		} finally {
@@ -578,9 +552,7 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(key)) {
-				jedis.del(key);
-			}
+			jedis.del(key);
 			result = jedis.hmset(key, value);
 			if (cacheSeconds != 0) {
 				jedis.expire(key, cacheSeconds);
@@ -606,9 +578,7 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(getBytesKey(key))) {
-				jedis.del(key);
-			}
+			jedis.del(key);
 			Map<byte[], byte[]> map = Maps.newHashMap();
 			for (Map.Entry<String, Object> e : value.entrySet()) {
 				map.put(getBytesKey(e.getKey()), toBytes(e.getValue()));
@@ -762,12 +732,9 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(key)) {
-				result = jedis.del(key);
-				logger.debug("del {}", key);
-			} else {
-				logger.debug("del {} not exists", key);
-			}
+			result = jedis.del(key);
+			logger.debug("del {}", key);
+
 		} catch (Exception e) {
 			logger.warn("del {}", key, e);
 		} finally {
@@ -786,12 +753,8 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(getBytesKey(key))) {
-				result = jedis.del(getBytesKey(key));
-				logger.debug("delObject {}", key);
-			} else {
-				logger.debug("delObject {} not exists", key);
-			}
+			result = jedis.del(getBytesKey(key));
+			logger.debug("delObject {}", key);
 		} catch (Exception e) {
 			logger.warn("delObject {}", key, e);
 		} finally {
@@ -913,14 +876,12 @@ public class RedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
-			if (jedis.exists(getBytesKey(key))) {
-				value = Maps.newHashMap();
-				Map<byte[], byte[]> map = jedis.hgetAll(getBytesKey(key));
-				for (Map.Entry<byte[], byte[]> e : map.entrySet()) {
-					value.put(StringUtils.toInteger(e.getKey()), toObject(e.getValue()));
-				}
-				// logger.debug("getObjectMap {} = {}", key, value);
+			value = Maps.newHashMap();
+			Map<byte[], byte[]> map = jedis.hgetAll(getBytesKey(key));
+			for (Map.Entry<byte[], byte[]> e : map.entrySet()) {
+				value.put(StringUtils.toInteger(e.getKey()), toObject(e.getValue()));
 			}
+			// logger.debug("getObjectMap {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getObjectMap {} = {}", key, value, e);
 		} finally {
