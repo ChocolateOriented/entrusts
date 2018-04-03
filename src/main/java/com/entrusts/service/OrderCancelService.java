@@ -16,6 +16,7 @@ import com.entrusts.module.enums.TradeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +50,8 @@ public class OrderCancelService {
     private OrderMapper orderMapper;
     @Autowired
     private OrderEventService orderEventService;
+    @Value("${sleep.time}")
+    private Long sleepTime;
     public Order cancelOrder(String orderCode) {
 
         UnfreezeEntity unfreezeEntity = queryUnfreezeInfo(orderCode);
@@ -91,6 +94,12 @@ public class OrderCancelService {
                 List<Order> orders = new ArrayList<>();
                 orders.add(order);
                 map.put(order.getStatus(),orders);
+            }
+            try {
+
+                Thread.sleep(sleepTime);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
 //            Future<Order> submit = orderCancelExecutorService.submit(() -> toCancelOrder(unfreezeEntity));
 //            orderSubmit.add(submit);
@@ -137,9 +146,12 @@ public class OrderCancelService {
         Order order = unfreezeEntity.getOrder();
         //调用搓单系统取消订单
         String s = delCancelOrder(unfreezeEntity);
+        Map<String,Object> map = new HashMap<>();
         logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+s);
         if(s == null || (Integer)JSON.parseObject(s).get("code") != 0){
+
             logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+",调用通知撮单系统撤销接口失败");
+
             return order;
         }
 
