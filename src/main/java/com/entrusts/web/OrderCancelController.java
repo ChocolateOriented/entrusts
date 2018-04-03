@@ -31,7 +31,7 @@ public class OrderCancelController extends BaseController  {
         Order order = orderCancelService.cancelOrder(orderRequest.getOrderCode());
         if(order==null){
             //说明此订单不存在
-            return new Results(ResultConstant.EMPTY_ENTITY.code,"此订单不存在或者是非交易中订单");
+            return new Results(ResultConstant.EMPTY_ENTITY);
 
         }else if (order.getStatus() == OrderStatus.WITHDRAW ){
             //撤销成功
@@ -41,10 +41,10 @@ public class OrderCancelController extends BaseController  {
             return Results.ok();
         }else if (order.getStatus() == OrderStatus.TRADING){
             //撤销失败
-            return new Results(ResultConstant.INNER_ERROR.code,"撤销失败");
+            return new Results(ResultConstant.INNER_ERROR);
         }else {
             //撮单系统取消成功,但是货币解锁失败
-            return new Results(ResultConstant.SYSTEM_BUSY.code,"撮单系统取消成功,但是货币解锁失败");
+            return new Results(ResultConstant.SYSTEM_BUSY);
         }
     }
     @PostMapping("/cancelAll")
@@ -52,7 +52,7 @@ public class OrderCancelController extends BaseController  {
         String userCode = request.getHeader("Account-Code");
         Map<OrderStatus,List<Order>> map = orderCancelService.cancelAll(userCode);
         if (map == null){
-        	return new Results(ResultConstant.EMPTY_ENTITY.code,"无交易中订单");
+        	return new Results(ResultConstant.EMPTY_ENTITY);
         }
         
         List<Order> listOrder = new ArrayList<>();
@@ -71,14 +71,14 @@ public class OrderCancelController extends BaseController  {
             return Results.ok();
         }else if(map.containsKey(OrderStatus.TRADING) && map.size()==1){
             //说明全部撤销失败INNER_ERROR
-            return new Results(ResultConstant.INNER_ERROR.code,"撤销全部失败");
+            return new Results(ResultConstant.INNER_ERROR);
         }else {
             //说明部分成功部分失败SYSTEM_BUSY
             List<Order> orders = map.get(OrderStatus.WITHDRAW);
             for (Order order : orders){
                 orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, order.getOrderCode(), 3600*12);
             }
-            return new Results(ResultConstant.SYSTEM_BUSY.code,"撤销部分成功");
+            return new Results(ResultConstant.SYSTEM_BUSY);
         }
     }
 }
