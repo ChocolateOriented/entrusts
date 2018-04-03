@@ -96,7 +96,7 @@ public class CurrentEntrusts {
     }
 
     public BigDecimal getServiceFee() {
-        return serviceFee;
+        return serviceFee == null ? new BigDecimal(0) : serviceFee;
     }
 
     public void setServiceFee(BigDecimal serviceFee) {
