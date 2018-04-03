@@ -130,7 +130,7 @@ public class DealService extends BaseService {
 			throw new IllegalArgumentException("托单编号为空");
 		}
 		
-		if (dealNotify.getDealQuantity() == null || askOrder.getTradeEncryptCurrencyQuantity() == null || bidOrder.getTradeEncryptCurrencyQuantity() == null) {
+		if (dealNotify.getDealQuantity() == null) {
 			throw new IllegalArgumentException("托单成交量为空");
 		}
 		
@@ -139,6 +139,8 @@ public class DealService extends BaseService {
 		}
 		
 		Deal deal = new Deal();
+		askOrder.setDealQuantity(dealNotify.getDealQuantity());
+		bidOrder.setDealQuantity(dealNotify.getDealQuantity());
 		deal.setTradeCode(dealNotify.getCode());
 		deal.setAskOrderCode(askOrder.getOrderCode());
 		deal.setBidOrderCode(bidOrder.getOrderCode());
