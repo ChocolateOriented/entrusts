@@ -1,5 +1,7 @@
 package com.entrusts.web;
 
+import com.entrusts.module.dto.CommonResponse;
+import com.entrusts.module.dto.result.OrderMessage;
 import com.entrusts.module.dto.result.ResultConstant;
 import com.entrusts.module.dto.result.Results;
 import com.entrusts.module.entity.Order;
@@ -28,7 +30,8 @@ public class OrderCancelController extends BaseController  {
 
     @PostMapping(value = "/cancel")
     public Object cancel(@RequestBody Order orderRequest, HttpServletRequest request){
-        Order order = orderCancelService.cancelOrder(orderRequest.getOrderCode());
+        CommonResponse<Order> orderCommonResponse = orderCancelService.cancelOrder(orderRequest.getOrderCode());
+        Order order = orderCommonResponse.getData();
         if(order==null){
             //说明此订单不存在
             return new Results(ResultConstant.EMPTY_ENTITY);
@@ -41,7 +44,7 @@ public class OrderCancelController extends BaseController  {
             return Results.ok();
         }else if (order.getStatus() == OrderStatus.TRADING){
             //撤销失败
-            return new Results(ResultConstant.INNER_ERROR.getFullCode(),"撤销失败");
+            return new Results(ResultConstant.INNER_ERROR.getFullCode(),orderCommonResponse.getMessage());
         }else {
             //撮单系统取消成功,但是货币解锁失败
             return new Results(ResultConstant.SYSTEM_BUSY.getFullCode(),"撮单系统取消成功,但是货币解锁失败");
@@ -50,17 +53,27 @@ public class OrderCancelController extends BaseController  {
     @PostMapping("/cancelAll")
     public Object cancelAll(HttpServletRequest request){
         String userCode = request.getHeader("Account-Code");
-        Map<OrderStatus,List<Order>> map = orderCancelService.cancelAll(userCode);
+        Map<OrderStatus, List<CommonResponse<Order>>> map = orderCancelService.cancelAll(userCode);
         if (map == null){
         	return new Results(ResultConstant.EMPTY_ENTITY.getFullCode(),"无交易中托单");
         }
         
         List<Order> listOrder = new ArrayList<>();
         if(map.keySet().contains(OrderStatus.WITHDRAW)){
-            listOrder.addAll(map.get(OrderStatus.WITHDRAW));
+            List<CommonResponse<Order>> commonResponses = map.get(OrderStatus.WITHDRAW);
+            if (commonResponses != null && !commonResponses.isEmpty()) {
+                for (CommonResponse<Order> commonResponse : commonResponses) {
+                    listOrder.add(commonResponse.getData());
+                }
+            }
         }
         if(map.keySet().contains(OrderStatus.WITHDRAW_UNTHAWING)){
-            listOrder.addAll(map.get(OrderStatus.WITHDRAW_UNTHAWING));
+            List<CommonResponse<Order>> commonResponses = map.get(OrderStatus.WITHDRAW_UNTHAWING);
+            if (commonResponses != null && !commonResponses.isEmpty()) {
+                for (CommonResponse<Order> commonResponse : commonResponses) {
+                    listOrder.add(commonResponse.getData());
+                }
+            }
         }
         
         orderManageService.updateUserHistoryCaches(listOrder);
@@ -71,14 +84,31 @@ public class OrderCancelController extends BaseController  {
             return Results.ok();
         }else if(map.containsKey(OrderStatus.TRADING) && map.size()==1){
             //说明全部撤销失败INNER_ERROR
-            return new Results(ResultConstant.INNER_ERROR.getFullCode(),"撤销成功0条");
+            List<CommonResponse<Order>> commonResponses = map.get(OrderStatus.TRADING);
+            List<OrderMessage> orderMsg = new ArrayList<>();
+
+            for (CommonResponse<Order> CommonResponse : commonResponses) {
+                OrderMessage msg = new OrderMessage();
+                msg.setMessage(CommonResponse.getMessage());
+                msg.setOrderCode(CommonResponse.getData() == null ? null : CommonResponse.getData().getOrderCode());
+                orderMsg.add(msg);
+            }
+            return new Results(ResultConstant.INNER_ERROR.getFullCode(),"撤销成功0条").putData("entities", orderMsg);
         }else {
             //说明部分成功部分失败SYSTEM_BUSY
-            List<Order> orders = map.get(OrderStatus.WITHDRAW);
-            for (Order order : orders){
-                orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, order.getOrderCode(), 3600*12);
+            List<CommonResponse<Order>> commonResponses = map.get(OrderStatus.WITHDRAW);
+            List<OrderMessage> orderMsg = new ArrayList<>();
+
+            for (CommonResponse<Order> CommonResponse : commonResponses) {
+                OrderMessage msg = new OrderMessage();
+                msg.setMessage(CommonResponse.getMessage());
+                msg.setOrderCode(CommonResponse.getData() == null ? null : CommonResponse.getData().getOrderCode());
+                orderMsg.add(msg);
             }
-            return new Results(ResultConstant.SYSTEM_BUSY.getFullCode(),"撤销成功"+orders.stream()+"条");
+            for (CommonResponse<Order> commonResponse : commonResponses){
+                orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, commonResponse.getData().getOrderCode(), 3600*12);
+            }
+            return new Results(ResultConstant.SYSTEM_BUSY.getFullCode(),"撤销成功"+commonResponses.size()+"条");
         }
     }
 }

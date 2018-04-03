@@ -1,10 +1,12 @@
 package com.entrusts.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.entrusts.manager.DealmakingClient;
 import com.entrusts.manager.MillstoneClient;
 import com.entrusts.mapper.OrderMapper;
+import com.entrusts.module.dto.CommonResponse;
 import com.entrusts.module.dto.DelCancelOrder;
 import com.entrusts.module.dto.FreezeDto;
 import com.entrusts.module.dto.UnfreezeEntity;
@@ -52,7 +54,7 @@ public class OrderCancelService {
     private OrderEventService orderEventService;
     @Value("${sleep.time}")
     private Long sleepTime;
-    public Order cancelOrder(String orderCode) {
+    public CommonResponse<Order> cancelOrder(String orderCode) {
 
         UnfreezeEntity unfreezeEntity = queryUnfreezeInfo(orderCode);
         if(unfreezeEntity == null){
@@ -60,9 +62,9 @@ public class OrderCancelService {
             return null;
         }
 
-        Order order = toCancelOrder(unfreezeEntity);
+        CommonResponse<Order> orderCommonResponse = toCancelOrder(unfreezeEntity);
 
-        return order;
+        return orderCommonResponse;
     }
     public UnfreezeEntity queryUnfreezeInfo(String orderCode){
         //获取对应的order
@@ -77,9 +79,9 @@ public class OrderCancelService {
         unfreezeEntity.setOrder(order);
         return unfreezeEntity;
     }
-    public Map<OrderStatus,List<Order>> cancelAll(String userCode) {
+    public Map<OrderStatus,List<CommonResponse<Order>>> cancelAll(String userCode) {
 
-        Map<OrderStatus,List<Order>> map = new HashMap<>();
+        Map<OrderStatus,List<CommonResponse<Order>>> map = new HashMap<>();
         List<UnfreezeEntity> unfreezeEntities = queryAllUnfreezeInfo(userCode);
         logger.info("用户id:"+userCode+"获取到此人的可取消订单数量"+unfreezeEntities.size());
         if(unfreezeEntities == null || unfreezeEntities.size() == 0){
@@ -87,12 +89,13 @@ public class OrderCancelService {
         }
 //        List<Future<Order>> orderSubmit = new ArrayList<>();
         for(UnfreezeEntity unfreezeEntity : unfreezeEntities){
-            Order order = toCancelOrder(unfreezeEntity);
+            CommonResponse<Order> orderCommonResponse = toCancelOrder(unfreezeEntity);
+            Order order = orderCommonResponse.getData();
             if(map.containsKey(order.getStatus())){
-                map.get(order.getStatus()).add(order);
+                map.get(order.getStatus()).add(orderCommonResponse);
             }else {
-                List<Order> orders = new ArrayList<>();
-                orders.add(order);
+                List<CommonResponse<Order>> orders = new ArrayList<>();
+                orders.add(orderCommonResponse);
                 map.put(order.getStatus(),orders);
             }
             try {
@@ -142,17 +145,19 @@ public class OrderCancelService {
      * @param unfreezeEntity
      * @return
      */
-    public Order toCancelOrder(UnfreezeEntity unfreezeEntity){
+    public CommonResponse<Order> toCancelOrder(UnfreezeEntity unfreezeEntity){
         Order order = unfreezeEntity.getOrder();
         //调用搓单系统取消订单
         String s = delCancelOrder(unfreezeEntity);
         Map<String,Object> map = new HashMap<>();
+        CommonResponse<Order> response = JSON.parseObject(s, new TypeReference<CommonResponse<Order>>() {});
+
         logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+s);
-        if(s == null || (Integer)JSON.parseObject(s).get("code") != 0){
+        if(s == null || !response.isSuccess()){
 
             logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+",调用通知撮单系统撤销接口失败");
-
-            return order;
+            response.setData(order);
+            return response;
         }
 
         //解锁
@@ -165,7 +170,8 @@ public class OrderCancelService {
             //修改数据库状态
             order = updateOrderAfterCancel(unfreezeEntity,OrderStatus.WITHDRAW);
         }
-        return order;
+        response.setData(order);
+        return response;
     }
 
     /**
