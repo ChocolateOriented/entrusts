@@ -452,7 +452,15 @@ public class OrderManageService extends BaseService {
 		List<CurrentEntrusts> orders = findCurrentOrderFromRedis(orderQuery);
 		Page<CurrentEntrusts> page = new Page<>();
 		if (orders != null){
-			page.setEntities(orders.subList((pageNum - 1) * PageSize, pageNum * PageSize > orders.size() ? orders.size() : pageNum * PageSize));
+			if ((pageNum - 1) * PageSize > orders.size()){
+				page.setEntities(null);
+			}else {
+				if ((pageNum - 1) * PageSize > orders.size()){
+					page.setEntities(null);
+				}else {
+					page.setEntities(orders.subList((pageNum - 1) * PageSize, pageNum * PageSize > orders.size() ? orders.size() : pageNum * PageSize));
+				}
+			}
 			page.setTotal((long) orders.size());
 		}else {
 			page.setEntities(null);
@@ -507,7 +515,11 @@ public class OrderManageService extends BaseService {
 		int total = limitOrders.size();
 		cacheLimitCurrentOrder(userCode, total, limitOrders);
 		Page<CurrentEntrusts> page = new Page<>();
-		page.setEntities(limitOrders.subList((pageNum - 1) * PageSize, pageNum * PageSize > limitOrders.size() ? limitOrders.size() :pageNum * PageSize));
+		if ((pageNum - 1) * PageSize > (long) total){
+			page.setEntities(null);
+		}else {
+			page.setEntities(limitOrders.subList((pageNum - 1) * PageSize, pageNum * PageSize > limitOrders.size() ? limitOrders.size() : pageNum * PageSize));
+		}
 		page.setTotal((long) total);
 		page.setPageNum(pageNum);
 		return page;
