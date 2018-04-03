@@ -105,7 +105,8 @@ public class OrderDelegateController extends BaseController {
 		}
 		BigDecimal minTradeQuantity = tradePair.getMinTradeQuantity();
 		if (minTradeQuantity != null && delegate.getQuantity().compareTo(minTradeQuantity) < 0) {
-			return new Results(ResultConstant.EMPTY_PARAM.code, "交易数额错误, 最小值" + minTradeQuantity.toString());
+			DecimalFormat format = new DecimalFormat("#.########");
+			return new Results(ResultConstant.EMPTY_PARAM.code, "交易数量错误, 最小值" + format.format(minTradeQuantity));
 		}
 
 		//发布托单
@@ -190,6 +191,7 @@ public class OrderDelegateController extends BaseController {
 			event.setTradePairId(tradePair.getId());
 		}
 	}
+
 }
 
 
