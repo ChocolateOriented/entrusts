@@ -674,7 +674,7 @@ public class OrderManageService extends BaseService {
 		if (StringUtils.isEmpty(jsonString)){
 			return false;
 		}
-		if (order.getDealQuantity().equals(order.getQuantity())){
+		if (order.getStatus().equals(OrderStatus.COMPLETE)){
 			String userTotalKey = totalCurrentOrderUserKey + order.getUserCode();
 			RedisUtil.mapRemove(currentOrderUserKey + order.getUserCode(), order.getOrderCode());
 			RedisUtil.set(userTotalKey, (Integer.valueOf(RedisUtil.get(userTotalKey)) -1)+"", cacheSeconds);
