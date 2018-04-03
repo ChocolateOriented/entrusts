@@ -30,7 +30,7 @@ public class Results {
     }
 
     public Results(ResultConstant constant) {
-        this.code = constant.code;
+        this.code = constant.getFullCode();
         this.message = constant.message;
     }
 
