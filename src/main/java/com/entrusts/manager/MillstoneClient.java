@@ -18,7 +18,6 @@ public interface MillstoneClient {
 
 	String MILLSTONE_ACCOUNT_PATH = "/api/millstone/v1/account/";
 	String MILLSTONE_TRADE_PATH = "/api/millstone/v1/trade/";
-	String ACCOUNT_TRANSFER_PATH = "/account/transfer/";
 
 	/**
 	 * @return java.lang.String
@@ -142,13 +141,13 @@ public interface MillstoneClient {
 	 * @return java.lang.String
 	 * @Description 获取转账详情
 	 */
-	@GetMapping( ACCOUNT_TRANSFER_PATH + "get_transfer_account_detail")
+	@GetMapping( MILLSTONE_ACCOUNT_PATH + "get_transfer_account_detail")
 	String transferAccountDetail(@RequestParam("userCode") String userCode,
 			@RequestParam(value = "transferAccountId") String transferAccountId);
 
 	/**
 	 * 提币
-	 * @param withdrawnRequest
+	 * @param withdrawnDto
 	 * @return
 	 */
 	@PostMapping(value = MILLSTONE_ACCOUNT_PATH + "withdrawn", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
