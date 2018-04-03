@@ -9,6 +9,7 @@ import com.entrusts.module.dto.DelCancelOrder;
 import com.entrusts.module.dto.FreezeDto;
 import com.entrusts.module.dto.UnfreezeEntity;
 import com.entrusts.module.entity.Order;
+import com.entrusts.module.entity.OrderEvent;
 import com.entrusts.module.entity.TradePair;
 import com.entrusts.module.enums.OrderStatus;
 import com.entrusts.module.enums.TradeType;
@@ -46,6 +47,8 @@ public class OrderCancelService {
     private TradePairService tradePairService;
     @Autowired
     private OrderMapper orderMapper;
+    @Autowired
+    private OrderEventService orderEventService;
     public Order cancelOrder(String orderCode) {
 
         UnfreezeEntity unfreezeEntity = queryUnfreezeInfo(orderCode);
@@ -143,11 +146,10 @@ public class OrderCancelService {
         logger.info("解锁货币订单号:"+unfreezeEntity.getOrder().getOrderCode()+s1);
         if(s1 == null || (Integer)JSON.parseObject(s1).get("code") != 0){
             logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+",撮单系统取消成功,但是货币解锁失败");
-            orderMapper.updateOrderStatus(OrderStatus.WITHDRAW_UNTHAWING,order.getOrderCode(),new Date());
-            order.setStatus(OrderStatus.WITHDRAW_UNTHAWING);
+            order = updateOrderAfterCancel(unfreezeEntity,OrderStatus.WITHDRAW_UNTHAWING);
         }else {
             //修改数据库状态
-            order = updateOrderAfterCancel(unfreezeEntity);
+            order = updateOrderAfterCancel(unfreezeEntity,OrderStatus.WITHDRAW);
         }
         return order;
     }
@@ -157,10 +159,18 @@ public class OrderCancelService {
      * @param unfreezeEntity
      * @return
      */
-    public Order updateOrderAfterCancel(UnfreezeEntity unfreezeEntity){
+    public Order updateOrderAfterCancel(UnfreezeEntity unfreezeEntity,OrderStatus orderStatus){
+
         Order order = unfreezeEntity.getOrder();
-        orderMapper.updateOrderStatus(OrderStatus.WITHDRAW,order.getOrderCode(),new Date());
-        order.setStatus(OrderStatus.WITHDRAW);
+        orderMapper.updateOrderStatus(orderStatus, order.getOrderCode(), new Date());
+        order.setStatus(orderStatus);
+        OrderEvent orderEvent = new OrderEvent();
+        orderEvent.setOrderCode(order.getOrderCode());
+        orderEvent.setStatus(order.getStatus());
+        orderEvent.setDealAmout(order.getDealAmount());
+        orderEvent.setDealQuantity(order.getDealQuantity());
+        orderEvent.setLastedDealTime(order.getLastedDealTime());
+        orderEventService.save(orderEvent);
         return order;
     }
     /**

@@ -52,7 +52,7 @@ public class OrderCancelController extends BaseController  {
         String userCode = request.getHeader("Account-Code");
         Map<OrderStatus,List<Order>> map = orderCancelService.cancelAll(userCode);
         if (map == null){
-        	return new Results(ResultConstant.EMPTY_ENTITY.code,"请求数据不存在");
+        	return new Results(ResultConstant.EMPTY_ENTITY.code,"无交易中订单");
         }
         
         List<Order> listOrder = new ArrayList<>();
