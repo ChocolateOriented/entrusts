@@ -132,6 +132,7 @@
 		c2.alias as targetCurrency,
 		if(o.trade_type = 1, 'buy', 'sell') as tradeType,
 		o.convert_rate as orderPrice,
+		o.quantity as orderTargetQuantity,
 		o.deal_quantity as dealTargetQuantity,
 		convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
 		o.service_fee as serviceFee,
@@ -148,6 +149,7 @@
 		where user_code = #{userCode}
 		and status in (11, 30, 40, 50)
 		<include refid="orderCondition" />
+		order by o.order_time desc
 	</select>
 	
 	<select id="findHistoryOrderByTime" resultType="com.entrusts.module.vo.HistoryOrderView">
