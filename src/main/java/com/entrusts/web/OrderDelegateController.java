@@ -71,7 +71,7 @@ public class OrderDelegateController extends BaseController {
 			//无效token
 			if (!requestToken.equals(validToken)) {
 				if (!jedis.exists(handledTokenKey)) {//token不是由系统生成or已处理并过期
-					return new Results(ResultConstant.EMPTY_PARAM.code, "无效Request-Token");
+					return new Results(ResultConstant.INVALID_TOKEN);
 				}
 				//已处理
 				return new Results(ResultConstant.REPEAT_REQUEST);
@@ -85,8 +85,9 @@ public class OrderDelegateController extends BaseController {
 
 			String userTotalKey = OrderManageService.totalCurrentOrderUserKey + userCode;
 			String totalValue = jedis.get(userTotalKey);
-			if (StringUtils.isNotBlank(totalValue) && Integer.parseInt(totalValue) > 20) {
-				return new Results(ResultConstant.EMPTY_PARAM.code, "最多同时发布20条托单");
+			int maxDelegateNum = 20;
+			if (StringUtils.isNotBlank(totalValue) && Integer.parseInt(totalValue) > maxDelegateNum) {
+				return new Results(ResultConstant.EXCEED_MAX_DELEGATE.code, "最多同时发布"+maxDelegateNum+"条托单");
 			}
 		} catch (Exception e) {
 			logger.info(userCode+"托单失败, 获取Redis连接失败",e);
