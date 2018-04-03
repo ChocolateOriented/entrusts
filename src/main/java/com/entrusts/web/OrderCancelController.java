@@ -41,10 +41,10 @@ public class OrderCancelController extends BaseController  {
             return Results.ok();
         }else if (order.getStatus() == OrderStatus.TRADING){
             //撤销失败
-            return new Results(ResultConstant.INNER_ERROR);
+            return new Results(ResultConstant.INNER_ERROR.getFullCode(),"撤销失败");
         }else {
             //撮单系统取消成功,但是货币解锁失败
-            return new Results(ResultConstant.SYSTEM_BUSY);
+            return new Results(ResultConstant.SYSTEM_BUSY.getFullCode(),"撮单系统取消成功,但是货币解锁失败");
         }
     }
     @PostMapping("/cancelAll")
@@ -52,7 +52,7 @@ public class OrderCancelController extends BaseController  {
         String userCode = request.getHeader("Account-Code");
         Map<OrderStatus,List<Order>> map = orderCancelService.cancelAll(userCode);
         if (map == null){
-        	return new Results(ResultConstant.EMPTY_ENTITY);
+        	return new Results(ResultConstant.EMPTY_ENTITY.getFullCode(),"无交易中托单");
         }
         
         List<Order> listOrder = new ArrayList<>();
@@ -71,14 +71,14 @@ public class OrderCancelController extends BaseController  {
             return Results.ok();
         }else if(map.containsKey(OrderStatus.TRADING) && map.size()==1){
             //说明全部撤销失败INNER_ERROR
-            return new Results(ResultConstant.INNER_ERROR);
+            return new Results(ResultConstant.INNER_ERROR.getFullCode(),"撤销成功0条");
         }else {
             //说明部分成功部分失败SYSTEM_BUSY
             List<Order> orders = map.get(OrderStatus.WITHDRAW);
             for (Order order : orders){
                 orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, order.getOrderCode(), 3600*12);
             }
-            return new Results(ResultConstant.SYSTEM_BUSY);
+            return new Results(ResultConstant.SYSTEM_BUSY.getFullCode(),"撤销成功"+orders.stream()+"条");
         }
     }
 }
