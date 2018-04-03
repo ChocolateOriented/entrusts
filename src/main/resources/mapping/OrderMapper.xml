@@ -146,7 +146,7 @@
 		left join digital_currency c1 on c1.id = p.base_currency_id
 		left join digital_currency c2 on c2.id = p.target_currency_id 
 		where user_code = #{userCode}
-		and status in (11, 30, 40)
+		and status in (11, 30, 40, 50)
 		<include refid="orderCondition" />
 	</select>
 	
@@ -158,7 +158,7 @@
 		left join digital_currency c1 on c1.id = p.base_currency_id
 		left join digital_currency c2 on c2.id = p.target_currency_id 
 		where user_code = #{userCode}
-		and status in (11, 30, 40)
+		and status in (11, 30, 40, 50)
 		<if test="orderQuery.toCreatedTime != null">
 			<![CDATA[ and unix_timestamp(o.order_time) < #{orderQuery.toCreatedTime} / 1000 ]]>
 		</if>
@@ -189,7 +189,7 @@
 		left join digital_currency c1 on c1.id = p.base_currency_id
 		left join digital_currency c2 on c2.id = p.target_currency_id 
 		where user_code = #{userCode}
-		and status in (11, 30, 40)
+		and status in (11, 30, 40, 50)
 		<if test="toCreatedTime != null">
 			<![CDATA[ and unix_timestamp(o.order_time) < #{toCreatedTime} / 1000 ]]>
 		</if>
@@ -204,7 +204,7 @@
 		left join digital_currency c1 on c1.id = p.base_currency_id
 		left join digital_currency c2 on c2.id = p.target_currency_id 
 		where user_code = #{userCode}
-		and status in (11, 30, 40)
+		and status in (11, 30, 40, 50)
 		order by o.order_time desc
 		limit #{limit}
 	</select>
@@ -214,7 +214,7 @@
 			count(o.order_code)
 		from `order` o
 		where user_code = #{userCode}
-		and status in (11, 30, 40)
+		and status in (11, 30, 40, 50)
 	</select>
 
 	<update id="updateOrderNewDeal">
