@@ -722,6 +722,7 @@ public class OrderManageService extends BaseService {
 		currentEntrusts.setDate(order.getOrderTime());
 		currentEntrusts.setTradeType(order.getTradeType().name());
 		currentEntrusts.setStatus(order.getStatus().getValue()+"");
+		currentEntrusts.setServiceFee(order.getServiceFee());
 		currentEntrusts.setDealTargetQuantity(order.getDealQuantity() == null ? new BigDecimal(0):order.getDealQuantity());
 		currentEntrusts.setOrderTargetQuantity(order.getQuantity());
 		currentEntrusts.setOrderPrice(order.getConvertRate());
