@@ -78,28 +78,13 @@ public class OrderCancelService {
 
         Map<OrderStatus,List<Order>> map = new HashMap<>();
         List<UnfreezeEntity> unfreezeEntities = queryAllUnfreezeInfo(userCode);
+        logger.info("用户id:"+userCode+"获取到此人的可取消订单数量"+unfreezeEntities.size());
         if(unfreezeEntities == null || unfreezeEntities.size() == 0){
             return null;
         }
-        List<Future<Order>> orderSubmit = new ArrayList<>();
+//        List<Future<Order>> orderSubmit = new ArrayList<>();
         for(UnfreezeEntity unfreezeEntity : unfreezeEntities){
-            //Order order = toCancelOrder(unfreezeEntity);
-            Future<Order> submit = orderCancelExecutorService.submit(() -> toCancelOrder(unfreezeEntity));
-            orderSubmit.add(submit);
-        }
-
-        for (Future<Order> fo : orderSubmit){
-            Order order = null;
-            try {
-                order = fo.get();
-            } catch (InterruptedException e) {
-                logger.info("",e);
-                continue;
-            } catch (ExecutionException e) {
-                logger.info("",e);
-                continue;
-            }
-
+            Order order = toCancelOrder(unfreezeEntity);
             if(map.containsKey(order.getStatus())){
                 map.get(order.getStatus()).add(order);
             }else {
@@ -107,7 +92,24 @@ public class OrderCancelService {
                 orders.add(order);
                 map.put(order.getStatus(),orders);
             }
+//            Future<Order> submit = orderCancelExecutorService.submit(() -> toCancelOrder(unfreezeEntity));
+//            orderSubmit.add(submit);
         }
+
+//        for (Future<Order> fo : orderSubmit){
+//            Order order = null;
+//            try {
+//                order = fo.get();
+//            } catch (InterruptedException e) {
+//                logger.info("",e);
+//                continue;
+//            } catch (ExecutionException e) {
+//                logger.info("",e);
+//                continue;
+//            }
+//
+
+//        }
         return map;
     }
     public List<UnfreezeEntity> queryAllUnfreezeInfo(String userCode){

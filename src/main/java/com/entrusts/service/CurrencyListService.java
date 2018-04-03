@@ -280,7 +280,7 @@ public class CurrencyListService extends BaseService {
         for (TargetMapCurrency t : targetMapCurrenciesredis){
             for(TargetCurrency t1 : t.getTargetCurrencies()){
                 if(targetCurrency.getTradePareId() == t1.getTradePareId()){
-                    targetCurrency.setTodayStartPrice(t1.getTodayStartPrice());
+                    targetCurrency.setTodayStartPrice(t1.getTodayStartPrice()==null ? new BigDecimal(0) :t1.getTodayStartPrice());
                     return;
                 }
             }
