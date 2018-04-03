@@ -409,9 +409,7 @@ public class OrderManageService extends BaseService {
 		orderView.setOrderPrice(order.getConvertRate());
 		orderView.setDealTargetQuantity(order.getDealQuantity());
 		orderView.setOrderTargetQuantity(order.getQuantity());
-		orderView.setDealBaseAmount(order.getConvertRate().multiply(order.getDealQuantity(), new MathContext(8)));
-		orderView.setServiceFee(order.getConvertRate().multiply((
-				order.getQuantity().subtract(order.getDealQuantity())), new MathContext(8)));
+		orderView.setServiceFee(order.getServiceFee());
 		TradePair tradePair = tradePairService.findTradePairById(order.getTradePairId());
 		orderView.setBaseCurrency(tradePair.getBaseCurrencyName());
 		orderView.setBaseCurrency(tradePair.getTargetCurrencyName());
