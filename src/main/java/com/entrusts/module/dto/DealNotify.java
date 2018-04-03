@@ -99,6 +99,8 @@ public class DealNotify {
 		private Long createdTime;
 		
 		private BigDecimal dealPrice;
+
+		private BigDecimal dealQuantity;
 		
 		private Integer dealEncryptCurrencyId;
 		
@@ -162,6 +164,14 @@ public class DealNotify {
 
 		public void setDealPrice(BigDecimal dealPrice) {
 			this.dealPrice = dealPrice;
+		}
+
+		public BigDecimal getDealQuantity() {
+			return dealQuantity;
+		}
+
+		public void setDealQuantity(BigDecimal dealQuantity) {
+			this.dealQuantity = dealQuantity;
 		}
 
 		public Integer getDealEncryptCurrencyId() {

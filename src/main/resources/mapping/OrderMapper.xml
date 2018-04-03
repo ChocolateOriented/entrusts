@@ -157,8 +157,8 @@
 		left join trade_pair p on o.trade_pair_id = p.id
 		left join digital_currency c1 on c1.id = p.base_currency_id
 		left join digital_currency c2 on c2.id = p.target_currency_id 
-		where user_code = #{userCode}
-		and status in (11, 30, 40, 50)
+		where o.user_code = #{orderQuery.userCode}
+		and o.status in (11, 30, 40, 50)
 		<if test="orderQuery.toCreatedTime != null">
 			<![CDATA[ and unix_timestamp(o.order_time) < #{orderQuery.toCreatedTime} / 1000 ]]>
 		</if>
@@ -172,7 +172,7 @@
 			and o.trade_type = #{orderQuery.direction}
 		</if>
 		<if test="orderQuery.baseCurrency != null and orderQuery.baseCurrency != ''">
-			and c1.alias = #{baseCurrency}
+			and c1.alias = #{orderQuery.baseCurrency}
 		</if>
 		<if test="orderQuery.targetCurrency != null and orderQuery.targetCurrency != ''">
 			and c2.alias = #{orderQuery.targetCurrency}
@@ -219,7 +219,7 @@
 
 	<update id="updateOrderNewDeal">
 		update `order` set
-		deal_quantity = ifnull(deal_quantity, 0) + #{tradeEncryptCurrencyQuantity},
+		deal_quantity = ifnull(deal_quantity, 0) + #{dealQuantity},
 		service_fee = ifnull(service_fee, 0) + #{tradeFee},
 		lasted_deal_time = if(unix_timestamp(lasted_deal_time) * 1000 > #{createdTime}, lasted_deal_time, from_unixtime(#{createdTime} / 1000))
 		where order_code = #{orderCode}
