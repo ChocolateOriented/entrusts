@@ -4,7 +4,7 @@ import com.entrusts.module.enums.OrderMode;
 import com.entrusts.module.enums.TradeType;
 import java.math.BigDecimal;
 import java.util.Date;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -25,10 +25,10 @@ public class Delegate {
 	@NotBlank(message = "目标货币不能为空")
 	private String targetCurrency;
 	@NotNull(message = "价格不能为空")
-	@Min(value = 0,message = "价格必须大于0")
+	@DecimalMin(value = "0.00000001",message = "价格必须大于0")
 	private BigDecimal price;
 	@NotNull(message = "交易数量不能为空")
-	@Min(value = 0,message = "交易数量必须大于0")
+	@DecimalMin(value = "0.00000001",message = "交易数量必须大于0")
 	private BigDecimal quantity;
 
 	public String getUserCode() {
