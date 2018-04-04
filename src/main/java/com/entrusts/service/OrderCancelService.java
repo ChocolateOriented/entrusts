@@ -50,9 +50,9 @@ public class OrderCancelService {
     private OrderEventService orderEventService;
     @Value("${sleep.time}")
     private Long sleepTime;
-    public CommonResponse<Order> cancelOrder(String orderCode) {
+    public CommonResponse<Order> cancelOrder(String orderCode,String userCode) {
 
-        UnfreezeEntity unfreezeEntity = queryUnfreezeInfo(orderCode);
+        UnfreezeEntity unfreezeEntity = queryUnfreezeInfo(orderCode,userCode);
         if(unfreezeEntity == null){
             logger.info("订单号:"+orderCode+",没有此订单");
             return null;
@@ -62,9 +62,9 @@ public class OrderCancelService {
 
         return orderCommonResponse;
     }
-    public UnfreezeEntity queryUnfreezeInfo(String orderCode){
+    public UnfreezeEntity queryUnfreezeInfo(String orderCode,String userCode){
         //获取对应的order
-        Order order = orderMapper.queryUnfreezeInfo(orderCode);
+        Order order = orderMapper.queryUnfreezeInfo(orderCode,userCode);
         if(order == null){
             return null;
         }

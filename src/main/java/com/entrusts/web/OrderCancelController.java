@@ -30,7 +30,8 @@ public class OrderCancelController extends BaseController  {
 
     @PostMapping(value = "/cancel")
     public Object cancel(@RequestBody Order orderRequest, HttpServletRequest request){
-        CommonResponse<Order> orderCommonResponse = orderCancelService.cancelOrder(orderRequest.getOrderCode());
+        String userCode = request.getHeader("Account-Code");
+        CommonResponse<Order> orderCommonResponse = orderCancelService.cancelOrder(orderRequest.getOrderCode(),userCode);
         if(orderCommonResponse==null){
             //说明此订单不存在
             return new Results(ResultConstant.EMPTY_ENTITY);
@@ -42,7 +43,7 @@ public class OrderCancelController extends BaseController  {
             return new Results(ResultConstant.INNER_ERROR.getFullCode(),orderCommonResponse.getMessage());
         }else {
             //撤销成功
-            String userCode = request.getHeader("Account-Code");
+
             orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, orderRequest.getOrderCode(), 3600*12);
             orderManageService.updateUserHistoryCache(order);
             return Results.ok();

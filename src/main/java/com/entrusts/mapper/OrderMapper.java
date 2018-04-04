@@ -50,7 +50,7 @@ public interface OrderMapper {
 	 * @param orderCode
 	 * @return
 	 */
-	Order queryUnfreezeInfo(String orderCode);
+	Order queryUnfreezeInfo(@Param("orderCode") String orderCode,@Param("userCode") String userCode);
 
 	/**
 	 * 根据用户code获取所有撤销订单
