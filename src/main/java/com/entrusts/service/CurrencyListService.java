@@ -158,7 +158,7 @@ public class CurrencyListService extends BaseService {
     /**
      * 每半时跟新数据库的基准数据到redis
      */
-    @Scheduled(cron = "0 0/1 * * * ?")
+    @Scheduled(cron = "0 0/30 * * * ?")
     public void setCurrencyToRedis(){
         long l = System.currentTimeMillis();
         //获取redis中的key
