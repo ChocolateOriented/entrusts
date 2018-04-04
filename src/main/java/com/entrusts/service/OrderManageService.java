@@ -2,6 +2,8 @@
 package com.entrusts.service;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -411,6 +413,8 @@ public class OrderManageService extends BaseService {
 		orderView.setOrderPrice(order.getConvertRate());
 		orderView.setDealTargetQuantity(order.getDealQuantity());
 		orderView.setOrderTargetQuantity(order.getQuantity());
+		orderView.setDealBaseAmount(orderView.getOrderPrice().multiply(
+				orderView.getDealTargetQuantity(), new MathContext(8, RoundingMode.HALF_UP)));
 		orderView.setServiceFee(order.getServiceFee());
 		TradePair tradePair = tradePairService.findTradePairById(order.getTradePairId());
 		orderView.setBaseCurrency(tradePair.getBaseCurrencyName());
