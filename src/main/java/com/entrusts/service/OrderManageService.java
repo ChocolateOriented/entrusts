@@ -293,6 +293,10 @@ public class OrderManageService extends BaseService {
 	 * @param limitOrders
 	 */
 	private void cacheLimitHistoryOrder(String userCode, int total, List<HistoryOrderView> limitOrders) {
+		if (limitOrders == null || limitOrders.isEmpty()) {
+			return;
+		}
+		
 		String userKey = historyOrderUserKey + userCode;
 		String userTotalKey = totalHistoryOrderUserKey + userCode;
 
