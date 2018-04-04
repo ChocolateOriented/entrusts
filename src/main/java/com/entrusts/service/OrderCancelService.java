@@ -48,8 +48,7 @@ public class OrderCancelService {
     private OrderMapper orderMapper;
     @Autowired
     private OrderEventService orderEventService;
-    @Value("${sleep.time}")
-    private Long sleepTime;
+
     public CommonResponse<Order> cancelOrder(String orderCode,String userCode) {
 
         UnfreezeEntity unfreezeEntity = queryUnfreezeInfo(orderCode,userCode);
@@ -87,11 +86,6 @@ public class OrderCancelService {
         for(UnfreezeEntity unfreezeEntity : unfreezeEntities){
             CommonResponse<Order> orderCommonResponse = toCancelOrder(unfreezeEntity);
             cancelOrder.add(orderCommonResponse);
-            try {
-                Thread.sleep(sleepTime);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
         return cancelOrder;
     }
