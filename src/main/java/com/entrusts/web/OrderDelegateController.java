@@ -87,7 +87,7 @@ public class OrderDelegateController extends BaseController {
 			String totalValue = jedis.get(userTotalKey);
 			int maxDelegateNum = 20;
 			if (StringUtils.isNotBlank(totalValue) && Integer.parseInt(totalValue) > maxDelegateNum) {
-				return new Results(ResultConstant.EXCEED_MAX_DELEGATE.code, "最多同时发布"+maxDelegateNum+"条托单");
+				return new Results(ResultConstant.EXCEED_MAX_DELEGATE, "最多同时发布"+maxDelegateNum+"条托单");
 			}
 		} catch (Exception e) {
 			logger.info(userCode+"托单失败, 获取Redis连接失败",e);
@@ -98,16 +98,24 @@ public class OrderDelegateController extends BaseController {
 
 		//数据校验
 		if (bindingResul.hasErrors()) {
-			return new Results(ResultConstant.EMPTY_PARAM.code, getFieldErrorsMessages(bindingResul));
+			return new Results(ResultConstant.EMPTY_PARAM, getFieldErrorsMessages(bindingResul));
 		}
 		TradePair tradePair = tradePairService.findTradePairByCoinName(delegate.getBaseCurrency(), delegate.getTargetCurrency());
 		if (tradePair == null) {
-			return new Results(ResultConstant.EMPTY_PARAM.code, "未知交易对");
+			return new Results(ResultConstant.EMPTY_PARAM, "未知交易对");
 		}
 		BigDecimal minTradeQuantity = tradePair.getMinTradeQuantity();
-		if (minTradeQuantity != null && delegate.getQuantity().compareTo(minTradeQuantity) < 0) {
+		if (null == minTradeQuantity){
+			minTradeQuantity = new BigDecimal("0.00000001") ;
+		}
+		if (delegate.getQuantity2Decimal().compareTo(minTradeQuantity) < 0) {
 			DecimalFormat format = new DecimalFormat("#.########");
-			return new Results(ResultConstant.EMPTY_PARAM.code, "交易数量错误, 最小值" + format.format(minTradeQuantity));
+			return new Results(ResultConstant.EMPTY_PARAM, "交易数量错误, 最小值" + format.format(minTradeQuantity));
+		}
+		BigDecimal minPrice = new BigDecimal("0.00000001");
+		if (delegate.getPrice2Decimal().compareTo(minPrice) <= 0) {
+			DecimalFormat format = new DecimalFormat("#.########");
+			return new Results(ResultConstant.EMPTY_PARAM, "价格错误, 最小值" + format.format(minPrice));
 		}
 
 		//发布托单
@@ -184,8 +192,8 @@ public class OrderDelegateController extends BaseController {
 			event.setUserCode(delegate.getUserCode());
 			event.setClientTime(delegate.getClientTime());
 			event.setTradeType(delegate.getTradeType());
-			event.setConvertRate(delegate.getPrice());
-			event.setQuantity(delegate.getQuantity());
+			event.setConvertRate(delegate.getPrice2Decimal());
+			event.setQuantity(delegate.getQuantity2Decimal());
 
 			event.setBaseCurrencyId(tradePair.getBaseCurrencyId());
 			event.setTargetCurrencyId(tradePair.getTargetCurrencyId());

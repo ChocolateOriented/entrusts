@@ -4,8 +4,8 @@ import com.entrusts.module.enums.OrderMode;
 import com.entrusts.module.enums.TradeType;
 import java.math.BigDecimal;
 import java.util.Date;
-import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
@@ -15,6 +15,8 @@ public class Delegate {
 	private String userCode;
 	private OrderMode orderMode;
 	private Date clientTime;
+	private BigDecimal quantity2Decimal;
+	private BigDecimal price2Decimal;
 
 	@NotBlank(message = "请求令牌能为空")
 	private String requestToken;
@@ -24,12 +26,12 @@ public class Delegate {
 	private String baseCurrency;
 	@NotBlank(message = "目标货币不能为空")
 	private String targetCurrency;
-	@NotNull(message = "价格不能为空")
-	@DecimalMin(value = "0.00000001",message = "价格必须大于0")
-	private BigDecimal price;
-	@NotNull(message = "交易数量不能为空")
-	@DecimalMin(value = "0.00000001",message = "交易数量必须大于0")
-	private BigDecimal quantity;
+	@NotBlank(message = "价格不能为空")
+	@Pattern(regexp="^\\d{1,9}(\\.\\d{1,8})?$", message="价格超出范围")
+	private String price;
+	@NotBlank(message = "交易数量不能为空")
+	@Pattern(regexp="^\\d{1,9}(\\.\\d{1,8})?$", message="交易数量超出范围")
+	private String quantity;
 
 	public String getUserCode() {
 		return userCode;
@@ -87,19 +89,30 @@ public class Delegate {
 		this.targetCurrency = targetCurrency;
 	}
 
-	public BigDecimal getPrice() {
+	public String getPrice() {
 		return price;
 	}
 
-	public void setPrice(BigDecimal price) {
+	public void setPrice(String price) {
 		this.price = price;
+		this.price2Decimal = new BigDecimal(price);
 	}
 
-	public BigDecimal getQuantity() {
+	public String getQuantity() {
 		return quantity;
 	}
 
-	public void setQuantity(BigDecimal quantity) {
+	public void setQuantity(String quantity) {
 		this.quantity = quantity;
+		this.quantity2Decimal = new BigDecimal(quantity);
 	}
+
+	public BigDecimal getQuantity2Decimal() {
+		return quantity2Decimal;
+	}
+
+	public BigDecimal getPrice2Decimal() {
+		return price2Decimal;
+	}
+
 }
