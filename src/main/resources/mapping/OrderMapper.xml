@@ -239,7 +239,7 @@
         <include refid="orderColumns"/>
         FROM
         `order` AS o
-        WHERE o.order_code = #{orderCode} AND o.`status`=20
+        WHERE o.order_code = #{orderCode} AND o.user_code =#{userCode} AND o.`status`=20
     </select>
     <select id="queryAllUnfreezeInfo" resultType="com.entrusts.module.entity.Order">
         SELECT

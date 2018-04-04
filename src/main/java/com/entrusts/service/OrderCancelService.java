@@ -27,9 +27,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+
+
 
 /**
  * Created by cyuan on 2018/3/13.
@@ -43,9 +42,6 @@ public class OrderCancelService {
     private DealmakingClient dealmakingClient;
     @Autowired
     private MillstoneClient millstoneClient;
-
-    @Autowired
-    private ExecutorService orderCancelExecutorService;
     @Autowired
     private TradePairService tradePairService;
     @Autowired
@@ -54,9 +50,9 @@ public class OrderCancelService {
     private OrderEventService orderEventService;
     @Value("${sleep.time}")
     private Long sleepTime;
-    public CommonResponse<Order> cancelOrder(String orderCode) {
+    public CommonResponse<Order> cancelOrder(String orderCode,String userCode) {
 
-        UnfreezeEntity unfreezeEntity = queryUnfreezeInfo(orderCode);
+        UnfreezeEntity unfreezeEntity = queryUnfreezeInfo(orderCode,userCode);
         if(unfreezeEntity == null){
             logger.info("订单号:"+orderCode+",没有此订单");
             return null;
@@ -66,9 +62,9 @@ public class OrderCancelService {
 
         return orderCommonResponse;
     }
-    public UnfreezeEntity queryUnfreezeInfo(String orderCode){
+    public UnfreezeEntity queryUnfreezeInfo(String orderCode,String userCode){
         //获取对应的order
-        Order order = orderMapper.queryUnfreezeInfo(orderCode);
+        Order order = orderMapper.queryUnfreezeInfo(orderCode,userCode);
         if(order == null){
             return null;
         }
@@ -79,50 +75,25 @@ public class OrderCancelService {
         unfreezeEntity.setOrder(order);
         return unfreezeEntity;
     }
-    public Map<OrderStatus,List<CommonResponse<Order>>> cancelAll(String userCode) {
+    public List<CommonResponse<Order>> cancelAll(String userCode) {
 
         Map<OrderStatus,List<CommonResponse<Order>>> map = new HashMap<>();
+        List<CommonResponse<Order>> cancelOrder = new ArrayList<>();
         List<UnfreezeEntity> unfreezeEntities = queryAllUnfreezeInfo(userCode);
         logger.info("用户id:"+userCode+"获取到此人的可取消订单数量"+unfreezeEntities.size());
         if(unfreezeEntities == null || unfreezeEntities.size() == 0){
             return null;
         }
-//        List<Future<Order>> orderSubmit = new ArrayList<>();
         for(UnfreezeEntity unfreezeEntity : unfreezeEntities){
             CommonResponse<Order> orderCommonResponse = toCancelOrder(unfreezeEntity);
-            Order order = orderCommonResponse.getData();
-            if(map.containsKey(order.getStatus())){
-                map.get(order.getStatus()).add(orderCommonResponse);
-            }else {
-                List<CommonResponse<Order>> orders = new ArrayList<>();
-                orders.add(orderCommonResponse);
-                map.put(order.getStatus(),orders);
-            }
+            cancelOrder.add(orderCommonResponse);
             try {
-
                 Thread.sleep(sleepTime);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-//            Future<Order> submit = orderCancelExecutorService.submit(() -> toCancelOrder(unfreezeEntity));
-//            orderSubmit.add(submit);
         }
-
-//        for (Future<Order> fo : orderSubmit){
-//            Order order = null;
-//            try {
-//                order = fo.get();
-//            } catch (InterruptedException e) {
-//                logger.info("",e);
-//                continue;
-//            } catch (ExecutionException e) {
-//                logger.info("",e);
-//                continue;
-//            }
-//
-
-//        }
-        return map;
+        return cancelOrder;
     }
     public List<UnfreezeEntity> queryAllUnfreezeInfo(String userCode){
         List<Order> orderList = orderMapper.queryAllUnfreezeInfo(userCode);
@@ -149,7 +120,6 @@ public class OrderCancelService {
         Order order = unfreezeEntity.getOrder();
         //调用搓单系统取消订单
         String s = delCancelOrder(unfreezeEntity);
-        Map<String,Object> map = new HashMap<>();
         CommonResponse<Order> response = JSON.parseObject(s, new TypeReference<CommonResponse<Order>>() {});
 
         logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+s);
