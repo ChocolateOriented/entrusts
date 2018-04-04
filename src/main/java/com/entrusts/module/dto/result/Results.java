@@ -29,6 +29,11 @@ public class Results {
         this.message = message;
     }
 
+    public Results(ResultConstant constant, String message) {
+        this.code = constant.getFullCode();
+        this.message = message;
+    }
+
     public Results(ResultConstant constant) {
         this.code = constant.getFullCode();
         this.message = constant.message;
