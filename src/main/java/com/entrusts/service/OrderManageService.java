@@ -33,7 +33,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Transaction;
 import redis.clients.jedis.Tuple;
 
 @Service
@@ -307,11 +306,9 @@ public class OrderManageService extends BaseService {
 		try {
 			jedis = RedisUtil.getResource();
 			jedis.watch(userKey);
-			Transaction trans = jedis.multi();
-			trans.hmset(userKey, cacheMap);
-			trans.set(userTotalKey, String.valueOf(total));
-			trans.zincrby(hitCountKey, 1, userCode);
-			trans.exec();
+			jedis.hmset(userKey, cacheMap);
+			jedis.set(userTotalKey, String.valueOf(total));
+			jedis.zincrby(hitCountKey, 1, userCode);
 		} catch (Exception e) {
 			logger.info(userCode + "用户历史托缓存失败", e);
 		} finally {
@@ -540,7 +537,7 @@ public class OrderManageService extends BaseService {
 		List<CurrentEntrusts> limitOrders = orderMapper.findCurrentOrder(userCode);
 		int total = limitOrders.size();
 		//更新用户当前托单的缓存数据
-		logger.info("更新用户当前托单的缓存数据 userCode:{}, total:{}", userCode, total);
+		logger.info("更新用户当前托单的缓存数据 userCode:{}, total:{}");
 		cacheLimitCurrentOrder(userCode, total, limitOrders);
 
 		TimePage<CurrentEntrusts> page = new TimePage<>();
@@ -567,12 +564,8 @@ public class OrderManageService extends BaseService {
 			Jedis jedis = null;
 			try {
 				jedis = RedisUtil.getResource();
-				jedis.watch(userKey);
-				Transaction trans = jedis.multi();
-				trans.hmset(userKey, cacheMap);
-				trans.set(userTotalKey, String.valueOf(total));
-				trans.exec();
-				logger.info("userKey:{}, cachemap:{}", userKey, cacheMap);
+				jedis.hmset(userKey, cacheMap);
+				jedis.set(userTotalKey, String.valueOf(total));
 			} catch (Exception e) {
 				logger.info("从数据库增加至缓存失败："+e.getMessage());
 			}finally {
@@ -626,14 +619,12 @@ public class OrderManageService extends BaseService {
 		Jedis jedis = null;
 		try {
 			jedis = RedisUtil.getResource();
-			Transaction trans = jedis.multi();
-			trans.hset(userKey, currentEntrusts.getOrderCode(), JSON.toJSONString(currentEntrusts));
-			trans.incr(userTotalKey);
+			jedis.hset(userKey, currentEntrusts.getOrderCode(), JSON.toJSONString(currentEntrusts));
+			jedis.incr(userTotalKey);
 			if (cacheSeconds != 0) {
-				trans.expire(userTotalKey, cacheSeconds);
-				trans.expire(userKey, cacheSeconds);
+				jedis.expire(userTotalKey, cacheSeconds);
+				jedis.expire(userKey, cacheSeconds);
 			}
-			trans.exec();
 		} catch (Exception e) {
 			return false;
 		} finally {
