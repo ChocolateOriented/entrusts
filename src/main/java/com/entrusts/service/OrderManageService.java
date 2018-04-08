@@ -540,6 +540,7 @@ public class OrderManageService extends BaseService {
 		List<CurrentEntrusts> limitOrders = orderMapper.findCurrentOrder(userCode);
 		int total = limitOrders.size();
 		//更新用户当前托单的缓存数据
+		logger.info("更新用户当前托单的缓存数据 userCode:{}, total:{}", userCode, total);
 		cacheLimitCurrentOrder(userCode, total, limitOrders);
 
 		TimePage<CurrentEntrusts> page = new TimePage<>();
@@ -571,8 +572,9 @@ public class OrderManageService extends BaseService {
 				trans.hmset(userKey, cacheMap);
 				trans.set(userTotalKey, String.valueOf(total));
 				trans.exec();
+				logger.info("userKey:{}, cachemap:{}", userKey, cacheMap);
 			} catch (Exception e) {
-
+				logger.info("从数据库增加至缓存失败："+e.getMessage());
 			}finally {
 				if (jedis != null) {
 					jedis.close();
