@@ -765,7 +765,7 @@ public class OrderManageService extends BaseService {
 		Jedis jedis = null;
 		try {
 			jedis = RedisUtil.getResource();
-			Set<String> users = jedis.zrange(historyCacheUserHitCountKey, userCacheLimit + 1, -1);
+			Set<String> users = jedis.zrevrange(historyCacheUserHitCountKey, userCacheLimit + 1, -1);
 			for (String userCode : users) {
 				deleteUserHistoryOrderCache(userCode, jedis);
 			}
