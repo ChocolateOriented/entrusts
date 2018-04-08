@@ -835,14 +835,14 @@ public class OrderManageService extends BaseService {
 			
 			//缓存的数据量大于限额2倍时清除
 			if (size > limit) {
-				deleteUserHistoryOrderCache(userKey, jedis);
+				deleteUserHistoryOrderCache(userCode, jedis);
 				continue;
 			}
 			
 			long score = (long) tuple.getScore();
 			//计数为0时删除
 			if (score == 0) {
-				deleteUserHistoryOrderCache(userKey, jedis);
+				deleteUserHistoryOrderCache(userCode, jedis);
 				continue;
 			}
 			
