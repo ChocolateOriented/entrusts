@@ -446,7 +446,9 @@ public class OrderManageService extends BaseService {
 		String userCode = orderQuery.getUserCode();
 		String userTotalKey = totalCurrentOrderUserKey + userCode;
 		String totalValue = RedisUtil.get(userTotalKey);
-		if (totalValue == null) {
+		logger.info("UserCode : {}, totalValue:{}", orderQuery.getUserCode(), totalValue);
+		if (totalValue == null || Integer.valueOf(totalValue).equals(0)) {
+			logger.info("缓存数据为空，从数据库中查询添加至缓存，UserCode : {}, totalValue:{}", orderQuery.getUserCode(), totalValue);
 			findAndCacheLimitCurrentOrder(userCode, pageNum, PageSize);
 		}
 		List<CurrentEntrusts> orders = findCurrentOrderFromRedis(orderQuery);
@@ -483,9 +485,11 @@ public class OrderManageService extends BaseService {
 		String userCode = orderQuery.getUserCode();
 		String userTotalKey = totalCurrentOrderUserKey + userCode;
 		String totalValue = RedisUtil.get(userTotalKey);
+		logger.info("UserCode : {}, totalValue:{}", orderQuery.getUserCode(), totalValue);
 		//无缓存时
-		if (totalValue == null) {
-			 findAndCacheLimitCurrentOrder(userCode, limit);
+		if (totalValue == null || Integer.valueOf(totalValue).equals(0)) {
+			logger.info("缓存数据为空，从数据库中查询添加至缓存，UserCode : {}, totalValue:{}", orderQuery.getUserCode(), totalValue);
+			findAndCacheLimitCurrentOrder(userCode, limit);
 		}
 		List<CurrentEntrusts> orders = findCurrentOrderFromRedis(orderQuery);
 		TimePage<CurrentEntrusts> page = new TimePage<>();
