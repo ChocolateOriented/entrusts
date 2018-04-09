@@ -33,6 +33,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Transaction;
 import redis.clients.jedis.Tuple;
 
 @Service
@@ -306,9 +307,11 @@ public class OrderManageService extends BaseService {
 		try {
 			jedis = RedisUtil.getResource();
 			jedis.watch(userKey);
-			jedis.hmset(userKey, cacheMap);
-			jedis.set(userTotalKey, String.valueOf(total));
-			jedis.zincrby(hitCountKey, 1, userCode);
+			Transaction trans = jedis.multi();
+			trans.hmset(userKey, cacheMap);
+			trans.set(userTotalKey, String.valueOf(total));
+			trans.zincrby(hitCountKey, 1, userCode);
+			trans.exec();
 		} catch (Exception e) {
 			logger.info(userCode + "用户历史托缓存失败", e);
 		} finally {
@@ -564,8 +567,11 @@ public class OrderManageService extends BaseService {
 			Jedis jedis = null;
 			try {
 				jedis = RedisUtil.getResource();
-				jedis.hmset(userKey, cacheMap);
-				jedis.set(userTotalKey, String.valueOf(total));
+				jedis.watch(userKey);
+				Transaction trans = jedis.multi();
+				trans.hmset(userKey, cacheMap);
+				trans.set(userTotalKey, String.valueOf(total));
+				trans.exec();
 			} catch (Exception e) {
 				logger.info("从数据库增加至缓存失败："+e.getMessage());
 			}finally {
@@ -619,12 +625,14 @@ public class OrderManageService extends BaseService {
 		Jedis jedis = null;
 		try {
 			jedis = RedisUtil.getResource();
-			jedis.hset(userKey, currentEntrusts.getOrderCode(), JSON.toJSONString(currentEntrusts));
-			jedis.incr(userTotalKey);
+			Transaction trans = jedis.multi();
+			trans.hset(userKey, currentEntrusts.getOrderCode(), JSON.toJSONString(currentEntrusts));
+			trans.incr(userTotalKey);
 			if (cacheSeconds != 0) {
-				jedis.expire(userTotalKey, cacheSeconds);
-				jedis.expire(userKey, cacheSeconds);
+				trans.expire(userTotalKey, cacheSeconds);
+				trans.expire(userKey, cacheSeconds);
 			}
+			trans.exec();
 		} catch (Exception e) {
 			return false;
 		} finally {
