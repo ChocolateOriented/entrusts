@@ -540,7 +540,7 @@ public class OrderManageService extends BaseService {
 		List<CurrentEntrusts> limitOrders = orderMapper.findCurrentOrder(userCode);
 		int total = limitOrders.size();
 		//更新用户当前托单的缓存数据
-		logger.info("更新用户当前托单的缓存数据 userCode:{}, total:{}");
+		logger.info("更新用户当前托单的缓存数据 userCode:{}, total:{}", userCode, total);
 		cacheLimitCurrentOrder(userCode, total, limitOrders);
 
 		TimePage<CurrentEntrusts> page = new TimePage<>();
