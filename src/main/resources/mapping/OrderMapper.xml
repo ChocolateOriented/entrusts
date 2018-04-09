@@ -256,6 +256,7 @@
 		if(o.trade_type = 1, 'buy', 'sell') as tradeType,
 		o.convert_rate as orderPrice,
 		o.deal_quantity as dealTargetQuantity,
+		o.quantity as orderTargetQuantity,
 		o.service_fee as serviceFee,
 		convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
 		status

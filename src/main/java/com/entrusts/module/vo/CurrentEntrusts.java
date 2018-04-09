@@ -80,7 +80,7 @@ public class CurrentEntrusts {
     }
 
     public BigDecimal getDealTargetQuantity() {
-        return dealTargetQuantity;
+        return dealTargetQuantity == null ? new BigDecimal(0) : dealTargetQuantity;
     }
 
     public void setDealTargetQuantity(BigDecimal dealTargetQuantity) {
