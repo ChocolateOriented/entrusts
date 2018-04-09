@@ -90,7 +90,7 @@ public class DelegateEventHandler extends BaseService {
 		switch (delegateEvent.getTradeType()){
 			case buy:
 				lockCurrencyId = delegateEvent.getBaseCurrencyId();
-				lockQuantity = delegateEvent.getQuantity().multiply(delegateEvent.getConvertRate());
+				lockQuantity = delegateEvent.getQuantity().multiply(delegateEvent.getConvertRate()).setScale(8,BigDecimal.ROUND_HALF_UP);
 				break;
 			default:
 				lockCurrencyId = delegateEvent.getTargetCurrencyId();
