@@ -3,6 +3,7 @@ package com.entrusts.service;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,9 +46,9 @@ public class OrderManageService extends BaseService {
 	@Autowired
 	private TradePairService tradePairService;
 
-	private static final String historyOrderPrefix = "com.entrusts.service.OrderManageService";
+	private static final String historyOrderPrefix = "OrderManageService.history";
 
-	private static final String currentOrderPrefix = "com.entrusts.service.CurrentOrderManageService";
+	private static final String currentOrderPrefix = "CurrentOrderManageService";
 
 	private static final String currentOrderUserKey = currentOrderPrefix + ".currentuserDate.";
 
@@ -202,11 +203,10 @@ public class OrderManageService extends BaseService {
 	private List<HistoryOrderView> findHistoryOrderFromRedis(OrderQuery orderQuery, Map<String, String> cache) {
 		String userCode = orderQuery.getUserCode();
 		logger.info(userCode + "用户历史托单数据查询缓存");
-		String hitCountKey = historyCacheUserHitCountKey;
 		Jedis jedis = null;
 		try {
 			jedis = RedisUtil.getResource();
-			jedis.zincrby(hitCountKey, 1, userCode);
+			jedis.zincrby(historyCacheUserHitCountKey, 1, userCode);
 		} catch (Exception e) {
 			logger.info(userCode + "用户历史托单缓存访问统计更新失败", e);
 		} finally {
@@ -295,9 +295,12 @@ public class OrderManageService extends BaseService {
 	 * @param limitOrders
 	 */
 	private void cacheLimitHistoryOrder(String userCode, int total, List<HistoryOrderView> limitOrders) {
+		if (limitOrders == null || limitOrders.isEmpty()) {
+			return;
+		}
+		
 		String userKey = historyOrderUserKey + userCode;
 		String userTotalKey = totalHistoryOrderUserKey + userCode;
-		String hitCountKey = historyCacheUserHitCountKey + userCode;
 
 		Map<String, String> cacheMap = new HashMap<>();;
 		for (HistoryOrderView orderView : limitOrders) {
@@ -310,8 +313,9 @@ public class OrderManageService extends BaseService {
 			Transaction trans = jedis.multi();
 			trans.hmset(userKey, cacheMap);
 			trans.set(userTotalKey, String.valueOf(total));
-			trans.zincrby(hitCountKey, 1, userCode);
+			trans.zincrby(historyCacheUserHitCountKey, 1, userCode);
 			trans.exec();
+			logger.info(userCode + "用户历史托新增缓存");
 		} catch (Exception e) {
 			logger.info(userCode + "用户历史托缓存失败", e);
 		} finally {
@@ -409,10 +413,12 @@ public class OrderManageService extends BaseService {
 		orderView.setOrderPrice(order.getConvertRate());
 		orderView.setDealTargetQuantity(order.getDealQuantity());
 		orderView.setOrderTargetQuantity(order.getQuantity());
+		orderView.setDealBaseAmount(orderView.getOrderPrice().multiply(
+				orderView.getDealTargetQuantity(), new MathContext(8, RoundingMode.HALF_UP)));
 		orderView.setServiceFee(order.getServiceFee());
 		TradePair tradePair = tradePairService.findTradePairById(order.getTradePairId());
 		orderView.setBaseCurrency(tradePair.getBaseCurrencyName());
-		orderView.setBaseCurrency(tradePair.getTargetCurrencyName());
+		orderView.setTargetCurrency(tradePair.getTargetCurrencyName());
 		return orderView;
 	}
 
@@ -767,7 +773,7 @@ public class OrderManageService extends BaseService {
 		Jedis jedis = null;
 		try {
 			jedis = RedisUtil.getResource();
-			Set<String> users = jedis.zrange(historyCacheUserHitCountKey, userCacheLimit + 1, -1);
+			Set<String> users = jedis.zrevrange(historyCacheUserHitCountKey, userCacheLimit + 1, -1);
 			for (String userCode : users) {
 				deleteUserHistoryOrderCache(userCode, jedis);
 			}
@@ -806,11 +812,10 @@ public class OrderManageService extends BaseService {
 	private void deleteUserHistoryOrderCache(String userCode, Jedis jedis) {
 		String userKey = historyOrderUserKey + userCode;
 		String userTotalKey = totalHistoryOrderUserKey + userCode;
-		String hitCountKey = historyCacheUserHitCountKey + userCode;
 		List<String> keys = new ArrayList<>();
 		keys.add(userKey);
 		keys.add(userTotalKey);
-		keys.add(hitCountKey);
+		keys.add(historyCacheUserHitCountKey);
 
 		List<String> args = new ArrayList<>();
 		args.add(userCode);
@@ -838,14 +843,14 @@ public class OrderManageService extends BaseService {
 			
 			//缓存的数据量大于限额2倍时清除
 			if (size > limit) {
-				deleteUserHistoryOrderCache(userKey, jedis);
+				deleteUserHistoryOrderCache(userCode, jedis);
 				continue;
 			}
 			
 			long score = (long) tuple.getScore();
 			//计数为0时删除
 			if (score == 0) {
-				deleteUserHistoryOrderCache(userKey, jedis);
+				deleteUserHistoryOrderCache(userCode, jedis);
 				continue;
 			}
 			

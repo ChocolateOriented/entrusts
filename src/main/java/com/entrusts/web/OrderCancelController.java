@@ -1,5 +1,7 @@
 package com.entrusts.web;
 
+import com.entrusts.module.dto.CommonResponse;
+import com.entrusts.module.dto.result.OrderMessage;
 import com.entrusts.module.dto.result.ResultConstant;
 import com.entrusts.module.dto.result.Results;
 import com.entrusts.module.entity.Order;
@@ -28,57 +30,61 @@ public class OrderCancelController extends BaseController  {
 
     @PostMapping(value = "/cancel")
     public Object cancel(@RequestBody Order orderRequest, HttpServletRequest request){
-        Order order = orderCancelService.cancelOrder(orderRequest.getOrderCode());
-        if(order==null){
+        String userCode = request.getHeader("Account-Code");
+        CommonResponse<Order> orderCommonResponse = orderCancelService.cancelOrder(orderRequest.getOrderCode(),userCode);
+        if(orderCommonResponse==null){
             //说明此订单不存在
-            return new Results(ResultConstant.EMPTY_ENTITY.code,"此订单不存在或者是非交易中订单");
+            return new Results(ResultConstant.EMPTY_ENTITY);
 
-        }else if (order.getStatus() == OrderStatus.WITHDRAW ){
+        }
+        Order order = orderCommonResponse.getData();
+        if (order.getStatus() == OrderStatus.TRADING ){
+            //撤销失败
+            return new Results(ResultConstant.INNER_ERROR.getFullCode(),orderCommonResponse.getMessage());
+        }else {
             //撤销成功
-            String userCode = request.getHeader("Account-Code");
+
             orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, orderRequest.getOrderCode(), 3600*12);
             orderManageService.updateUserHistoryCache(order);
             return Results.ok();
-        }else if (order.getStatus() == OrderStatus.TRADING){
-            //撤销失败
-            return new Results(ResultConstant.INNER_ERROR.code,"撤销失败");
-        }else {
-            //撮单系统取消成功,但是货币解锁失败
-            return new Results(ResultConstant.SYSTEM_BUSY.code,"撮单系统取消成功,但是货币解锁失败");
         }
     }
     @PostMapping("/cancelAll")
     public Object cancelAll(HttpServletRequest request){
         String userCode = request.getHeader("Account-Code");
-        Map<OrderStatus,List<Order>> map = orderCancelService.cancelAll(userCode);
-        if (map == null){
-        	return new Results(ResultConstant.EMPTY_ENTITY.code,"无交易中订单");
+        List<CommonResponse<Order>>orderList = orderCancelService.cancelAll(userCode);
+        if (orderList == null){
+        	return new Results(ResultConstant.EMPTY_ENTITY.getFullCode(),"无交易中托单");
         }
         
-        List<Order> listOrder = new ArrayList<>();
-        if(map.keySet().contains(OrderStatus.WITHDRAW)){
-            listOrder.addAll(map.get(OrderStatus.WITHDRAW));
+        List<Order> successOrder = new ArrayList<>();
+        List<Order> faildOrder = new ArrayList<>();
+        for(CommonResponse<Order> order :orderList){
+            if(order.getData().getStatus()==OrderStatus.TRADING){
+                faildOrder.add(order.getData());
+            }else {
+                successOrder.add(order.getData());
+            }
         }
-        if(map.keySet().contains(OrderStatus.WITHDRAW_UNTHAWING)){
-            listOrder.addAll(map.get(OrderStatus.WITHDRAW_UNTHAWING));
-        }
-        
-        orderManageService.updateUserHistoryCaches(listOrder);
 
-        if(map.containsKey(OrderStatus.WITHDRAW) && map.size()==1){
-            //说明全部撤销成功
+        orderManageService.updateUserHistoryCaches(successOrder);
+
+        if(faildOrder.size()==0 && successOrder.size()>0){
+            //全部撤销成功
             orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, null, 3600*12);
             return Results.ok();
-        }else if(map.containsKey(OrderStatus.TRADING) && map.size()==1){
-            //说明全部撤销失败INNER_ERROR
-            return new Results(ResultConstant.INNER_ERROR.code,"撤销全部失败");
         }else {
-            //说明部分成功部分失败SYSTEM_BUSY
-            List<Order> orders = map.get(OrderStatus.WITHDRAW);
-            for (Order order : orders){
+            List<OrderMessage> orderMsg = new ArrayList<>();
+            for (CommonResponse<Order> CommonResponse : orderList) {
+                OrderMessage msg = new OrderMessage();
+                msg.setMessage(CommonResponse.getMessage());
+                msg.setOrderCode(CommonResponse.getData() == null ? null : CommonResponse.getData().getOrderCode());
+                orderMsg.add(msg);
+            }
+            for (Order order : successOrder){
                 orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, order.getOrderCode(), 3600*12);
             }
-            return new Results(ResultConstant.SYSTEM_BUSY.code,"撤销部分成功");
+            return new Results(ResultConstant.INNER_ERROR.getFullCode(),"撤销成功"+successOrder.size()+"条").putData("entities", orderMsg);
         }
     }
 }

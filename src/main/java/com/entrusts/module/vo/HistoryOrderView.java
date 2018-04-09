@@ -86,7 +86,7 @@ public class HistoryOrderView {
 	}
 
 	public BigDecimal getDealTargetQuantity() {
-		return dealTargetQuantity == null ? new BigDecimal(0) : dealTargetQuantity;
+		return dealTargetQuantity == null ? new BigDecimal("0") : dealTargetQuantity;
 	}
 
 	public void setDealTargetQuantity(BigDecimal dealTargetQuantity) {
@@ -94,7 +94,7 @@ public class HistoryOrderView {
 	}
 
 	public BigDecimal getDealBaseAmount() {
-		return dealBaseAmount;
+		return dealBaseAmount == null ? new BigDecimal("0") : dealBaseAmount;
 	}
 
 	public void setDealBaseAmount(BigDecimal dealBaseAmount) {
@@ -102,7 +102,7 @@ public class HistoryOrderView {
 	}
 
 	public BigDecimal getServiceFee() {
-		return serviceFee;
+		return serviceFee == null ? new BigDecimal("0") : serviceFee;
 	}
 
 	public void setServiceFee(BigDecimal serviceFee) {

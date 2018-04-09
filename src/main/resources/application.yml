@@ -63,12 +63,6 @@ mq:
 datacenterId: 1
 machineId: 1
 
-threadPool:
-  corePoolSize: 40
-  maximumPoolSize: 100
-  keepAliveTime: 60
-  capacity: 100
-
 ## 用户中心配置
 #nest.url=http://192.168.1.33:8180/nestApi/
 #nest.url=http://d-eoc-0038.mo9.com:8180/
