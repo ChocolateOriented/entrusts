@@ -655,10 +655,12 @@ public class OrderManageService extends BaseService {
 		if (StringUtils.isEmpty(jsonString)){
 			return false;
 		}
+		String userTotalKey = totalCurrentOrderUserKey + userCode;
 		CurrentEntrusts currentEntrusts = JSON.parseObject(jsonString, CurrentEntrusts.class);
 		currentEntrusts.setStatus(trading.getValue()+"");
 		currentOrders.put(orderCode, JSON.toJSONString(currentEntrusts));
 		String result = RedisUtil.setMap(currentOrderUserKey + userCode, currentOrders, cacheSeconds);
+		RedisUtil.set(userTotalKey, (Integer.valueOf(RedisUtil.get(userTotalKey)))+"", cacheSeconds);
 		return result == null ? false : true;
 	}
 
@@ -683,8 +685,8 @@ public class OrderManageService extends BaseService {
 		if (StringUtils.isEmpty(jsonString)){
 			return false;
 		}
+		String userTotalKey = totalCurrentOrderUserKey + order.getUserCode();
 		if (order.getStatus().equals(OrderStatus.COMPLETE)){
-			String userTotalKey = totalCurrentOrderUserKey + order.getUserCode();
 			RedisUtil.mapRemove(currentOrderUserKey + order.getUserCode(), order.getOrderCode());
 			RedisUtil.set(userTotalKey, (Integer.valueOf(RedisUtil.get(userTotalKey)) -1)+"", cacheSeconds);
 			return true;
@@ -692,6 +694,7 @@ public class OrderManageService extends BaseService {
 
 		currentOrders.put(order.getOrderCode(), JSON.toJSONString(copyPropertiesOrder(order, new CurrentEntrusts())));
 		String result = RedisUtil.setMap(currentOrderUserKey + order.getUserCode(), currentOrders, cacheSeconds);
+		RedisUtil.set(userTotalKey, (Integer.valueOf(RedisUtil.get(userTotalKey)))+"", cacheSeconds);
 		return result == null ? false : true;
 	}
 
