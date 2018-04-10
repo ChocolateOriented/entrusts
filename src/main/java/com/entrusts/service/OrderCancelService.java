@@ -53,7 +53,7 @@ public class OrderCancelService {
 
         UnfreezeEntity unfreezeEntity = queryUnfreezeInfo(orderCode,userCode);
         if(unfreezeEntity == null){
-            logger.info("订单号:"+orderCode+",没有此订单");
+            logger.info("订单号:"+orderCode+",没有此正在交易的订单");
             return null;
         }
 
@@ -118,7 +118,6 @@ public class OrderCancelService {
 
         logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+s);
         if(s == null || !response.isSuccess()){
-
             logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+",调用通知撮单系统撤销接口失败");
             response.setData(order);
             return response;
@@ -207,8 +206,8 @@ public class OrderCancelService {
         String s = dealmakingClient.delCancelOrder(delOrder);
 
 //        String s = "{\n" +
-//                "  \"code\": 0,\n" +
-//                "  \"message\": \"ok\"\n" +
+//                "    \"code\": 4002, \n" +
+//                "    \"message\": \"取消撮合失败，该对象已经不存在\"\n" +
 //                "}";
         return s;
     }
