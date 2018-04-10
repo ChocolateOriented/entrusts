@@ -32,14 +32,22 @@ public class OrderCancelController extends BaseController  {
     public Object cancel(@RequestBody Order orderRequest, HttpServletRequest request){
         String userCode = request.getHeader("Account-Code");
         CommonResponse<Order> orderCommonResponse = orderCancelService.cancelOrder(orderRequest.getOrderCode(),userCode);
-        if(orderCommonResponse==null){
+        if(orderCommonResponse==null ){
             //说明此订单不存在
-            return new Results(ResultConstant.EMPTY_ENTITY);
+            return new Results(ResultConstant.EMPTY_ENTITY.getFullCode(),"订单交易已完成");
 
         }
+
         Order order = orderCommonResponse.getData();
         if (order.getStatus() == OrderStatus.TRADING ){
             //撤销失败
+            if(orderCommonResponse.getCode() == 4001){
+                //说明订单已经撮合完成,订单交易完成
+                orderCommonResponse.setMessage("订单交易已经完成");
+            }else {
+                //说明撮合失败,显示稍后重试
+                orderCommonResponse.setMessage("请稍后重试");
+            }
             return new Results(ResultConstant.INNER_ERROR.getFullCode(),orderCommonResponse.getMessage());
         }else {
             //撤销成功
