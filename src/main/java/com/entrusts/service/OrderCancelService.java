@@ -211,47 +211,31 @@ public class OrderCancelService {
 //                "}";
         return s;
     }
-    /**
-     * 解锁/api/millstone/v1/account/unfreeze_for_order
-     * {
-     "orderCode": "123112",
-     "userCode": "1231231",
-     "encryptCurrencyId": 1,
-     "quantity": 17.1
-     }
-     *///, path = "/dealmaking"
+
     public String unfreezeForOrder(UnfreezeEntity unfreezeEntity){
         Order order = unfreezeEntity.getOrder();
         TradeType tradeType = order.getTradeType();
-        Integer encryptCurrencyId =null;
-        BigDecimal quantity = null;
+        //剩余数量
+        BigDecimal remainQuantity = order.getQuantity().subtract(order.getDealQuantity()==null?new BigDecimal(0):order.getDealQuantity());
+        Integer encryptCurrencyId ;
+        BigDecimal lockQuantity ;
         if(tradeType.getValue() == 1){
             //说明是买方,基准货币金额相减
             encryptCurrencyId=unfreezeEntity.getBaseCurrencyId();
             //托单单价*(托单总数量-已成交数量)
-            quantity = order.getConvertRate().multiply(order.getQuantity().subtract(order.getDealAmount()==null?new BigDecimal(0):order.getDealAmount()));
+            lockQuantity = order.getConvertRate().multiply(remainQuantity).setScale(8,BigDecimal.ROUND_HALF_UP);
         }else {
             //说明是卖方,托单总数量-已成交数量
             encryptCurrencyId=unfreezeEntity.getTargetCurrencyId();
-            quantity= order.getQuantity().subtract(order.getDealQuantity() == null? new BigDecimal(0) : order.getDealQuantity());
+            lockQuantity= remainQuantity;
         }
-//        Map<String,Object>  map = new HashMap<>();
-//        map.put("orderCode",unfreezeEntity.getOrder().getOrderCode());
-//        map.put("userCode",unfreezeEntity.getOrder().getUserCode());
-//        map.put("encryptCurrencyId",encryptCurrencyId);
-//        map.put("quantity",quantity);
+
         FreezeDto freezeDto = new FreezeDto();
         freezeDto.setOrderCode(order.getOrderCode());
         freezeDto.setUserCode(order.getUserCode());
         freezeDto.setEncryptCurrencyId(encryptCurrencyId);
-        freezeDto.setQuantity(quantity);
-
-        String s = millstoneClient.unfreezeForOrder(freezeDto);
-//        String s = "{\n" +
-//                "  \"code\": 0,\n" +
-//                "  \"message\": \"ok\"\n" +
-//                "}";
-        return s;
+        freezeDto.setQuantity(lockQuantity);
+        return millstoneClient.unfreezeForOrder(freezeDto);
     }
 
 
