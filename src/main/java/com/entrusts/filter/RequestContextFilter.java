@@ -11,13 +11,18 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 
+import com.entrusts.interceptor.CommonRequestContext;
 import com.entrusts.interceptor.CommonRequestContext.CommonRequestContextBuilder;
 
 @Order(1)
-@WebFilter(filterName = "sequestContextFilter", urlPatterns = "/*")
+@WebFilter(filterName = "requestContextFilter", urlPatterns = "/*")
 public class RequestContextFilter implements Filter {
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
@@ -35,6 +40,7 @@ public class RequestContextFilter implements Filter {
 		builder.country(httpReq.getHeader("Country"));
 		builder.deviceId(httpReq.getHeader("Device-Id"));
 		builder.build();
+		logger.info("create RequestContext:" + (CommonRequestContext.getInstance() == null ? "empty" : CommonRequestContext.getInstance().getClientId()));
 		chain.doFilter(request, response);
 	}
 
