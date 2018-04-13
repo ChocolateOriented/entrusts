@@ -2,7 +2,6 @@ package com.entrusts.interceptor;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.entrusts.exception.WebApiException;
@@ -12,8 +11,9 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * 签名验证类
+ * @see com.entrusts.filter.SignFilter
  */
-@Component
+@Deprecated
 public class SignInterceptor extends HandlerInterceptorAdapter {
 
     @Autowired
