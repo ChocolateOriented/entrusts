@@ -205,9 +205,7 @@ public class AccountProxyController extends BaseController {
 	 */
 	@GetMapping(value = "get_account_asset_by_user_code_and_encrypt_currency_id")
 	public String getAccountAssetByUserCodeAndEncryptCurrencyId(@RequestHeader(ACCOUNT_CODE) String userCode, @RequestParam("encryptCurrencyId") Integer encryptCurrencyId) {
-		String response = millstoneClient.getAccountAssetByUserCodeAndEncryptCurrencyId(userCode, encryptCurrencyId);
-		logger.info("获取账户信息返回结果：" + response);
-		return response;
+		return millstoneClient.getAccountAssetByUserCodeAndEncryptCurrencyId(userCode, encryptCurrencyId);
 	}
 	
 	/**
