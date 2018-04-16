@@ -1,10 +1,16 @@
 package com.entrusts.web;
 
+import com.alibaba.fastjson.JSONObject;
 import com.entrusts.manager.MillstoneClient;
 import com.entrusts.module.dto.WithdrawnDto;
 import com.entrusts.module.dto.WithdrawnRequest;
-
+import com.entrusts.module.entity.Order;
+import com.entrusts.service.OrderManageService;
+import com.entrusts.util.StringUtils;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +30,8 @@ public class AccountProxyController extends BaseController {
 
 	@Autowired
 	private MillstoneClient millstoneClient;
+	@Autowired
+	private OrderManageService orderManageService;
 
 	/**
 	 * @Description 获取用户数字账户的划转记录
@@ -151,11 +159,36 @@ public class AccountProxyController extends BaseController {
 	 * @return java.lang.String
 	 * @Description 获取交易详情
 	 */
-	@GetMapping(value = "get_trade_detail")
+	@GetMapping(value = "get_trade_detail",produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public String tradeDetail(@RequestHeader(ACCOUNT_CODE) String userCode,
 			@RequestParam(value = "tradeRecordId") String tradeRecordId){
-		return millstoneClient.tradeDetail(userCode, tradeRecordId);
+		final String data_field = "data";
+		final String entity_field = "entity";
+
+		JSONObject trade = millstoneClient.tradeDetail(userCode, tradeRecordId);
+		JSONObject data = trade.getJSONObject(data_field);
+		if (null == data){
+			return trade.toJSONString();
+		}
+		JSONObject entity = data.getJSONObject(entity_field);
+		if (null == entity){
+			return trade.toJSONString();
+		}
+		String orderCode = entity.getString("orderCode");
+		if (StringUtils.isBlank(orderCode)){
+			logger.info("{}{}交易详情, 未能获取托单号",tradeRecordId, userCode);
+			return trade.toJSONString();
+		}
+
+		//添加托单价格
+		Order order = orderManageService.get(orderCode);
+		BigDecimal convertRate =order.getConvertRate();
+		DecimalFormat format = new DecimalFormat("#.########");
+		entity.put("delegatePrice",format.format(convertRate));
+		data.put(entity_field, entity);
+		trade.put(data_field, data);
+		return trade.toJSONString();
 	}
 
 	/**
