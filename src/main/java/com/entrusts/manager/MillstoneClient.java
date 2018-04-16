@@ -1,5 +1,6 @@
 package com.entrusts.manager;
 
+import com.alibaba.fastjson.JSONObject;
 import com.entrusts.module.dto.FreezeDto;
 import com.entrusts.module.dto.WithdrawnDto;
 import com.entrusts.module.dto.result.Results;
@@ -134,7 +135,7 @@ public interface MillstoneClient {
 	 * @Description 获取交易详情
 	 */
 	@GetMapping( MILLSTONE_TRADE_PATH + "record/get_detail")
-	String tradeDetail(@RequestParam("userCode") String userCode,
+	JSONObject tradeDetail(@RequestParam("userCode") String userCode,
 			@RequestParam(value = "tradeRecordId") String tradeRecordId);
 
 	/**
