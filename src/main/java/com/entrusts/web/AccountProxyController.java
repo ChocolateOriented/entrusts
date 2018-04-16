@@ -178,6 +178,7 @@ public class AccountProxyController extends BaseController {
 		String orderCode = entity.getString("orderCode");
 		if (StringUtils.isBlank(orderCode)){
 			logger.info("{}{}交易详情, 未能获取托单号",tradeRecordId, userCode);
+			return trade.toJSONString();
 		}
 
 		//添加托单价格
