@@ -40,7 +40,6 @@ public class RequestContextFilter implements Filter {
 		builder.country(httpReq.getHeader("Country"));
 		builder.deviceId(httpReq.getHeader("Device-Id"));
 		builder.build();
-		logger.info("create RequestContext:" + (CommonRequestContext.getInstance() == null ? "empty" : CommonRequestContext.getInstance().getClientId()));
 		chain.doFilter(request, response);
 	}
 
