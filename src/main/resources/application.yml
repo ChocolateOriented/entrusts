@@ -24,6 +24,9 @@ spring:
     testOnReturn: false
   application:
     name: entrusts
+  messages:
+    encoding: UTF-8
+    basename: messages/messages
 
 eureka:
   client:
@@ -123,6 +126,7 @@ feignClient:
   dealmaking:
     name: bull
     containerName: /bullApi
+
 sign:
   privateKey: 3B306A12B0D24CAFA191EBD446417CC5
   signEffectiveTime: 180

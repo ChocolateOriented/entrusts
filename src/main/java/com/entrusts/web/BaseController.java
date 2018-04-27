@@ -3,6 +3,8 @@ package com.entrusts.web;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
@@ -13,6 +15,9 @@ public abstract class BaseController {
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	protected static final String ACCOUNT_CODE = "Account-Code";//请求头, 当前操作用户的编号
 	protected static final String TIMESTAMP = "Timestamp"; //请求头, 时间戳
+
+	@Autowired
+	protected MessageSource messageSource;
 
 	/**
 	 * @Description 获取字段错误信息
