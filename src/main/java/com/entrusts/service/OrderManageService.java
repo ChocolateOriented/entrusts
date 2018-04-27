@@ -701,7 +701,7 @@ public class OrderManageService extends BaseService {
 		}
 		String userTotalKey = totalCurrentOrderUserKey + order.getUserCode();
 		if (order.getStatus().equals(OrderStatus.COMPLETE)){
-			RedisUtil.mapRemove(currentOrderUserKey + order.getUserCode(), order.getOrderCode());
+			RedisUtil.mapRemove(currentOrderUserKey + order.getUserCode(), order.getOrderCode(),cacheSeconds);
 			RedisUtil.set(userTotalKey, (Integer.valueOf(RedisUtil.get(userTotalKey)) -1)+"", cacheSeconds);
 			return true;
 		}
@@ -733,7 +733,7 @@ public class OrderManageService extends BaseService {
 			if (RedisUtil.get(userTotalKey) == null){
 				return;
 			}
-			RedisUtil.mapRemove(currentOrderUserKey + userCode, orderCode);
+			RedisUtil.mapRemove(currentOrderUserKey + userCode, orderCode,cacheSeconds);
 			RedisUtil.set(userTotalKey, (Integer.valueOf(RedisUtil.get(userTotalKey)) -1)+"", cacheSeconds);
 			return;
 		}else {
@@ -760,6 +760,8 @@ public class OrderManageService extends BaseService {
 		TradePair tradePair = tradePairService.findTradePairById(order.getTradePairId());
 		currentEntrusts.setTargetCurrency(tradePair.getTargetCurrencyName());
 		currentEntrusts.setBaseCurrency(tradePair.getBaseCurrencyName());
+		BigDecimal dealBaseAmount =order.getConvertRate().multiply(order.getDealQuantity(), new MathContext(8, RoundingMode.HALF_UP));
+		currentEntrusts.setDealBaseAmount(dealBaseAmount);
 		return currentEntrusts;
 	}
 

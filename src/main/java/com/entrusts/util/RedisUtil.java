@@ -646,13 +646,17 @@ public class RedisUtil {
 	 * 移除Map缓存中的值
 	 *
 	 * @param key 键
+	 * @param cacheSeconds 
 	 */
-	public static long mapRemove(String key, String mapKey) {
+	public static long mapRemove(String key, String mapKey, int cacheSeconds) {
 		long result = 0;
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
 			result = jedis.hdel(key, mapKey);
+			if (cacheSeconds != 0) {
+				jedis.expire(key, cacheSeconds);
+			}
 			logger.debug("mapRemove {}  {}", key, mapKey);
 		} catch (Exception e) {
 			logger.warn("mapRemove {}  {}", key, mapKey, e);

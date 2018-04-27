@@ -16,6 +16,7 @@ public class CurrentEntrusts {
     private BigDecimal orderPrice; //委托单价
     private BigDecimal orderTargetQuantity; //委托数量
     private BigDecimal dealTargetQuantity; //成交数量
+    private BigDecimal dealBaseAmount; //成交金额
     private String status; //状态(0:委托中(不可撤销), 1:交易中, 2:完成交易, 3:撤销)
     private BigDecimal serviceFee; //费率
 
@@ -102,4 +103,13 @@ public class CurrentEntrusts {
     public void setServiceFee(BigDecimal serviceFee) {
         this.serviceFee = serviceFee;
     }
+
+	public BigDecimal getDealBaseAmount() {
+		return dealBaseAmount;
+	}
+
+	public void setDealBaseAmount(BigDecimal dealBaseAmount) {
+		this.dealBaseAmount = dealBaseAmount;
+	}
+    
 }
