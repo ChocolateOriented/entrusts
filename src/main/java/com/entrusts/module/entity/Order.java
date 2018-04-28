@@ -137,7 +137,7 @@ public class Order implements Serializable {
 	}
 
 	public BigDecimal getDealQuantity() {
-		return dealQuantity;
+		return dealQuantity == null ? new BigDecimal(0) : dealQuantity;
 	}
 
 	public void setDealQuantity(BigDecimal dealQuantity) {
