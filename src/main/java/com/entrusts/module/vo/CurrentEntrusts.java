@@ -105,7 +105,7 @@ public class CurrentEntrusts {
     }
 
 	public BigDecimal getDealBaseAmount() {
-		return dealBaseAmount;
+		return dealBaseAmount == null ? new BigDecimal(0) : dealBaseAmount;
 	}
 
 	public void setDealBaseAmount(BigDecimal dealBaseAmount) {
