@@ -17,8 +17,10 @@ import com.lmax.disruptor.dsl.Disruptor;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,6 +45,8 @@ public class OrderDelegateController extends BaseController {
 	TradePairService tradePairService;
 	@Autowired
 	OrderService orderService;
+	@Value("${delegate.maxDelegateNum}")
+	private Integer maxDelegateNum ;
 
 	private DelegateTranslator delegateTranslator = new DelegateTranslator();
 	private static final String CACHE_DELEGATE_REQUEST_TOKEN_PREFIX = "delegate_request_token_";
@@ -85,8 +89,7 @@ public class OrderDelegateController extends BaseController {
 
 			String userTotalKey = OrderManageService.totalCurrentOrderUserKey + userCode;
 			String totalValue = jedis.get(userTotalKey);
-			int maxDelegateNum = 20;
-			if (StringUtils.isNotBlank(totalValue) && Integer.parseInt(totalValue) > maxDelegateNum) {
+			if (StringUtils.isNotBlank(totalValue) && Objects.nonNull(maxDelegateNum) && Integer.parseInt(totalValue) > maxDelegateNum) {
 				return new Results(ResultConstant.EXCEED_MAX_DELEGATE, "最多同时发布"+maxDelegateNum+"条托单");
 			}
 		} catch (Exception e) {
