@@ -229,7 +229,7 @@ public class OrderCancelService {
         List<CommonResponse<Order>> orderList = new ArrayList<>();
         //如果orderCode不为空就撤销单个订单
         if(orderCode!=null){
-            UnfreezeEntity unfreezeEntity = queryUnfreezeInfo(orderCode,userCode);
+            UnfreezeEntity unfreezeEntity = queryErrorOrderUnfreezeInfo(orderCode,userCode);
             if(unfreezeEntity == null){
                 logger.info("订单号:"+orderCode+",没有此正在交易的订单");
                 return null;
@@ -241,7 +241,7 @@ public class OrderCancelService {
             return orderList;
         }
         //如果为空就撤销userCode对应的所有订单
-        List<UnfreezeEntity> unfreezeEntities = queryAllUnfreezeInfo(userCode);
+        List<UnfreezeEntity> unfreezeEntities = queryErrorOrderAllUnfreezeInfo(userCode);
         logger.info("用户id:"+userCode+"errorOrdre获取到此人的可取消订单数量"+unfreezeEntities.size());
         if(unfreezeEntities == null || unfreezeEntities.size() == 0){
             return null;
@@ -255,6 +255,9 @@ public class OrderCancelService {
         return orderList;
 
     }
+
+
+
 
     /**
      * 撤销单个错误订单
@@ -272,5 +275,35 @@ public class OrderCancelService {
         Order order = updateOrderAfterCancel(unfreezeEntity, OrderStatus.WITHDRAW);
         response.setData(order);
         return response;
+    }
+
+    private UnfreezeEntity queryErrorOrderUnfreezeInfo(String orderCode, String userCode) {
+        //获取对应的order
+        Order order = orderMapper.queryErrorOrderUnfreezeInfo(orderCode,userCode);
+        if(order == null){
+            return null;
+        }
+        TradePair tradePairById = tradePairService.findTradePairById(order.getTradePairId());
+        UnfreezeEntity unfreezeEntity = new UnfreezeEntity();
+        unfreezeEntity.setBaseCurrencyId(tradePairById.getBaseCurrencyId());
+        unfreezeEntity.setTargetCurrencyId(tradePairById.getTargetCurrencyId());
+        unfreezeEntity.setOrder(order);
+        return unfreezeEntity;
+    }
+    private List<UnfreezeEntity> queryErrorOrderAllUnfreezeInfo(String userCode) {
+        List<Order> orderList = orderMapper.queryErrorOrderAllUnfreezeInfo(userCode);
+        List<UnfreezeEntity> unfreezeEntityList = new ArrayList<>();
+        for (Order o : orderList){
+            TradePair tradePairById = tradePairService.findTradePairById(o.getTradePairId());
+            if(tradePairById == null){
+                continue;
+            }
+            UnfreezeEntity unfreezeEntity = new UnfreezeEntity();
+            unfreezeEntity.setOrder(o);
+            unfreezeEntity.setTargetCurrencyId(tradePairById.getTargetCurrencyId());
+            unfreezeEntity.setBaseCurrencyId(tradePairById.getBaseCurrencyId());
+            unfreezeEntityList.add(unfreezeEntity);
+        }
+        return unfreezeEntityList;
     }
 }

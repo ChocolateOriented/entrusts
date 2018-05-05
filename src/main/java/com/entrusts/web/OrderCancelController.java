@@ -28,8 +28,10 @@ public class OrderCancelController extends BaseController  {
     private OrderCancelService orderCancelService;
     @Autowired
     private OrderManageService orderManageService;
-    @Value("${cancelErrorOrderFlag}")
-    private String flag;
+    @Value("${adminKey}")
+    private String adminKey;//只有请求中携带参数和此参数相等的时候才能进入cancelErrorOrder接口
+    @Value("${adminFlag}")
+    private String adminFlag;//只有配置文件里面此字段是true的时候才能进入cancelErrorOrder接口
     @PostMapping(value = "/cancel")
     public Object cancel(@RequestBody Order orderRequest, HttpServletRequest request){
         String userCode = request.getHeader("Account-Code");
@@ -104,7 +106,10 @@ public class OrderCancelController extends BaseController  {
      * @return
      */
     @PostMapping("/cancelErrorOrder")
-    public Object cancelErrorOrder(HttpServletRequest request){
+    public Object cancelErrorOrder(@RequestHeader(value = "Admin-Key") String key, HttpServletRequest request){
+        if(!"true".equals(adminFlag) || !key.equals(adminKey)){
+            return new Results(ResultConstant.EMPTY_PARAM.getFullCode(),"非法请求");
+        }
         String userCode = request.getHeader("Account-Code");
         String orderCode = request.getHeader("Order-Code");
         List<CommonResponse<Order>> orderList =orderCancelService.cancelErrorOrder(userCode,orderCode);
