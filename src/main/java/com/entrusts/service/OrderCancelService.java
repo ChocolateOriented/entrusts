@@ -175,17 +175,6 @@ public class OrderCancelService {
     }
      */
     public String delCancelOrder(UnfreezeEntity unfreezeEntity){
-//        Map<String,Object> params = new HashMap<>();
-//        params.put("orderCode",unfreezeEntity.getOrder().getOrderCode());
-//        params.put("price",unfreezeEntity.getOrder().getConvertRate());
-//        params.put("quantity",unfreezeEntity.getOrder().getQuantity());
-//        params.put("orderType",unfreezeEntity.getOrder().getMode().name());
-//        params.put("targetCurrencyId",unfreezeEntity.getTargetCurrencyId());
-//        params.put("userCode",unfreezeEntity.getOrder().getUserCode());
-//        params.put("marketId",unfreezeEntity.getOrder().getTradePairId());
-//        params.put("baseCurrencyId",unfreezeEntity.getBaseCurrencyId());
-//        params.put("tradeType",unfreezeEntity.getOrder().getTradeType().name());
-//        params.put("createdTime",unfreezeEntity.getOrder().getCreatedTime());
         Order order = unfreezeEntity.getOrder();
         Date createdTime = order.getCreatedTime();
         Instant instant = createdTime.toInstant();
@@ -203,13 +192,7 @@ public class OrderCancelService {
         delCancelOrder.setTradeType(order.getTradeType().name());
         delCancelOrder.setCreatedTime(createdDate);
         String delOrder = JSON.toJSONString(delCancelOrder, SerializerFeature.UseISO8601DateFormat);
-        String s = dealmakingClient.delCancelOrder(delOrder);
-
-//        String s = "{\n" +
-//                "    \"code\": 4002, \n" +
-//                "    \"message\": \"取消撮合失败，该对象已经不存在\"\n" +
-//                "}";
-        return s;
+        return dealmakingClient.delCancelOrder(delOrder);
     }
 
     public String unfreezeForOrder(UnfreezeEntity unfreezeEntity){
@@ -235,9 +218,59 @@ public class OrderCancelService {
         freezeDto.setUserCode(order.getUserCode());
         freezeDto.setEncryptCurrencyId(encryptCurrencyId);
         freezeDto.setQuantity(lockQuantity);
+//        return "{\n" +
+//                "  \"code\": 0\n" +
+//                "}";
         return millstoneClient.unfreezeForOrder(freezeDto);
     }
 
 
+    public List<CommonResponse<Order>> cancelErrorOrder(String userCode, String orderCode) {
+        List<CommonResponse<Order>> orderList = new ArrayList<>();
+        //如果orderCode不为空就撤销单个订单
+        if(orderCode!=null){
+            UnfreezeEntity unfreezeEntity = queryUnfreezeInfo(orderCode,userCode);
+            if(unfreezeEntity == null){
+                logger.info("订单号:"+orderCode+",没有此正在交易的订单");
+                return null;
+            }
+            CommonResponse<Order> orderCommonResponse = cancelOneErrorOrder(unfreezeEntity);
+            if(orderCommonResponse!=null){
+                orderList.add(orderCommonResponse);
+            }
+            return orderList;
+        }
+        //如果为空就撤销userCode对应的所有订单
+        List<UnfreezeEntity> unfreezeEntities = queryAllUnfreezeInfo(userCode);
+        logger.info("用户id:"+userCode+"errorOrdre获取到此人的可取消订单数量"+unfreezeEntities.size());
+        if(unfreezeEntities == null || unfreezeEntities.size() == 0){
+            return null;
+        }
+        for(UnfreezeEntity unfreezeEntity :unfreezeEntities){
+            CommonResponse<Order> orderCommonResponse = cancelOneErrorOrder(unfreezeEntity);
+            if(orderCommonResponse != null){
+                orderList.add(orderCommonResponse);
+            }
+        }
+        return orderList;
 
+    }
+
+    /**
+     * 撤销单个错误订单
+     * @param unfreezeEntity
+     * @return
+     */
+    public CommonResponse<Order> cancelOneErrorOrder(UnfreezeEntity unfreezeEntity){
+
+        String reback = unfreezeForOrder(unfreezeEntity);
+        CommonResponse<Order> response = JSON.parseObject(reback, new TypeReference<CommonResponse<Order>>() {});
+        if(reback == null || !response.isSuccess()){
+            logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+"errorOrder解冻失败");
+            return null;
+        }
+        Order order = updateOrderAfterCancel(unfreezeEntity, OrderStatus.WITHDRAW);
+        response.setData(order);
+        return response;
+    }
 }

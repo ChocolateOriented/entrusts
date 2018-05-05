@@ -9,6 +9,7 @@ import com.entrusts.module.enums.OrderStatus;
 import com.entrusts.service.OrderCancelService;
 import com.entrusts.service.OrderManageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +28,8 @@ public class OrderCancelController extends BaseController  {
     private OrderCancelService orderCancelService;
     @Autowired
     private OrderManageService orderManageService;
-
+    @Value("${cancelErrorOrderFlag}")
+    private String flag;
     @PostMapping(value = "/cancel")
     public Object cancel(@RequestBody Order orderRequest, HttpServletRequest request){
         String userCode = request.getHeader("Account-Code");
@@ -94,5 +96,29 @@ public class OrderCancelController extends BaseController  {
             }
             return new Results(ResultConstant.INNER_ERROR.getFullCode(),"撤销成功"+successOrder.size()+"条").putData("entities", orderMsg);
         }
+    }
+
+    /**
+     * 此接口为了临时把测试时在撮单系统丢失的数据但是未解冻的订单进行解冻处理,并且把数据库的状态改为已取消
+     * @param request
+     * @return
+     */
+    @PostMapping("/cancelErrorOrder")
+    public Object cancelErrorOrder(HttpServletRequest request){
+        String userCode = request.getHeader("Account-Code");
+        String orderCode = request.getHeader("Order-Code");
+        List<CommonResponse<Order>> orderList =orderCancelService.cancelErrorOrder(userCode,orderCode);
+
+        if (orderList == null || orderList.size()==0){
+            return new Results(ResultConstant.EMPTY_ENTITY.getFullCode(),"无交易中托单,或解冻失败");
+        }
+        List<Order> successOrder = new ArrayList<>();
+        for(CommonResponse<Order> order :orderList){
+            successOrder.add(order.getData());
+            orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, order.getData().getOrderCode(), 3600*12);
+
+        }
+        orderManageService.updateUserHistoryCaches(successOrder);
+        return Results.ok();
     }
 }
