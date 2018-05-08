@@ -2,15 +2,13 @@ package com.entrusts.config;
 
 import com.entrusts.module.dto.DelegateEvent;
 import com.entrusts.service.DelegateEventHandler;
-
 import com.entrusts.service.OrderEventService;
-import com.lmax.disruptor.SleepingWaitStrategy;
+import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.WorkHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +38,7 @@ public class DisruptorConfig {
 		//配置线程池
 		ThreadFactory threadFactory = Executors.defaultThreadFactory();
 		Disruptor<DelegateEvent> disruptor =
-				new Disruptor<>(DelegateEvent::new, delegateEventBufferSize, threadFactory, ProducerType.MULTI, new SleepingWaitStrategy());
+				new Disruptor<>(DelegateEvent::new, delegateEventBufferSize, threadFactory, ProducerType.MULTI, new BlockingWaitStrategy());
 
 		WorkHandler<DelegateEvent>[] publishOrderWorkers = new WorkHandler[publishOrderThreadNum];
 		for (int i = 0; i < publishOrderThreadNum; i++) {

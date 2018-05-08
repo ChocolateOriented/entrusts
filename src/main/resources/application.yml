@@ -130,5 +130,8 @@ feignClient:
 sign:
   privateKey: 3B306A12B0D24CAFA191EBD446417CC5
   signEffectiveTime: 180
+
+delegate:
+  maxDelegateNum: 20
 adminFlag: true
 adminKey: 8f54381d92fb43b6b8a467dfe983effc
