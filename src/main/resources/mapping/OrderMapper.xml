@@ -271,5 +271,18 @@
 		AND o.is_deleted ='0'
 		order by o.order_time desc
 	</select>
-
+	<select id="queryErrorOrderUnfreezeInfo" parameterType="String" resultType="com.entrusts.module.entity.Order">
+		SELECT
+		<include refid="orderColumns"/>
+		FROM
+		`order` AS o
+		WHERE o.order_code = #{orderCode} AND o.user_code =#{userCode} AND o.`status` IN (20,50)
+	</select>
+	<select id="queryErrorOrderAllUnfreezeInfo" resultType="com.entrusts.module.entity.Order">
+		SELECT
+		<include refid="orderColumns"/>
+		FROM
+		`order` AS o
+		WHERE o.user_code = #{userCode} AND o.`status` IN (20,50)
+	</select>
 </mapper>

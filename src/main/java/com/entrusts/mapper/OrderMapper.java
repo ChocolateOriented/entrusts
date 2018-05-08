@@ -46,16 +46,31 @@ public interface OrderMapper {
 	int completeOrder(Order order);
 
 	/**
-	 * 获取撤销订单
+	 * 获取撤销订单状态20
 	 * @param orderCode
 	 * @return
 	 */
 	Order queryUnfreezeInfo(@Param("orderCode") String orderCode,@Param("userCode") String userCode);
 
 	/**
-	 * 根据用户code获取所有撤销订单
+	 * 根据用户code获取所有撤销订单状态20
 	 * @param userCode
 	 * @return
 	 */
 	List<Order> queryAllUnfreezeInfo(String userCode);
+
+	/**
+	 * 获取交易状态为20或50的单个订单
+	 * @param orderCode
+	 * @param userCode
+	 * @return
+	 */
+    Order queryErrorOrderUnfreezeInfo(@Param("orderCode") String orderCode,@Param("userCode") String userCode);
+
+	/**
+	 * 获取交易状态20和50的所有订单
+	 * @param userCode
+	 * @return
+	 */
+	List<Order> queryErrorOrderAllUnfreezeInfo(String userCode);
 }

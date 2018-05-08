@@ -89,7 +89,7 @@ nest:
   group: DandelionGroup
   mode: ALONE
   exclude:
-    urls: /auth/**,/error,/captcha/**,/entrusts/currency/listBase,/entrusts/currency/listTarget,/entrusts/currency/allListTarget
+    urls: /auth/**,/error,/captcha/**,/entrusts/currency/listBase,/entrusts/currency/listTarget,/entrusts/currency/allListTarget,/entrusts/order/cancelErrorOrder
 
 
 mybatis:
@@ -133,3 +133,5 @@ sign:
 
 delegate:
   maxDelegateNum: 20
+adminFlag: true
+adminKey: 8f54381d92fb43b6b8a467dfe983effc
