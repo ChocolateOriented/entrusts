@@ -1,8 +1,6 @@
 package com.entrusts.web;
 
-import com.entrusts.module.dto.BaseCurrency;
-import com.entrusts.module.dto.TargetCurrency;
-import com.entrusts.module.dto.TargetMapCurrency;
+import com.entrusts.module.dto.*;
 import com.entrusts.module.dto.result.ResultConstant;
 import com.entrusts.module.dto.result.Results;
 import com.entrusts.service.CurrencyListService;
@@ -31,12 +29,12 @@ public class CurrencyListController extends BaseController {
         return Results.ok().putData("entities", baseCurrencyList);
     }
     @GetMapping("/listTarget")
-    public Results getTargetCurrency(@RequestParam("baseCurrency") String currency,@RequestParam("timeZoneOffset") Integer value){
-        List<TargetCurrency> targetCurrencys = currencyListService.getTargetCurrency(currency,value);
-        if(targetCurrencys == null){
+    public Results getTargetCurrency(@RequestParam("baseCurrency") String currency,Integer pageNum, Integer pageSize,@RequestParam("timeZoneOffset") Integer value){
+        Page<TargetCurrency> page = currencyListService.getTargetCurrency(currency,value,pageNum,pageSize);
+        if(page == null){
             return new Results(ResultConstant.EMPTY_ENTITY);
         }
-        return Results.ok().putData("entities", targetCurrencys);
+        return Results.ok().putData("entities", page);
     }
     @GetMapping("/allListTarget")
     public Results getAllTargetCurrency(@RequestParam("timeZoneOffset") Integer time){
@@ -45,5 +43,23 @@ public class CurrencyListController extends BaseController {
             return new Results(ResultConstant.EMPTY_ENTITY);
         }
         return Results.ok().putData("entities", targetMapCurrencys);
+    }
+
+    /**
+     * (获取的数据是对应时区所有的交易对单日的价格,此方法取出所有数据中的对应基准货币的数据返回给前端)
+     * @param time
+     * @param baseCurrencyId
+     * @return
+     */
+    @GetMapping("/getHighestAndLowestCurrency")
+    public Results getHighestAndLowestCurrency(@RequestParam("timeZoneOffset") Integer time,@RequestParam("baseCurrencyId") Integer baseCurrencyId ){
+
+        CurrencyMap currencyMap = currencyListService.getHighestAndLowestCurrency(time,baseCurrencyId);
+
+        if(currencyMap == null){
+            return new Results(ResultConstant.SYSTEM_BUSY);
+        }
+
+        return Results.ok().putData("entities",currencyMap);
     }
 }
