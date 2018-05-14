@@ -2,6 +2,8 @@ package com.entrusts.service;
 
 import com.alibaba.fastjson.JSON;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.entrusts.manager.CandlestickClient;
 import com.entrusts.manager.DealmakingClient;
 import com.entrusts.mapper.DealMapper;
@@ -12,6 +14,7 @@ import com.entrusts.module.entity.Deal;
 import com.entrusts.module.entity.DigitalCurrency;
 import com.entrusts.module.enums.RedisKeyNameEnum;
 import com.entrusts.module.enums.UTCTimeEnum;
+import com.entrusts.util.HttpClientUtil;
 import com.entrusts.util.RedisUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -376,9 +379,11 @@ public class CurrencyListService extends BaseService {
      */
     public CurrencyMap getHighestAndLowestCurrency(Integer time,Integer baseCurrencyId ) {
         CurrencyMap currencyMap = new CurrencyMap();
-
+        currencyMap.setBaseCurrencyId(baseCurrencyId);
+        currencyMap.setTicks(new ArrayList<Tick>());
         String result = null;
         try{
+
             //调用接口获取所有数据
             result = candlestickClient.getHighestAndLowestCurrency(time);
         }catch (Exception e){
@@ -393,8 +398,8 @@ public class CurrencyListService extends BaseService {
         if(results.getCode()!=0){
             return null;
         }
-        String entities = results.getData().getJSONObject("entities").toJSONString();
-        List<CurrencyMap> currencyMaps = JSON.parseArray(entities, CurrencyMap.class);
+        List<CurrencyMap> currencyMaps = results.getData().getJSONArray("entities").toJavaList(CurrencyMap.class);
+
         if(currencyMaps == null){
             return currencyMap;
         }
@@ -403,6 +408,7 @@ public class CurrencyListService extends BaseService {
                 currencyMap = c;
             }
         }
+
         return currencyMap;
     }
 }
