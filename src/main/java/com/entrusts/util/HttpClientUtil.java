@@ -56,8 +56,8 @@ public class HttpClientUtil {
     }
 
     public static String httpGetRequest(String url, Map<String, Object> params) throws URISyntaxException, IOException {
-        URIBuilder ub = new URIBuilder();
-        ub.setPath(url);
+        URIBuilder ub = new URIBuilder(url);
+
 
         ArrayList<NameValuePair> pairs = covertParams2NVPS(params);
         ub.setParameters(pairs);
@@ -68,8 +68,7 @@ public class HttpClientUtil {
 
     public static String httpGetRequest(String url, Map<String, Object> headers, Map<String, Object> params)
             throws URISyntaxException, IOException {
-        URIBuilder ub = new URIBuilder();
-        ub.setPath(url);
+        URIBuilder ub = new URIBuilder(url);
 
         ArrayList<NameValuePair> pairs = covertParams2NVPS(params);
         ub.setParameters(pairs);
