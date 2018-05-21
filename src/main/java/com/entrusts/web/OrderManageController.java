@@ -1,20 +1,18 @@
 package com.entrusts.web;
 
-import javax.servlet.http.HttpServletRequest;
-
-import com.entrusts.module.vo.CurrentEntrusts;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.entrusts.module.dto.CommonResponse;
 import com.entrusts.module.dto.Page;
 import com.entrusts.module.dto.TimePage;
+import com.entrusts.module.vo.CurrentEntrusts;
 import com.entrusts.module.vo.HistoryOrderView;
 import com.entrusts.module.vo.OrderQuery;
 import com.entrusts.service.OrderManageService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "entrusts/order")
@@ -24,8 +22,7 @@ public class OrderManageController extends BaseController {
 	private OrderManageService orderManageService;
 
 	@RequestMapping(value = "listHistory", method = RequestMethod.GET)
-	public CommonResponse<Page<HistoryOrderView>> listHistoryOrder(OrderQuery orderQuery, Integer pageNum, Integer pageSize, HttpServletRequest request) {
-		String userCode = request.getHeader("Account-Code");
+	public CommonResponse<Page<HistoryOrderView>> listHistoryOrder(OrderQuery orderQuery, Integer pageNum, Integer pageSize, @RequestHeader(ACCOUNT_CODE) String userCode) {
 		orderQuery.setUserCode(userCode);
 		CommonResponse<Page<HistoryOrderView>> response = new CommonResponse<>();
 		if (pageNum == null) {
@@ -38,10 +35,9 @@ public class OrderManageController extends BaseController {
 		response.setData(page);
 		return response;
 	}
-	
+
 	@RequestMapping(value = "listHistoryByCreatedTime", method = RequestMethod.GET)
-	public CommonResponse<TimePage<HistoryOrderView>> listHistoryByCreatedTime(OrderQuery orderQuery, Integer limit, HttpServletRequest request) {
-		String userCode = request.getHeader("Account-Code");
+	public CommonResponse<TimePage<HistoryOrderView>> listHistoryByCreatedTime(OrderQuery orderQuery, Integer limit, @RequestHeader(ACCOUNT_CODE) String userCode) {
 		orderQuery.setUserCode(userCode);
 		CommonResponse<TimePage<HistoryOrderView>> response = new CommonResponse<>();
 		if (limit == null) {
@@ -53,8 +49,7 @@ public class OrderManageController extends BaseController {
 	}
 
 	@GetMapping(value = "listCurrent")
-	public Object getListCurrent(OrderQuery orderQuery, Integer pageNum, Integer pageSize, HttpServletRequest request){
-		String userCode = request.getHeader("Account-Code");
+	public Object getListCurrent(OrderQuery orderQuery, Integer pageNum, Integer pageSize, @RequestHeader(ACCOUNT_CODE) String userCode){
 		orderQuery.setUserCode(userCode);
 		if (pageNum == null) {
 			pageNum = 1;
@@ -69,8 +64,7 @@ public class OrderManageController extends BaseController {
 	}
 
 	@GetMapping(value = "listCurrentByCreatedTime")
-	public Object getListCurrentByCreatedTime(OrderQuery orderQuery, Integer limit, HttpServletRequest request){
-		String userCode = request.getHeader("Account-Code");
+	public Object getListCurrentByCreatedTime(OrderQuery orderQuery, Integer limit, @RequestHeader(ACCOUNT_CODE) String userCode){
 		orderQuery.setUserCode(userCode);
 		CommonResponse<TimePage<CurrentEntrusts>> response = new CommonResponse<>();
 		if (limit == null) {

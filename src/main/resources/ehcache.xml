@@ -5,5 +5,7 @@
 	<defaultCache maxEntriesLocalHeap="200" eternal="false" timeToLiveSeconds="600" overflowToDisk="false"/>
 	<!--交易对缓存-->
 	<cache name="TradePair" maxEntriesLocalHeap="200" eternal="false" timeToLiveSeconds="600" overflowToDisk="false"/>
+	<!--交易对缓存-->
+	<cache name="Currency" maxEntriesLocalHeap="200" eternal="false" timeToLiveSeconds="600" overflowToDisk="false"/>
 
 </ehcache>

@@ -5,7 +5,10 @@ import com.entrusts.mapper.OrderEventMapper;
 import com.entrusts.mapper.OrderMapper;
 import com.entrusts.module.dto.DelegateEvent;
 import com.entrusts.module.entity.Order;
+import com.entrusts.module.enums.OrderMode;
 import com.entrusts.module.enums.OrderStatus;
+import com.entrusts.module.enums.TradeType;
+import java.text.DecimalFormat;
 import java.util.Date;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,5 +95,24 @@ public class OrderService extends BaseService {
 		this.updateOrderStatus(OrderStatus.TRADING, delegateEvent.getOrderCode(), delegateEvent.getUserCode());
 
 		return mqMessageService.orderSend(delegatePushTopic, delegatePushTag, delegateEvent.getOrderCode(), body.toJSONString(),shardingKey);
+	}
+
+	/**
+	 * @return java.lang.String
+	 * @Description 生成ordercode, snowFlakeId + 预留位(0) + 交易对Id(4字符) + 交易类型与成交模式(1字符)
+	 * 使用10进制存储订单信息
+	 * @param orderMode
+	 * @param tradeType
+	 * @param tradePairId
+	 */
+	public String generateOrderCode(OrderMode orderMode, TradeType tradeType, Integer tradePairId) {
+		final int MODE_BIT = 1; //成交模式占用2进制位数
+
+		DecimalFormat format = new DecimalFormat("0000");
+		int mode = orderMode.equals(OrderMode.limit) ? 0 : 1;
+		int type = tradeType.equals(TradeType.buy) ? 0 : 1;
+		int modeAndtype = type << MODE_BIT | mode;
+
+		return this.generateId() + "0" + format.format(tradePairId) + modeAndtype;
 	}
 }

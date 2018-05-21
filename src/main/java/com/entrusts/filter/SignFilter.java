@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
  * 签名验证类
  */
 @Order(2)
-@WebFilter(filterName = "signFilter", urlPatterns = "/*")
+@WebFilter(filterName = "signFilter", urlPatterns = {"/entrusts/order/*","/api/*"})
 public class SignFilter implements Filter {
 
     @Autowired

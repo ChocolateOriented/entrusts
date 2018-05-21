@@ -125,4 +125,13 @@
         WHERE is_deleted=0
         ORDER BY order_by_num
     </select>
+
+
+  <select id="findSupportCurrency" resultType="String">
+    select
+    alias
+    from digital_currency
+    where is_supported = 1
+     AND  is_deleted = 0
+  </select>
 </mapper>

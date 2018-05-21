@@ -1,6 +1,7 @@
 
 package com.entrusts.service;
 
+import com.entrusts.module.vo.OrderDetailView;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -859,5 +860,9 @@ public class OrderManageService extends BaseService {
 			score = score / 2;
 			jedis.zadd(historyCacheUserHitCountKey, score, userCode);
 		}
+	}
+
+	public OrderDetailView findOrderDetail(String orderCode, String userCode) {
+		return orderMapper.findOrderDetailView(orderCode, userCode);
 	}
 }

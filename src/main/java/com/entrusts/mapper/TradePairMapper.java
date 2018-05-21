@@ -1,13 +1,9 @@
 package com.entrusts.mapper;
 
-import com.entrusts.module.dto.AliasMap;
 import com.entrusts.module.dto.BaseCurrency;
-import com.entrusts.module.dto.TargetMapCurrency;
-import com.entrusts.module.entity.Deal;
 import com.entrusts.module.entity.TradePair;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface TradePairMapper{
 
@@ -37,4 +33,6 @@ public interface TradePairMapper{
 	TradePair findCurrencyById(int currencyId);
 
 	List<TradePair> getAllTradePair();
+
+	List<String> findSupportCurrency();
 }

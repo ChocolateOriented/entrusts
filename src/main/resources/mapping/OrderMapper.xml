@@ -139,6 +139,23 @@
 		status
 	</sql>
 
+	<select id="findOrderDetailView" resultType="com.entrusts.module.vo.OrderDetailView">
+		select
+		<include refid="orderColumns" />,
+		c1.alias as baseCurrency,
+		c2.alias as targetCurrency,
+		o.convert_rate as orderPrice,
+		o.quantity as orderTargetQuantity,
+		o.deal_quantity as dealTargetQuantity,
+		convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount
+		from `order` o
+		left join trade_pair p on o.trade_pair_id = p.id
+		left join digital_currency c1 on c1.id = p.base_currency_id
+		left join digital_currency c2 on c2.id = p.target_currency_id
+		where o.user_code = #{userCode}
+		and o.order_code = #{orderCode}
+	</select>
+
 	<select id="findHistoryOrderByPage" resultType="com.entrusts.module.vo.HistoryOrderView">
 		select
 			<include refid="orderViewColumn" />
