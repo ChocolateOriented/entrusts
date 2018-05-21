@@ -2,9 +2,11 @@ package com.entrusts.module.dto.result;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.entrusts.module.entity.Order;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -62,6 +64,16 @@ public class Results {
         return this;
     }
 
+    /**
+     * @Description 添加响应结果
+     * @param value
+     * @return com.entrusts.module.dto.result.Results
+     */
+    public Results putData(Object value){
+        data = (JSONObject)JSON.toJSON(value);
+        return this;
+    }
+
     public Long getCode() {
         return this.code;
     }
@@ -105,6 +117,9 @@ public class Results {
         ll.add("2");
         Results results12 = Results.ok().putData("list", ll).putData("pageSize",5);
         System.out.println(JSON.toJSONString(results12));
+        Order order = new Order();
+        order.setCreatedTime(new Date());
+        System.out.println(Results.ok().putData(order));
     }
 
 }

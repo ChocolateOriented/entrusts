@@ -19,6 +19,8 @@ import com.entrusts.util.RedisUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,7 @@ import java.util.*;
  */
 @Service
 @Transactional
+@CacheConfig(cacheNames = "Currency")
 public class CurrencyListService extends BaseService {
 
     @Autowired
@@ -410,5 +413,15 @@ public class CurrencyListService extends BaseService {
         }
 
         return currencyMap;
+    }
+
+    /**
+     * @Description 查询支持的货币
+     * @param
+     * @return java.util.List<java.lang.String>
+     */
+    @Cacheable
+    public List<String> findSupportCurrency() {
+        return tradePairMapper.findSupportCurrency();
     }
 }

@@ -21,6 +21,18 @@ import java.util.List;
 public class CurrencyListController extends BaseController {
     @Autowired
     private CurrencyListService currencyListService;
+
+    /**
+     * @Description 查询支持的货币 
+     * @param 
+     * @return com.entrusts.module.dto.result.Results
+     */
+    @GetMapping("/list")
+    public Results list(){
+        List<String> currencyList = currencyListService.findSupportCurrency();
+        return Results.ok().putData("entities", currencyList);
+    }
+
     @GetMapping("/listBase")
     public Results getBaseCurrency(){
         List<BaseCurrency> baseCurrencyList = currencyListService.getBaseCurrency();
@@ -42,14 +54,21 @@ public class CurrencyListController extends BaseController {
         return response;
     }
     @GetMapping("/allListTarget")
-    public Results getAllTargetCurrency(@RequestParam("timeZoneOffset") Integer time){
+    public Results getAllTargetCurrency(@RequestParam(value = "timeZoneOffset",defaultValue = "0") Integer time){
         List<TargetMapCurrency> targetMapCurrencys = currencyListService.getAllTargetCurrency(time);
         if(targetMapCurrencys == null){
             return new Results(ResultConstant.EMPTY_ENTITY);
         }
         return Results.ok().putData("entities", targetMapCurrencys);
     }
-
+    @GetMapping("/all_list_target")
+    public Results getAllTargetCurrency2(@RequestParam(value = "timeZoneOffset",defaultValue = "0") Integer time){
+        List<TargetMapCurrency> targetMapCurrencys = currencyListService.getAllTargetCurrency(time);
+        if(targetMapCurrencys == null){
+            return new Results(ResultConstant.EMPTY_ENTITY);
+        }
+        return Results.ok().putData("entities", targetMapCurrencys);
+    }
     /**
      * (获取的数据是对应时区所有的交易对单日的价格,此方法取出所有数据中的对应基准货币的数据返回给前端)
      * @param time

@@ -6,7 +6,6 @@ import com.entrusts.module.dto.result.ResultConstant;
 import com.entrusts.module.dto.result.Results;
 import com.entrusts.module.entity.TradePair;
 import com.entrusts.module.enums.OrderMode;
-import com.entrusts.module.enums.TradeType;
 import com.entrusts.service.OrderManageService;
 import com.entrusts.service.OrderService;
 import com.entrusts.service.TradePairService;
@@ -48,9 +47,9 @@ public class OrderDelegateController extends BaseController {
 	@Value("${delegate.maxDelegateNum}")
 	private Integer maxDelegateNum ;
 
-	private DelegateTranslator delegateTranslator = new DelegateTranslator();
+	public static final DelegateTranslator delegateTranslator = new DelegateTranslator();
 	private static final String CACHE_DELEGATE_REQUEST_TOKEN_PREFIX = "delegate_request_token_";
-	private static final String CACHE_DELEGATE_HANDLED_TOKEN_PREFIX = "delegate_handled_token_";
+	public static final String CACHE_DELEGATE_HANDLED_TOKEN_PREFIX = "delegate_handled_token_";
 
 	/**
 	 * @Description  限价交易委托
@@ -125,7 +124,7 @@ public class OrderDelegateController extends BaseController {
 		delegate.setUserCode(userCode);
 		delegate.setClientTime(new Date(clientTime));
 		delegate.setOrderMode(OrderMode.limit);
-		String orderCode = generateOrderCode(delegate.getOrderMode(), delegate.getTradeType(), tradePair.getId());
+		String orderCode = orderService.generateOrderCode(delegate.getOrderMode(), delegate.getTradeType(), tradePair.getId());
 		delegateDisruptor.publishEvent(delegateTranslator, delegate, tradePair, orderCode);
 		return Results.ok().putData("orderCode", orderCode);
 	}
@@ -155,28 +154,7 @@ public class OrderDelegateController extends BaseController {
 		return new Results(ResultConstant.SYSTEM_BUSY);
 	}
 
-
-	/**
-	 * @return java.lang.String
-	 * @Description 生成ordercode, snowFlakeId + 预留位(0) + 交易对Id(4字符) + 交易类型与成交模式(1字符)
-	 * 使用10进制存储订单信息
-	 * @param orderMode
-	 * @param tradeType
-	 * @param tradePairId
-	 */
-	private String generateOrderCode(OrderMode orderMode, TradeType tradeType, Integer tradePairId) {
-
-		final int MODE_BIT = 1; //成交模式占用2进制位数
-
-		DecimalFormat format = new DecimalFormat("0000");
-		int mode = orderMode.equals(OrderMode.limit) ? 0 : 1;
-		int type = tradeType.equals(TradeType.buy) ? 0 : 1;
-		int modeAndtype = type << MODE_BIT | mode;
-
-		return orderService.generateId() + "0" + format.format(tradePairId) + modeAndtype;
-	}
-
-	class DelegateTranslator implements EventTranslatorThreeArg<DelegateEvent, Delegate, TradePair, String> {
+	static class DelegateTranslator implements EventTranslatorThreeArg<DelegateEvent, Delegate, TradePair, String> {
 		/**
 		 * @Description 将委托信息存入Disruptor队列预先创建的Event中
 		 * @param event 队列中的event对象

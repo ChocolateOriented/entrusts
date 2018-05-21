@@ -5,6 +5,7 @@ import com.entrusts.module.entity.Order;
 import com.entrusts.module.enums.OrderStatus;
 import com.entrusts.module.vo.CurrentEntrusts;
 import com.entrusts.module.vo.HistoryOrderView;
+import com.entrusts.module.vo.OrderDetailView;
 import com.entrusts.module.vo.OrderQuery;
 import java.util.Date;
 import java.util.List;
@@ -73,4 +74,12 @@ public interface OrderMapper {
 	 * @return
 	 */
 	List<Order> queryErrorOrderAllUnfreezeInfo(String userCode);
+
+	/**
+	 * @Description 托单详情
+	 * @param orderCode
+	 * @param userCode
+	 * @return com.entrusts.module.vo.OrderDetailView
+	 */
+	OrderDetailView findOrderDetailView(@Param("orderCode") String orderCode,@Param("userCode") String userCode);
 }

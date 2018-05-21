@@ -12,6 +12,8 @@ public class TargetCurrency {
     private String alias; //货币别名
     private BigDecimal todayStartPrice;//当日起始价格
     private BigDecimal currentPrice;//当前最新价格
+    private Integer pricePrecision = 8; //价格精度位数
+    private Integer amountPrecision = 8; //数量精度位数
 
     public Integer getTradePareId() {
         return tradePareId;
@@ -59,5 +61,21 @@ public class TargetCurrency {
 
     public void setCurrentPrice(BigDecimal currentPrice) {
         this.currentPrice = currentPrice;
+    }
+
+    public Integer getPricePrecision() {
+        return pricePrecision;
+    }
+
+    public void setPricePrecision(Integer pricePrecision) {
+        this.pricePrecision = pricePrecision;
+    }
+
+    public Integer getAmountPrecision() {
+        return amountPrecision;
+    }
+
+    public void setAmountPrecision(Integer amountPrecision) {
+        this.amountPrecision = amountPrecision;
     }
 }

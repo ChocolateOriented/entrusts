@@ -89,8 +89,7 @@ nest:
   group: DandelionGroup
   mode: ALONE
   exclude:
-    urls: /auth/**,/error,/captcha/**,/entrusts/currency/listBase,/entrusts/currency/listTarget,/entrusts/currency/allListTarget,/entrusts/order/cancelErrorOrder,/entrusts/order/getHighestAndLowestCurrency,
-
+    urls: /auth/**,/error,/captcha/**,/entrusts/currency/*,/entrusts/order/cancelErrorOrder,/entrusts/third/**
 
 mybatis:
   mapper-locations: classpath:mapping/*.xml

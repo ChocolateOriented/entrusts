@@ -33,8 +33,7 @@ public class OrderCancelController extends BaseController  {
     @Value("${adminFlag}")
     private String adminFlag;//只有配置文件里面此字段是true的时候才能进入cancelErrorOrder接口
     @PostMapping(value = "/cancel")
-    public Object cancel(@RequestBody Order orderRequest, HttpServletRequest request){
-        String userCode = request.getHeader("Account-Code");
+    public Object cancel(@RequestParam Order orderRequest, @RequestHeader(ACCOUNT_CODE) String userCode){
         CommonResponse<Order> orderCommonResponse = orderCancelService.cancelOrder(orderRequest.getOrderCode(),userCode);
         if(orderCommonResponse==null ){
             //说明此订单不存在
@@ -62,8 +61,7 @@ public class OrderCancelController extends BaseController  {
         }
     }
     @PostMapping("/cancelAll")
-    public Object cancelAll(HttpServletRequest request){
-        String userCode = request.getHeader("Account-Code");
+    public Object cancelAll(@RequestHeader(ACCOUNT_CODE) String userCode){
         List<CommonResponse<Order>>orderList = orderCancelService.cancelAll(userCode);
         if (orderList == null){
         	return new Results(ResultConstant.EMPTY_ENTITY.getFullCode(),"无交易中托单");
