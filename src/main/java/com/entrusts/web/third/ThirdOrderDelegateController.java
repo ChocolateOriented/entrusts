@@ -45,7 +45,7 @@ public class ThirdOrderDelegateController extends BaseController {
 	 * @return com.entrusts.module.dto.result.Results
 	 * @Description 限价交易委托(供第三方平台调用)
 	 */
-	@PostMapping(value = "delegateLimit")
+	@PostMapping(value = "delegate_limit")
 	@ResponseBody
 	public Results delegateLimit(@RequestBody @Validated Delegate delegate, BindingResult bindingResul) {
 		String userCode = delegate.getUserCode();

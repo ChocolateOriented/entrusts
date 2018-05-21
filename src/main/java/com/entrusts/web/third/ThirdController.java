@@ -43,17 +43,17 @@ public class ThirdController extends BaseController {
 		return cancelController.cancel(orderRequest, orderRequest.getUserCode());
 	}
 
-	@PostMapping("/cancelAll")
+	@PostMapping("/cancel_all")
 	public Object cancelAll(@RequestBody Order order) {
 		return cancelController.cancelAll(order.getUserCode());
 	}
 
-	@RequestMapping(value = "listHistory", method = RequestMethod.GET)
+	@RequestMapping(value = "list_history", method = RequestMethod.GET)
 	public CommonResponse<Page<HistoryOrderView>> listHistoryOrder(OrderQuery orderQuery, Integer pageNum, Integer pageSize, String userCode) {
 		return manageController.listHistoryOrder(orderQuery, pageNum, pageSize, userCode);
 	}
 
-	@GetMapping(value = "listCurrent")
+	@GetMapping(value = "list_current")
 	public Object getListCurrent(OrderQuery orderQuery, Integer pageNum, Integer pageSize, String userCode) {
 		return manageController.getListCurrent(orderQuery, pageNum, pageSize, userCode);
 	}
