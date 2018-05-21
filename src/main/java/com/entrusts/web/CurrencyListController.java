@@ -3,6 +3,7 @@ package com.entrusts.web;
 import com.entrusts.module.dto.*;
 import com.entrusts.module.dto.result.ResultConstant;
 import com.entrusts.module.dto.result.Results;
+import com.entrusts.module.vo.HistoryOrderView;
 import com.entrusts.service.CurrencyListService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,12 +42,16 @@ public class CurrencyListController extends BaseController {
         return Results.ok().putData("entities", baseCurrencyList);
     }
     @GetMapping("/listTarget")
-    public Results getTargetCurrency(@RequestParam("baseCurrency") String currency,Integer pageNum, Integer pageSize,@RequestParam("timeZoneOffset") Integer value){
+    public CommonResponse<Page<TargetCurrency>> getTargetCurrency(@RequestParam("baseCurrency") String currency,Integer pageNum, Integer pageSize,@RequestParam("timeZoneOffset") Integer value){
         Page<TargetCurrency> page = currencyListService.getTargetCurrency(currency,value,pageNum,pageSize);
+        CommonResponse<Page<TargetCurrency>> response = new CommonResponse<>();
         if(page == null){
-            return new Results(ResultConstant.EMPTY_ENTITY);
+            response.setCode((int)ResultConstant.SYSTEM_BUSY.getFullCode());
+            response.setMessage(ResultConstant.SYSTEM_BUSY.message);
+            return response;
         }
-        return Results.ok().putData("entities", page);
+        response.setData(page);
+        return response;
     }
     @GetMapping("/allListTarget")
     public Results getAllTargetCurrency(@RequestParam(value = "timeZoneOffset",defaultValue = "0") Integer time){
