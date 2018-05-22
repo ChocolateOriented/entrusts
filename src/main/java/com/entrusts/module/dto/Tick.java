@@ -1,6 +1,7 @@
 package com.entrusts.module.dto;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * Created by cyuan on 2018/5/11.
@@ -8,8 +9,8 @@ import java.io.Serializable;
 public class Tick implements Serializable {
     private static final long serialVersionUID = 1L;
     private Integer targetCurrencyId;
-    private Integer high;
-    private Integer low;
+    private BigDecimal high;
+    private BigDecimal low;
 
     public Integer getTargetCurrencyId() {
         return targetCurrencyId;
@@ -19,19 +20,19 @@ public class Tick implements Serializable {
         this.targetCurrencyId = targetCurrencyId;
     }
 
-    public Integer getHigh() {
+    public BigDecimal getHigh() {
         return high;
     }
 
-    public void setHigh(Integer high) {
+    public void setHigh(BigDecimal high) {
         this.high = high;
     }
 
-    public Integer getLow() {
+    public BigDecimal getLow() {
         return low;
     }
 
-    public void setLow(Integer low) {
+    public void setLow(BigDecimal low) {
         this.low = low;
     }
 }
