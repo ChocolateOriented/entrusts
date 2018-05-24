@@ -33,7 +33,7 @@ public class OrderCancelController extends BaseController  {
     @Value("${adminFlag}")
     private String adminFlag;//只有配置文件里面此字段是true的时候才能进入cancelErrorOrder接口
     @PostMapping(value = "/cancel")
-    public Object cancel(@RequestParam Order orderRequest, @RequestHeader(ACCOUNT_CODE) String userCode){
+    public Object cancel(@RequestBody Order orderRequest, @RequestHeader(ACCOUNT_CODE) String userCode){
         CommonResponse<Order> orderCommonResponse = orderCancelService.cancelOrder(orderRequest.getOrderCode(),userCode);
         if(orderCommonResponse==null ){
             //说明此订单不存在
