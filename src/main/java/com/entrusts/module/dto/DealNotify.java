@@ -101,7 +101,9 @@ public class DealNotify {
 		private BigDecimal dealPrice;
 
 		private BigDecimal dealQuantity;
-		
+
+		private BigDecimal dealAmount;
+
 		private Integer dealEncryptCurrencyId;
 		
 		private Integer tradeEncryptCurrencyId;
@@ -172,6 +174,14 @@ public class DealNotify {
 
 		public void setDealQuantity(BigDecimal dealQuantity) {
 			this.dealQuantity = dealQuantity;
+		}
+
+		public BigDecimal getDealAmount() {
+			return dealAmount;
+		}
+
+		public void setDealAmount(BigDecimal dealAmount) {
+			this.dealAmount = dealAmount;
 		}
 
 		public Integer getDealEncryptCurrencyId() {

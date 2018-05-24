@@ -86,23 +86,7 @@
 
 	<select id="get" resultType="com.entrusts.module.entity.Order">
 		select
-			o.order_code as orderCode,
-			o.user_code as userCode,
-			o.client_time as clientTime,
-			o.order_time as orderTime,
-			o.trade_pair_id as tradePairId,
-			o.convert_rate as convertRate,
-			o.trade_type as tradeType,
-			o.quantity as quantity,
-			o.mode as mode,
-			o.status as status,
-			o.service_fee as serviceFee,
-			o.deal_amount as dealAmount,
-			o.deal_quantity as dealQuantity,
-			o.lasted_deal_time as lastedDealTime,
-			o.created_time as createdTime,
-			o.updated_time as updatedTime,
-			o.is_deleted as isDeleted
+			<include refid="orderColumns" />
 		from `order` o
 		where o.order_code = #{orderCode}
 	</select>
@@ -134,7 +118,7 @@
 		o.convert_rate as orderPrice,
 		o.quantity as orderTargetQuantity,
 		o.deal_quantity as dealTargetQuantity,
-		convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
+		o.deal_amount as dealBaseAmount,
 		o.service_fee as serviceFee,
 		status
 	</sql>
@@ -147,7 +131,7 @@
 		o.convert_rate as orderPrice,
 		o.quantity as orderTargetQuantity,
 		o.deal_quantity as dealTargetQuantity,
-		convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount
+		o.deal_amount as dealBaseAmount
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
 		left join digital_currency c1 on c1.id = p.base_currency_id
@@ -239,6 +223,7 @@
 	<update id="updateOrderNewDeal">
 		update `order` set
 		deal_quantity = ifnull(deal_quantity, 0) + #{dealQuantity},
+		deal_amount = ifnull(deal_amount, 0) + #{dealAmount},
 		service_fee = ifnull(service_fee, 0) + #{tradeFee},
 		lasted_deal_time = if(unix_timestamp(lasted_deal_time) * 1000 > #{createdTime}, lasted_deal_time, from_unixtime(#{createdTime} / 1000))
 		where order_code = #{orderCode}
@@ -277,7 +262,7 @@
 		o.deal_quantity as dealTargetQuantity,
 		o.quantity as orderTargetQuantity,
 		o.service_fee as serviceFee,
-		convert(o.convert_rate * o.deal_quantity, decimal(17,8)) as dealBaseAmount,
+		o.deal_amount as dealBaseAmount,
 		status
 		from `order` o
 		left join trade_pair p on o.trade_pair_id = p.id
