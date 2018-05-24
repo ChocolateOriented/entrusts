@@ -1,5 +1,9 @@
 package com.entrusts.service;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +74,8 @@ public class DealService extends BaseService {
 	 */
 	@Transactional
 	public void handleOrderDeal(OrderDealDetail orderDealDetail) {
+		BigDecimal dealAmount = orderDealDetail.getDealPrice().multiply(orderDealDetail.getDealQuantity(), new MathContext(8, RoundingMode.HALF_UP));
+		orderDealDetail.setDealAmount(dealAmount);
 		Order currentOrder = updateNewDeal(orderDealDetail);
 		if (currentOrder == null) {
 			return;
@@ -141,6 +147,8 @@ public class DealService extends BaseService {
 		Deal deal = new Deal();
 		askOrder.setDealQuantity(dealNotify.getDealQuantity());
 		bidOrder.setDealQuantity(dealNotify.getDealQuantity());
+		askOrder.setDealPrice(dealNotify.getDealPrice());
+		bidOrder.setDealPrice(dealNotify.getDealPrice());
 		deal.setTradeCode(dealNotify.getCode());
 		deal.setAskOrderCode(askOrder.getOrderCode());
 		deal.setBidOrderCode(bidOrder.getOrderCode());

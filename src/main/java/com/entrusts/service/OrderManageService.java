@@ -3,8 +3,6 @@ package com.entrusts.service;
 
 import com.entrusts.module.vo.OrderDetailView;
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -414,8 +412,7 @@ public class OrderManageService extends BaseService {
 		orderView.setOrderPrice(order.getConvertRate());
 		orderView.setDealTargetQuantity(order.getDealQuantity());
 		orderView.setOrderTargetQuantity(order.getQuantity());
-		orderView.setDealBaseAmount(orderView.getOrderPrice().multiply(
-				orderView.getDealTargetQuantity(), new MathContext(8, RoundingMode.HALF_UP)));
+		orderView.setDealBaseAmount(order.getDealAmount());
 		orderView.setServiceFee(order.getServiceFee());
 		TradePair tradePair = tradePairService.findTradePairById(order.getTradePairId());
 		orderView.setBaseCurrency(tradePair.getBaseCurrencyName());
@@ -761,8 +758,7 @@ public class OrderManageService extends BaseService {
 		TradePair tradePair = tradePairService.findTradePairById(order.getTradePairId());
 		currentEntrusts.setTargetCurrency(tradePair.getTargetCurrencyName());
 		currentEntrusts.setBaseCurrency(tradePair.getBaseCurrencyName());
-		BigDecimal dealBaseAmount =order.getConvertRate().multiply(order.getDealQuantity(), new MathContext(8, RoundingMode.HALF_UP));
-		currentEntrusts.setDealBaseAmount(dealBaseAmount);
+		currentEntrusts.setDealBaseAmount(order.getDealAmount());
 		return currentEntrusts;
 	}
 

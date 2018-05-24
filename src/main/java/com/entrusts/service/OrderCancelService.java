@@ -18,7 +18,6 @@ import com.entrusts.module.enums.TradeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,8 +74,6 @@ public class OrderCancelService {
         return unfreezeEntity;
     }
     public List<CommonResponse<Order>> cancelAll(String userCode) {
-
-        Map<OrderStatus,List<CommonResponse<Order>>> map = new HashMap<>();
         List<CommonResponse<Order>> cancelOrder = new ArrayList<>();
         List<UnfreezeEntity> unfreezeEntities = queryAllUnfreezeInfo(userCode);
         logger.info("用户id:"+userCode+"获取到此人的可取消订单数量"+unfreezeEntities.size());
@@ -205,8 +202,8 @@ public class OrderCancelService {
         if(tradeType.getValue() == 1){
             //说明是买方,基准货币金额相减
             encryptCurrencyId=unfreezeEntity.getBaseCurrencyId();
-            //托单单价*(托单总数量-已成交数量)
-            lockQuantity = order.getConvertRate().multiply(remainQuantity).setScale(8,BigDecimal.ROUND_HALF_UP);
+            //托单单价*托单总数量-已成交金额
+            lockQuantity = order.getConvertRate().multiply(remainQuantity).subtract(order.getDealAmount()).setScale(8,BigDecimal.ROUND_HALF_UP);
         }else {
             //说明是卖方,托单总数量-已成交数量
             encryptCurrencyId=unfreezeEntity.getTargetCurrencyId();
