@@ -217,6 +217,7 @@ public class OrderCancelService {
         freezeDto.setUserCode(order.getUserCode());
         freezeDto.setEncryptCurrencyId(encryptCurrencyId);
         freezeDto.setQuantity(lockQuantity);
+        logger.info("解冻数据:{}",freezeDto);
 //        return "{\n" +
 //                "  \"code\": 0\n" +
 //                "}";

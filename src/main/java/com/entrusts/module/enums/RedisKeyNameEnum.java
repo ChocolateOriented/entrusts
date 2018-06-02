@@ -8,7 +8,10 @@ public enum RedisKeyNameEnum {
     keyTarget("key_target_currency_","目标货币的key前缀"),
     fieldTarget("field_target_currency_","目标货币field前缀"),
     keyNow("key_currency_now_","最新价格key前缀"),
-    fieldNow("field_targe_now_","最新价格field前缀");
+    fieldNow("field_targe_now_","最新价格field前缀"),
+    keyOpenPrice("key_open_price_","开盘价格key前缀"),
+    fieldOpenPrice("field_open_price_","开盘价格key前缀");
+
 
 
     private String value;

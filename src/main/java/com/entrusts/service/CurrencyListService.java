@@ -16,6 +16,7 @@ import com.entrusts.module.enums.RedisKeyNameEnum;
 import com.entrusts.module.enums.UTCTimeEnum;
 import com.entrusts.util.HttpClientUtil;
 import com.entrusts.util.RedisUtil;
+import com.sun.org.apache.regexp.internal.RE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import redis.clients.jedis.Jedis;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -110,14 +112,21 @@ public class CurrencyListService extends BaseService {
                 return page;
             }
             for(TargetCurrency targetCurrency : page.getEntities()){
-                String s = map.get(RedisKeyNameEnum.fieldNow.getValue()+targetCurrency.getAlias());
-                if(s==null){
+                String currentPrice = map.get(RedisKeyNameEnum.fieldNow.getValue()+targetCurrency.getAlias());
+
+                if(currentPrice==null){
                     targetCurrency.setCurrentPrice(new BigDecimal(0));
                     logger.info("交易对id:"+targetCurrency.getTradePareId()+",没有获取到最新价格");
                 }else {
-                    targetCurrency.setCurrentPrice(new BigDecimal(s));
+                    targetCurrency.setCurrentPrice(new BigDecimal(currentPrice));
                 }
-
+                //设置开盘价
+                String openPriceKey = RedisKeyNameEnum.keyOpenPrice.getValue() + baseCurrency;
+                String openPriceField = RedisKeyNameEnum.fieldOpenPrice.getValue() + targetCurrency.getAlias();
+                String openPriceStr = this.getOpenPrice(openPriceKey,openPriceField);
+                if(openPriceStr != null){
+                    targetCurrency.setTodayStartPrice(new BigDecimal(openPriceStr));
+                }
             }
 
 
@@ -128,6 +137,25 @@ public class CurrencyListService extends BaseService {
 
 
         return page;
+    }
+
+    /**
+     * 获取开盘价格
+     * @return
+     */
+    private String getOpenPrice(String openPriceKey,String openPriceField) {
+        Jedis jedis = null;
+        String openPrice = null;
+        try {
+            jedis = RedisUtil.getResource();
+            openPrice = jedis.hget(openPriceKey, openPriceField);
+        } catch (Exception e) {
+            logger.info("获取开盘价异常",e);
+            return null;
+        } finally {
+            RedisUtil.returnResource(jedis);
+        }
+        return openPrice;
     }
 
     /**
@@ -196,6 +224,30 @@ public class CurrencyListService extends BaseService {
         addTargetCurrencyToRedis(redisKey,l);
     }
 
+    /**
+     * 定时清理开盘价格
+     */
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void clearOpenPrice(){
+        List<BaseCurrency> baseCurrencys = this.getBaseCurrency();
+        for (BaseCurrency baseCurrency : baseCurrencys){
+            String key = RedisKeyNameEnum.keyOpenPrice.getValue() + baseCurrency.getAlias();
+            delOpenPrice(key);
+        }
+
+    }
+
+    public void delOpenPrice(String key){
+        Jedis jedis = null;
+        try {
+            jedis = RedisUtil.getResource();
+            jedis.del(key);
+        }catch (Exception e){
+            logger.info("删除开盘价失败",e);
+        }finally {
+            RedisUtil.returnResource(jedis);
+        }
+    }
     /**
      * 根据UTC时间获取redis中的key
      * @return
@@ -345,12 +397,40 @@ public class CurrencyListService extends BaseService {
 			DigitalCurrency targetCurrency = tradePairService.findCurrencyById(deal.getTargetCurrencyId());
 			String key = RedisKeyNameEnum.keyNow.getValue() + baseCurrency.getAlias();
 			String feild= RedisKeyNameEnum.fieldNow.getValue() + targetCurrency.getAlias();
-			setCurrencyList(key, feild, deal.getDealPrice());
+			this.setCurrencyList(key, feild, deal.getDealPrice());
+			String openPriceKey = RedisKeyNameEnum.keyOpenPrice.getValue() + baseCurrency.getAlias();
+			String openPriceField = RedisKeyNameEnum.fieldOpenPrice.getValue() + targetCurrency.getAlias();
+            this.setOpenPrice(openPriceKey,openPriceField,deal.getDealPrice());
 		} catch (Exception e) {
 			logger.info("最新价格插入缓存失败", e);
 		}
     }
 
+    private void setOpenPrice(String key, String field, BigDecimal dealPrice) {
+        Jedis jedis = null;
+
+        try{
+            jedis = RedisUtil.getResource();
+            jedis.hsetnx(key, field, dealPrice.toString());
+        }catch (Exception e){
+            logger.info("放入当前开盘价格异常",e);
+        }finally {
+            RedisUtil.returnResource(jedis);
+        }
+    }
+
+    /**
+     * 获取当天24时的时间戳
+     * @return
+     */
+    public Long getTimesnight(){
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 24);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTimeInMillis();
+    }
     public List<TargetMapCurrency> getAllTargetCurrency(Integer time) {
         List<BaseCurrency> baseCurrency = getBaseCurrency();
         if(baseCurrency == null || baseCurrency.size() == 0){
