@@ -44,7 +44,7 @@ public class OrderCancelController extends BaseController  {
         Order order = orderCommonResponse.getData();
         if (order.getStatus() == OrderStatus.TRADING ){
             //撤销失败
-            if(orderCommonResponse.getCode() == 4001){
+            if(orderCommonResponse.getCode() == 10204001){
                 //说明订单已经撮合完成,订单交易完成
                 orderCommonResponse.setMessage("订单交易已经完成");
             }else {

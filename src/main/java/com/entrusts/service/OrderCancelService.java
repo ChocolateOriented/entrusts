@@ -113,13 +113,13 @@ public class OrderCancelService {
         String s = delCancelOrder(unfreezeEntity);
         CommonResponse<Order> response = JSON.parseObject(s, new TypeReference<CommonResponse<Order>>() {});
 
-        logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+s);
+        logger.info("撤销订单号:"+unfreezeEntity.getOrder().getOrderCode()+s);
         if(s == null || !response.isSuccess()){
             logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+",调用通知撮单系统撤销接口失败");
             response.setData(order);
             return response;
         }
-
+        logger.info("撮合系统撤销成功:订单号:{}",unfreezeEntity.getOrder().getOrderCode());
         //解锁
         String s1 = unfreezeForOrder(unfreezeEntity);
         logger.info("解锁货币订单号:"+unfreezeEntity.getOrder().getOrderCode()+s1);
@@ -130,6 +130,7 @@ public class OrderCancelService {
             //修改数据库状态
             order = updateOrderAfterCancel(unfreezeEntity,OrderStatus.WITHDRAW);
         }
+        logger.info("解锁成功:订单号:{}",unfreezeEntity.getOrder().getOrderCode());
         response.setData(order);
         return response;
     }
@@ -203,7 +204,7 @@ public class OrderCancelService {
             //说明是买方,基准货币金额相减
             encryptCurrencyId=unfreezeEntity.getBaseCurrencyId();
             //托单单价*托单总数量-已成交金额
-            lockQuantity = order.getConvertRate().multiply(remainQuantity).subtract(order.getDealAmount()).setScale(8,BigDecimal.ROUND_HALF_UP);
+            lockQuantity = order.getConvertRate().multiply(order.getQuantity()).subtract(order.getDealAmount() == null ? new BigDecimal(0) : order.getDealAmount()).setScale(8,BigDecimal.ROUND_HALF_UP);
         }else {
             //说明是卖方,托单总数量-已成交数量
             encryptCurrencyId=unfreezeEntity.getTargetCurrencyId();
