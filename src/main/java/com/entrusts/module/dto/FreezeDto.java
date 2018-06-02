@@ -54,4 +54,14 @@ public class FreezeDto implements Serializable {
 	public void setQuantity(BigDecimal quantity) {
 		this.quantity = quantity;
 	}
+
+	@Override
+	public String toString() {
+		return "FreezeDto{" +
+				"orderCode='" + orderCode + '\'' +
+				", userCode='" + userCode + '\'' +
+				", encryptCurrencyId=" + encryptCurrencyId +
+				", quantity=" + quantity +
+				'}';
+	}
 }

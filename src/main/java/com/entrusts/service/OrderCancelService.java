@@ -129,8 +129,9 @@ public class OrderCancelService {
         }else {
             //修改数据库状态
             order = updateOrderAfterCancel(unfreezeEntity,OrderStatus.WITHDRAW);
+            logger.info("解锁成功:订单号:{}",unfreezeEntity.getOrder().getOrderCode());
         }
-        logger.info("解锁成功:订单号:{}",unfreezeEntity.getOrder().getOrderCode());
+
         response.setData(order);
         return response;
     }
@@ -216,6 +217,7 @@ public class OrderCancelService {
         freezeDto.setUserCode(order.getUserCode());
         freezeDto.setEncryptCurrencyId(encryptCurrencyId);
         freezeDto.setQuantity(lockQuantity);
+        logger.info("解冻数据:{}",freezeDto);
 //        return "{\n" +
 //                "  \"code\": 0\n" +
 //                "}";
