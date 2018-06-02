@@ -412,6 +412,7 @@ public class CurrencyListService extends BaseService {
         try{
             jedis = RedisUtil.getResource();
             jedis.hsetnx(key, field, dealPrice.toString());
+            logger.info("更新开盘价格成功:{}",dealPrice);
         }catch (Exception e){
             logger.info("放入当前开盘价格异常",e);
         }finally {
