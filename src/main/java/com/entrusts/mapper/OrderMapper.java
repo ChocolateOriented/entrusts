@@ -33,7 +33,7 @@ public interface OrderMapper {
 
 	List<HistoryOrderView> findLimitHistoryOrder(@Param("userCode") String userCode, @Param("limit") int limit);
 
-	int totalHistoryOrder(String userCode);
+	long totalHistoryOrder(String userCode);
 
 	/**
 	 * 查询全量当前数据

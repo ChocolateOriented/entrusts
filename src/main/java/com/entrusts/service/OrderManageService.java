@@ -247,7 +247,7 @@ public class OrderManageService extends BaseService {
 	private Page<HistoryOrderView> findAndCacheLimitHistoryOrder(String userCode, int pageNum, int PageSize) {
 		List<HistoryOrderView> limitOrders = orderMapper.findLimitHistoryOrder(userCode, perUserOrderCacheLimit);
 		int size = limitOrders.size();
-		int total = size;
+		long total = size;
 		if (size >= perUserOrderCacheLimit) {
 			total = orderMapper.totalHistoryOrder(userCode);
 		}
@@ -274,7 +274,7 @@ public class OrderManageService extends BaseService {
 	private TimePage<HistoryOrderView> findAndCacheLimitHistoryOrder(String userCode, int limit) {
 		List<HistoryOrderView> limitOrders = orderMapper.findLimitHistoryOrder(userCode, perUserOrderCacheLimit);
 		int size = limitOrders.size();
-		int total = size;
+		long total = size;
 		if (size >= perUserOrderCacheLimit) {
 			total = orderMapper.totalHistoryOrder(userCode);
 		}
@@ -283,7 +283,7 @@ public class OrderManageService extends BaseService {
 		
 		TimePage<HistoryOrderView> page = new TimePage<>();
 		page.setEntities(limitOrders.subList(0, Math.min(limit, limitOrders.size())));
-		page.setTotal((long) total);
+		page.setTotal(total);
 		return page;
 	}
 
@@ -293,7 +293,7 @@ public class OrderManageService extends BaseService {
 	 * @param total
 	 * @param limitOrders
 	 */
-	private void cacheLimitHistoryOrder(String userCode, int total, List<HistoryOrderView> limitOrders) {
+	private void cacheLimitHistoryOrder(String userCode, long total, List<HistoryOrderView> limitOrders) {
 		if (limitOrders == null || limitOrders.isEmpty()) {
 			return;
 		}
