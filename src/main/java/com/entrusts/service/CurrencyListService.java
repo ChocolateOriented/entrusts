@@ -398,21 +398,25 @@ public class CurrencyListService extends BaseService {
 			String key = RedisKeyNameEnum.keyNow.getValue() + baseCurrency.getAlias();
 			String feild= RedisKeyNameEnum.fieldNow.getValue() + targetCurrency.getAlias();
 			this.setCurrencyList(key, feild, deal.getDealPrice());
+			logger.info("开始更新开盘价格");
 			String openPriceKey = RedisKeyNameEnum.keyOpenPrice.getValue() + baseCurrency.getAlias();
 			String openPriceField = RedisKeyNameEnum.fieldOpenPrice.getValue() + targetCurrency.getAlias();
             this.setOpenPrice(openPriceKey,openPriceField,deal.getDealPrice());
+            logger.info("开盘价格更新结束");
 		} catch (Exception e) {
 			logger.info("最新价格插入缓存失败", e);
 		}
     }
 
-    private void setOpenPrice(String key, String field, BigDecimal dealPrice) {
+    public void setOpenPrice(String key, String field, BigDecimal dealPrice) {
         Jedis jedis = null;
 
         try{
             jedis = RedisUtil.getResource();
-            jedis.hsetnx(key, field, dealPrice.toString());
-            logger.info("更新开盘价格成功:{}",dealPrice);
+            Long flag = jedis.hsetnx(key, field, dealPrice.toString());
+            if (flag == 1){
+                logger.info("更新开盘价格成功:{}",dealPrice);
+            }
         }catch (Exception e){
             logger.info("放入当前开盘价格异常",e);
         }finally {
