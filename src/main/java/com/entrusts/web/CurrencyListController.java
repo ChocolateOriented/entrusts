@@ -43,6 +43,8 @@ public class CurrencyListController extends BaseController {
     }
     @GetMapping("/listTarget")
     public CommonResponse<Page<TargetCurrency>> getTargetCurrency(@RequestParam("baseCurrency") String currency,Integer pageNum, Integer pageSize,@RequestParam("timeZoneOffset") Integer value){
+        //不分时区
+        value = 0;
         Page<TargetCurrency> page = currencyListService.getTargetCurrency(currency,value,pageNum,pageSize);
         CommonResponse<Page<TargetCurrency>> response = new CommonResponse<>();
         if(page == null){
@@ -55,6 +57,8 @@ public class CurrencyListController extends BaseController {
     }
     @GetMapping("/allListTarget")
     public Results getAllTargetCurrency(@RequestParam(value = "timeZoneOffset",defaultValue = "0") Integer time){
+        //不分时区
+        time = 0;
         List<TargetMapCurrency> targetMapCurrencys = currencyListService.getAllTargetCurrency(time);
         if(targetMapCurrencys == null){
             return new Results(ResultConstant.EMPTY_ENTITY);
@@ -63,6 +67,8 @@ public class CurrencyListController extends BaseController {
     }
     @GetMapping("/all_list_target")
     public Results getAllTargetCurrency2(@RequestParam(value = "timeZoneOffset",defaultValue = "0") Integer time){
+        //不分时区
+        time = 0;
         List<TargetMapCurrency> targetMapCurrencys = currencyListService.getAllTargetCurrency(time);
         if(targetMapCurrencys == null){
             return new Results(ResultConstant.EMPTY_ENTITY);
