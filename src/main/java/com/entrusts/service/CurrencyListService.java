@@ -415,7 +415,7 @@ public class CurrencyListService extends BaseService {
             jedis = RedisUtil.getResource();
             Long flag = jedis.hsetnx(key, field, dealPrice.toString());
             if (flag == 1){
-                logger.info("更新开盘价格成功:{}",dealPrice);
+                logger.info("更新开盘价格成功,key:{},field:{},price:{}",key,field,dealPrice);
             }
         }catch (Exception e){
             logger.info("放入当前开盘价格异常",e);
@@ -447,10 +447,10 @@ public class CurrencyListService extends BaseService {
             targetMapCurrency.setBaseAlias(baseCurrency1.getAlias());
             targetMapCurrency.setBaseCurrencyId(baseCurrency1.getBaseCurrencyId());
             Page<TargetCurrency> page = getTargetCurrency(baseCurrency1.getAlias(), time,null,null);
-            if(page == null){
+            if(page == null ){
                 return null;
             }
-            if(page.getEntities().size() == 0){
+            if( page.getEntities() == null || page.getEntities().size() == 0){
                 continue;
             }
             targetMapCurrency.setTargetCurrencies(page.getEntities());
