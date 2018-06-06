@@ -74,7 +74,7 @@ public class DealService extends BaseService {
 	 */
 	@Transactional
 	public void handleOrderDeal(OrderDealDetail orderDealDetail) {
-		BigDecimal dealAmount = orderDealDetail.getDealPrice().multiply(orderDealDetail.getDealQuantity(), new MathContext(8, RoundingMode.HALF_UP));
+		BigDecimal dealAmount = orderDealDetail.getDealPrice().multiply(orderDealDetail.getDealQuantity()).setScale(8, BigDecimal.ROUND_HALF_UP);
 		orderDealDetail.setDealAmount(dealAmount);
 		Order currentOrder = updateNewDeal(orderDealDetail);
 		if (currentOrder == null) {
