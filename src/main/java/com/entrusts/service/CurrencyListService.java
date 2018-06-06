@@ -63,8 +63,9 @@ public class CurrencyListService extends BaseService {
         if(baseCurrencies==null||baseCurrencies.size() == 0){
             //查数据库
             baseCurrencies =tradePairMapper.getBaseCurrency();
-            String baseCurrency = setCurrencyList(RedisKeyNameEnum.baseCurrency.getValue(), null, baseCurrencies);
-            if(baseCurrency == null){
+            String value = JSON.toJSONString(baseCurrencies);
+            String result = RedisUtil.set(RedisKeyNameEnum.baseCurrency.getValue(), value, 600);
+            if(result == null || "0".equals(result)){
                 logger.info("基准货币放入缓存失败");
             }
         }

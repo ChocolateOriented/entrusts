@@ -10,10 +10,31 @@ public class TargetCurrency {
     private Integer targetCurrencyId;
     private String name;//货币名称
     private String alias; //货币别名
+    private Integer baseCurrencyId;//基准货币id
+    private String baseAlias;//基准货币别名
     private BigDecimal todayStartPrice;//当日起始价格
     private BigDecimal currentPrice;//当前最新价格
+
     private Integer pricePrecision = 8; //价格精度位数
     private Integer amountPrecision = 8; //数量精度位数
+
+
+
+    public Integer getBaseCurrencyId() {
+        return baseCurrencyId;
+    }
+
+    public void setBaseCurrencyId(Integer baseCurrencyId) {
+        this.baseCurrencyId = baseCurrencyId;
+    }
+
+    public String getBaseAlias() {
+        return baseAlias;
+    }
+
+    public void setBaseAlias(String baseAlias) {
+        this.baseAlias = baseAlias;
+    }
 
     public Integer getTradePareId() {
         return tradePareId;
