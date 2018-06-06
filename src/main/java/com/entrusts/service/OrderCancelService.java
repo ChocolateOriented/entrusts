@@ -205,7 +205,7 @@ public class OrderCancelService {
             //说明是买方,基准货币金额相减
             encryptCurrencyId=unfreezeEntity.getBaseCurrencyId();
             //托单单价*托单总数量-已成交金额
-            lockQuantity = order.getConvertRate().multiply(order.getQuantity()).subtract(order.getDealAmount() == null ? new BigDecimal(0) : order.getDealAmount()).setScale(8,BigDecimal.ROUND_HALF_UP);
+            lockQuantity = order.getConvertRate().multiply(order.getQuantity()).subtract(order.getDealAmount() == null ? new BigDecimal(0) : order.getDealAmount()).setScale(16,BigDecimal.ROUND_HALF_UP);
         }else {
             //说明是卖方,托单总数量-已成交数量
             encryptCurrencyId=unfreezeEntity.getTargetCurrencyId();
