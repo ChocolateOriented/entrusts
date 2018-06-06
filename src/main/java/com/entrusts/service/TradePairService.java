@@ -84,6 +84,8 @@ public class TradePairService extends BaseService {
 			targetCurrency.setTradePareId(t.getId());
 			targetCurrency.setCurrentPrice(new BigDecimal(0));
 			targetCurrency.setTodayStartPrice(new BigDecimal(0));
+			targetCurrency.setBaseAlias(baseDC.getAlias());
+			targetCurrency.setBaseCurrencyId(baseDC.getId());
 			//判断是否包含key就放入key对应的list中
 			if(listMap.containsKey(baseDC.getAlias())){
 				listMap.get(baseDC.getAlias()).add(targetCurrency);
