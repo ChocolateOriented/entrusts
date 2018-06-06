@@ -60,6 +60,7 @@
         AND c.is_deleted = '0'
         GROUP BY
         p.base_currency_id
+        ORDER BY MAX(order_by_num)
     </select>
     <!--<select id="updateTargetCurrency" resultMap="mapTarget">-->
         <!--SELECT-->
