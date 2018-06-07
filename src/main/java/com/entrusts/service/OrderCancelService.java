@@ -110,26 +110,26 @@ public class OrderCancelService {
     public CommonResponse<Order> toCancelOrder(UnfreezeEntity unfreezeEntity){
         Order order = unfreezeEntity.getOrder();
         //调用搓单系统取消订单
-        String s = delCancelOrder(unfreezeEntity);
-        CommonResponse<Order> response = JSON.parseObject(s, new TypeReference<CommonResponse<Order>>() {});
+        String cancelResult = delCancelOrder(unfreezeEntity);
+        CommonResponse<Order> response = JSON.parseObject(cancelResult, new TypeReference<CommonResponse<Order>>() {});
 
-        logger.info("撤销订单号:"+unfreezeEntity.getOrder().getOrderCode()+s);
-        if(s == null || !response.isSuccess()){
-            logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+",调用通知撮单系统撤销接口失败");
+        logger.info("撤销订单号:"+unfreezeEntity.getOrder().getOrderCode() +"userCode:" + order.getUserCode()+cancelResult);
+        if(cancelResult == null || !response.isSuccess()){
+            logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+"userCode:" + order.getUserCode()+",调用通知撮单系统撤销接口失败");
             response.setData(order);
             return response;
         }
-        logger.info("撮合系统撤销成功:订单号:{}",unfreezeEntity.getOrder().getOrderCode());
+        logger.info("撮合系统撤销成功:订单号:{},userCode:{}",unfreezeEntity.getOrder().getOrderCode(),order.getUserCode());
         //解锁
-        String s1 = unfreezeForOrder(unfreezeEntity);
-        logger.info("解锁货币订单号:"+unfreezeEntity.getOrder().getOrderCode()+s1);
-        if(s1 == null || (Integer)JSON.parseObject(s1).get("code") != 0){
+        String unfreezeResult = unfreezeForOrder(unfreezeEntity);
+        logger.info("解锁货币订单号:"+unfreezeEntity.getOrder().getOrderCode()+unfreezeResult);
+        if(unfreezeResult == null || (Integer)JSON.parseObject(unfreezeResult).get("code") != 0){
             logger.info("订单号:"+unfreezeEntity.getOrder().getOrderCode()+",撮单系统取消成功,但是货币解锁失败");
             order = updateOrderAfterCancel(unfreezeEntity,OrderStatus.WITHDRAW_UNTHAWING);
         }else {
             //修改数据库状态
             order = updateOrderAfterCancel(unfreezeEntity,OrderStatus.WITHDRAW);
-            logger.info("解锁成功:订单号:{}",unfreezeEntity.getOrder().getOrderCode());
+            logger.info("解锁成功:订单号:{},userCode:",unfreezeEntity.getOrder().getOrderCode(),unfreezeEntity.getOrder().getUserCode());
         }
 
         response.setData(order);
