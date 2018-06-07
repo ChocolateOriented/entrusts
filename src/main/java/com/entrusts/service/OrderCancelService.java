@@ -129,7 +129,7 @@ public class OrderCancelService {
         }else {
             //修改数据库状态
             order = updateOrderAfterCancel(unfreezeEntity,OrderStatus.WITHDRAW);
-            logger.info("解锁成功:订单号:{},userCode:",unfreezeEntity.getOrder().getOrderCode(),unfreezeEntity.getOrder().getUserCode());
+            logger.info("解锁成功:订单号:{},userCode:{}",unfreezeEntity.getOrder().getOrderCode(),unfreezeEntity.getOrder().getUserCode());
         }
 
         response.setData(order);
@@ -191,6 +191,7 @@ public class OrderCancelService {
         delCancelOrder.setTradeType(order.getTradeType().name());
         delCancelOrder.setCreatedTime(createdDate);
         String delOrder = JSON.toJSONString(delCancelOrder, SerializerFeature.UseISO8601DateFormat);
+        logger.info("发送撮合系统撤销数据:{}",delOrder);
         return dealmakingClient.delCancelOrder(delOrder);
     }
 
