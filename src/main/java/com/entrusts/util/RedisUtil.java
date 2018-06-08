@@ -77,7 +77,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			value = jedis.hget(key,key2);
-			logger.debug("getMap {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getMap {} = {}", key, value, e);
 		} finally {
@@ -97,7 +96,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			result = jedis.hset(key, key2,value) + "";
-			logger.debug("mapPut {} = {}", key,key2, value);
 		} catch (Exception e) {
 			logger.warn("mapPut {} = {}", key,key2, value, e);
 		} finally {
@@ -118,7 +116,6 @@ public class RedisUtil {
 			jedis = getResource();
 			value = jedis.get(key);
 			value = StringUtils.isNotBlank(value) && !"nil".equalsIgnoreCase(value) ? value : null;
-			logger.debug("get {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("get {} = {}", key, value, e);
 		} finally {
@@ -139,7 +136,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			value = toObject(jedis.get(getBytesKey(key)));
-			logger.debug("getObject {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getObject {} = {}", key, value, e);
 		} finally {
@@ -164,7 +160,6 @@ public class RedisUtil {
 			if (cacheSeconds != 0) {
 				jedis.expire(key, cacheSeconds);
 			}
-			logger.debug("set {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("set {} = {}", key, value, e);
 		} finally {
@@ -189,7 +184,6 @@ public class RedisUtil {
 			if (cacheSeconds != 0) {
 				jedis.expire(key, cacheSeconds);
 			}
-			logger.debug("setObject {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("setObject {} = {}", key, value, e);
 		} finally {
@@ -210,7 +204,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			value = jedis.lrange(key, 0, -1);
-			logger.debug("getList {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getList {} = {}", key, value, e);
 		} finally {
@@ -235,7 +228,6 @@ public class RedisUtil {
 			for (byte[] bs : list) {
 				value.add(toObject(bs));
 			}
-			logger.debug("getObjectList {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getObjectList {} = {}", key, value, e);
 		} finally {
@@ -261,7 +253,6 @@ public class RedisUtil {
 			if (cacheSeconds != 0) {
 				jedis.expire(key, cacheSeconds);
 			}
-			logger.debug("setList {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("setList {} = {}", key, value, e);
 		} finally {
@@ -291,7 +282,6 @@ public class RedisUtil {
 			if (cacheSeconds != 0) {
 				jedis.expire(key, cacheSeconds);
 			}
-			logger.debug("setObjectList {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("setObjectList {} = {}", key, value, e);
 		} finally {
@@ -312,7 +302,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			result = jedis.rpush(key, value);
-			logger.debug("listAdd {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("listAdd {} = {}", key, value, e);
 		} finally {
@@ -337,7 +326,6 @@ public class RedisUtil {
 				list.add(toBytes(o));
 			}
 			result = jedis.rpush(getBytesKey(key), (byte[][]) list.toArray());
-			logger.debug("listObjectAdd {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("listObjectAdd {} = {}", key, value, e);
 		} finally {
@@ -358,7 +346,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			value = jedis.smembers(key);
-			logger.debug("getSet {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getSet {} = {}", key, value, e);
 		} finally {
@@ -383,7 +370,6 @@ public class RedisUtil {
 			for (byte[] bs : set) {
 				value.add(toObject(bs));
 			}
-			logger.debug("getObjectSet {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getObjectSet {} = {}", key, value, e);
 		} finally {
@@ -409,7 +395,6 @@ public class RedisUtil {
 			if (cacheSeconds != 0) {
 				jedis.expire(key, cacheSeconds);
 			}
-			logger.debug("setSet {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("setSet {} = {}", key, value, e);
 		} finally {
@@ -439,7 +424,6 @@ public class RedisUtil {
 			if (cacheSeconds != 0) {
 				jedis.expire(key, cacheSeconds);
 			}
-			logger.debug("setObjectSet {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("setObjectSet {} = {}", key, value, e);
 		} finally {
@@ -460,7 +444,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			result = jedis.sadd(key, value);
-			logger.debug("setSetAdd {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("setSetAdd {} = {}", key, value, e);
 		} finally {
@@ -485,7 +468,6 @@ public class RedisUtil {
 				set.add(toBytes(o));
 			}
 			result = jedis.rpush(getBytesKey(key), (byte[][]) set.toArray());
-			logger.debug("setSetObjectAdd {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("setSetObjectAdd {} = {}", key, value, e);
 		} finally {
@@ -506,7 +488,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			value = jedis.hgetAll(key);
-			logger.debug("getMap {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getMap {} = {}", key, value, e);
 		} finally {
@@ -531,7 +512,6 @@ public class RedisUtil {
 			for (Map.Entry<byte[], byte[]> e : map.entrySet()) {
 				value.put(StringUtils.toString(e.getKey()), toObject(e.getValue()));
 			}
-			logger.debug("getObjectMap {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getObjectMap {} = {}", key, value, e);
 		} finally {
@@ -557,7 +537,6 @@ public class RedisUtil {
 			if (cacheSeconds != 0) {
 				jedis.expire(key, cacheSeconds);
 			}
-			logger.debug("setMap {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("setMap {} = {}", key, value, e);
 		} finally {
@@ -587,7 +566,6 @@ public class RedisUtil {
 			if (cacheSeconds != 0) {
 				jedis.expire(key, cacheSeconds);
 			}
-			logger.debug("setObjectMap {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("setObjectMap {} = {}", key, value, e);
 		} finally {
@@ -608,7 +586,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			result = jedis.hmset(key, value);
-			logger.debug("mapPut {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("mapPut {} = {}", key, value, e);
 		} finally {
@@ -633,7 +610,6 @@ public class RedisUtil {
 				map.put(getBytesKey(e.getKey()), toBytes(e.getValue()));
 			}
 			result = jedis.hmset(getBytesKey(key), (Map<byte[], byte[]>) map);
-			logger.debug("mapObjectPut {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("mapObjectPut {} = {}", key, value, e);
 		} finally {
@@ -657,7 +633,6 @@ public class RedisUtil {
 			if (cacheSeconds != 0) {
 				jedis.expire(key, cacheSeconds);
 			}
-			logger.debug("mapRemove {}  {}", key, mapKey);
 		} catch (Exception e) {
 			logger.warn("mapRemove {}  {}", key, mapKey, e);
 		} finally {
@@ -677,7 +652,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			result = jedis.hdel(getBytesKey(key), getBytesKey(mapKey));
-			logger.debug("mapObjectRemove {}  {}", key, mapKey);
 		} catch (Exception e) {
 			logger.warn("mapObjectRemove {}  {}", key, mapKey, e);
 		} finally {
@@ -697,7 +671,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			result = jedis.hexists(key, mapKey);
-			logger.debug("mapExists {}  {}", key, mapKey);
 		} catch (Exception e) {
 			logger.warn("mapExists {}  {}", key, mapKey, e);
 		} finally {
@@ -717,7 +690,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			result = jedis.hexists(getBytesKey(key), getBytesKey(mapKey));
-			logger.debug("mapObjectExists {}  {}", key, mapKey);
 		} catch (Exception e) {
 			logger.warn("mapObjectExists {}  {}", key, mapKey, e);
 		} finally {
@@ -737,8 +709,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			result = jedis.del(key);
-			logger.debug("del {}", key);
-
 		} catch (Exception e) {
 			logger.warn("del {}", key, e);
 		} finally {
@@ -758,7 +728,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			result = jedis.del(getBytesKey(key));
-			logger.debug("delObject {}", key);
 		} catch (Exception e) {
 			logger.warn("delObject {}", key, e);
 		} finally {
@@ -778,7 +747,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			result = jedis.exists(key);
-			logger.debug("exists {}", key);
 		} catch (Exception e) {
 			logger.warn("exists {}", key, e);
 		} finally {
@@ -798,7 +766,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			result = jedis.exists(getBytesKey(key));
-			logger.debug("existsObject {}", key);
 		} catch (Exception e) {
 			logger.warn("existsObject {}", key, e);
 		} finally {
@@ -922,7 +889,6 @@ public class RedisUtil {
 		try {
 			jedis = getResource();
 			value = jedis.keys(key);
-			logger.debug("getSets {} = {}", key, value);
 		} catch (Exception e) {
 			logger.warn("getSets {} = {}", key, value, e);
 		} finally {
