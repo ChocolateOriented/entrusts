@@ -48,7 +48,6 @@ public class DelegateEventHandler extends BaseService {
 			logger.info("用户：" + userCode + " 订单: " + orderCode + " 锁币失败:" + e.getMessage(), e);
 			return;
 		}
-		logger.debug("用户：" + userCode + "订单:" + orderCode + "锁币成功");
 
 		//通知撮合系统
 		try {
@@ -79,6 +78,7 @@ public class DelegateEventHandler extends BaseService {
 	 */
 	private void lockCoin(DelegateEvent delegateEvent) throws ApiException {
 		Results result = millstoneClient.freezeForOrder(this.creatFreezeCoin(delegateEvent));
+		logger.debug("用户：" + delegateEvent.getUserCode() + "订单:" + delegateEvent.getOrderCode() + "锁币响应结果" + result);
 		if (result.getCode() != 0) {
 			throw new ApiException(result.getMessage());
 		}
