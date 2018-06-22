@@ -1,6 +1,7 @@
 package com.entrusts.mapper;
 
 import com.entrusts.module.dto.DealNotify.OrderDealDetail;
+import com.entrusts.module.dto.TradePairQuantity;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.enums.OrderStatus;
 import com.entrusts.module.vo.CurrentEntrusts;
@@ -82,4 +83,9 @@ public interface OrderMapper {
 	 * @return com.entrusts.module.vo.OrderDetailView
 	 */
 	OrderDetailView findOrderDetailView(@Param("orderCode") String orderCode,@Param("userCode") String userCode);
+
+	/**
+	 * 查询用户挂单总量
+	 */
+	TradePairQuantity queryDelegateTotalQuantity(Integer tradePairId);
 }

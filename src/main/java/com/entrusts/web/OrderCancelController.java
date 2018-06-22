@@ -6,6 +6,7 @@ import com.entrusts.module.dto.result.ResultConstant;
 import com.entrusts.module.dto.result.Results;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.enums.OrderStatus;
+import com.entrusts.service.MarketService;
 import com.entrusts.service.OrderCancelService;
 import com.entrusts.service.OrderManageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,8 @@ public class OrderCancelController extends BaseController  {
     private OrderCancelService orderCancelService;
     @Autowired
     private OrderManageService orderManageService;
+    @Autowired
+    private MarketService marketService;
     @Value("${adminKey}")
     private String adminKey;//只有请求中携带参数和此参数相等的时候才能进入cancelErrorOrder接口
     @Value("${adminFlag}")
@@ -57,6 +60,7 @@ public class OrderCancelController extends BaseController  {
 
             orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, orderRequest.getOrderCode(), 3600*12);
             orderManageService.updateUserHistoryCache(order);
+            marketService.updateDelegateTotalQuantity(order);
             return Results.ok();
         }
     }
@@ -78,7 +82,8 @@ public class OrderCancelController extends BaseController  {
         }
 
         orderManageService.updateUserHistoryCaches(successOrder);
-
+        marketService.updateDelegateTotalQuantity(successOrder);
+        
         if(faildOrder.size()==0 && successOrder.size()>0){
             //全部撤销成功
             orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, null, 3600*12);

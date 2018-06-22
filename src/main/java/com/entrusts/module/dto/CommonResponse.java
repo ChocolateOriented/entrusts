@@ -14,4 +14,13 @@ public class CommonResponse<T> extends BaseResponse {
 		this.data = data;
 	}
 
+	public CommonResponse() {
+		super();
+	}
+
+	public CommonResponse(T data) {
+		super();
+		this.data = data;
+	}
+
 }

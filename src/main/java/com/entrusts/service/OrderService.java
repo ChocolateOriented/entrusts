@@ -27,9 +27,9 @@ public class OrderService extends BaseService {
 	@Autowired
 	private OrderMapper orderMapper;
 	@Autowired
-	private OrderEventMapper orderEventMapper;
-	@Autowired
 	private OrderManageService orderManageService;
+	@Autowired
+	private MarketService marketService;
 
 	@Value("${mq.delegatePushTopic}")
 	private String delegatePushTopic;
@@ -65,12 +65,14 @@ public class OrderService extends BaseService {
 	@Transactional
 	public void updateOrderStatus(OrderStatus status, String orderCode, String userCode) {
 		orderMapper.updateOrderStatus(status, orderCode,new Date());
+		Order order = orderMapper.get(orderCode);
 		if (status.equals(OrderStatus.DELEGATING) || status.equals(OrderStatus.TRADING)){
 			orderManageService.updateUserCurrentOrderListFromRedis(status, orderCode, userCode, 3600*12);
 		} else {
-			orderManageService.updateUserHistoryCache(orderCode);
+			orderManageService.updateUserHistoryCache(order);
 			orderManageService.deleteUserCurrentOrderListFromRedisByDeal(userCode, orderCode, 3600*12);
 		}
+		marketService.updateDelegateTotalQuantity(order);
 	}
 
 	/**
