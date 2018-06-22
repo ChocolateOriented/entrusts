@@ -32,6 +32,9 @@ public class DealService extends BaseService {
 	@Autowired
 	private CurrencyListService currencyListService;
 
+	@Autowired
+	private MarketService marketService;
+
 	@Transactional
 	public boolean save(Deal deal) {
 		return dealMapper.insert(deal) != 0;
@@ -82,6 +85,7 @@ public class DealService extends BaseService {
 		}
 		
 		orderManageService.updateUserCurrentOrderListFromRedisByDeal(currentOrder, 3600*12);
+		marketService.updateDelegateTotalQuantityWhenDeal(orderDealDetail, currentOrder);
 		if (currentOrder.getStatus() == OrderStatus.COMPLETE) {
 			orderManageService.updateUserHistoryCache(currentOrder);
 		}

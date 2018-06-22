@@ -287,4 +287,21 @@
 		`order` AS o
 		WHERE o.user_code = #{userCode} AND o.`status` IN (20,50)
 	</select>
+	<select id="queryDelegateTotalQuantity" resultType="com.entrusts.module.dto.TradePairQuantity">
+		SELECT
+			tradePairId,
+			SUM(IF(t.tradeType = 1, quantity, 0)) AS buyQuantity,
+			SUM(IF(t.tradeType = 2, quantity, 0)) AS sellQuantity
+		FROM (
+			SELECT
+				o.trade_pair_id AS tradePairId,
+				o.trade_type AS tradeType,
+				SUM(o.quantity - IFNULL(o.deal_quantity, 0)) AS quantity
+			FROM `order` AS o
+			WHERE o.`status` = 20
+			AND trade_pair_id = #{tradePairId}
+			GROUP BY o.trade_pair_id, o.trade_type
+		) t
+        GROUP BY tradePairId
+	</select>
 </mapper>
