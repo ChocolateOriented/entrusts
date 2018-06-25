@@ -112,6 +112,8 @@ public class DealNotify {
 		
 		private Integer isInitiator;
 
+		private Integer isStrategy;
+
 		public String getUserCode() {
 			return userCode;
 		}
@@ -215,7 +217,15 @@ public class DealNotify {
 		public void setIsInitiator(Integer isInitiator) {
 			this.isInitiator = isInitiator;
 		}
-		
+
+		public Integer getIsStrategy() {
+			return isStrategy;
+		}
+
+		public void setIsStrategy(Integer isStrategy) {
+			this.isStrategy = isStrategy;
+		}
+
 	}
 
 }

@@ -32,7 +32,18 @@ public class TradePairService extends BaseService {
 	 */
 	@Cacheable(key = "#baseCurrencyAlias+'_'+#targetCurrencyAlias")
 	public TradePair findTradePairByCoinName(String baseCurrencyAlias, String targetCurrencyAlias){
-		return tradePairMapper.findTradePairByCoinName(baseCurrencyAlias,targetCurrencyAlias);
+		return tradePairMapper.findTradePairByCoinName(baseCurrencyAlias, targetCurrencyAlias);
+	}
+
+	/**
+	 * @Description 查询交易对, 使用本地缓存
+	 * @param baseCurrencyId 基础货币
+	 * @param targetCurrencyId 目标货币
+	 * @return com.entrusts.module.entity.TradePair
+	 */
+	@Cacheable(key = "#baseCurrencyId+'_'+#targetCurrencyId")
+	public TradePair findTradePairByCoinId(Integer baseCurrencyId, Integer targetCurrencyId){
+		return tradePairMapper.findTradePairByCoinId(baseCurrencyId, targetCurrencyId);
 	}
 
 	/**
