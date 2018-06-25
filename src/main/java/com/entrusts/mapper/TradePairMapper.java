@@ -16,6 +16,14 @@ public interface TradePairMapper{
 	TradePair findTradePairByCoinName(@Param("baseCurrencyAlias") String baseCurrencyAlias,@Param("targetCurrencyAlias") String targetCurrencyAlias);
 
 	/**
+	 * @Description 查询交易对
+	 * @param baseCurrencyId
+	 * @param targetCurrencyId
+	 * @return java.math.BigDecimal
+	 */
+	TradePair findTradePairByCoinId(@Param("baseCurrencyId") Integer baseCurrencyId,@Param("targetCurrencyId") Integer targetCurrencyId);
+
+	/**
 	 * 通过交易对Id查询交易对
 	 * @param tradePairId
 	 * @return

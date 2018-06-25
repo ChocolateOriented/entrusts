@@ -1,8 +1,6 @@
 package com.entrusts.service;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +10,7 @@ import com.entrusts.exception.ServiceException;
 import com.entrusts.mapper.DealMapper;
 import com.entrusts.module.entity.Order;
 import com.entrusts.module.entity.OrderEvent;
+import com.entrusts.module.entity.TradePair;
 import com.entrusts.module.dto.DealNotify;
 import com.entrusts.module.dto.DealNotify.OrderDealDetail;
 import com.entrusts.module.entity.Deal;
@@ -19,6 +18,9 @@ import com.entrusts.module.enums.OrderStatus;
 
 @Service
 public class DealService extends BaseService {
+
+    public static final Integer TYPE_OF_PEOPLE = 0; //代表用户
+    public static final Integer TYPE_OF_ROBOT = 1; //代表机器人
 
 	@Autowired
 	private DealMapper dealMapper;
@@ -31,6 +33,9 @@ public class DealService extends BaseService {
 
 	@Autowired
 	private CurrencyListService currencyListService;
+
+	@Autowired
+	private TradePairService tradePairService;
 
 	@Autowired
 	private MarketService marketService;
@@ -77,6 +82,10 @@ public class DealService extends BaseService {
 	 */
 	@Transactional
 	public void handleOrderDeal(OrderDealDetail orderDealDetail) {
+		if (orderDealDetail.getIsStrategy() != null && orderDealDetail.getIsStrategy() == TYPE_OF_ROBOT) {
+			return;
+		}
+		
 		BigDecimal dealAmount = orderDealDetail.getDealPrice().multiply(orderDealDetail.getDealQuantity()).setScale(16, BigDecimal.ROUND_HALF_UP);
 		orderDealDetail.setDealAmount(dealAmount);
 		Order currentOrder = updateNewDeal(orderDealDetail);
@@ -99,20 +108,6 @@ public class DealService extends BaseService {
 	@Transactional
 	public void dealNotify(DealNotify dealNotify) throws ServiceException {
 		Deal deal = createDealFromNotify(dealNotify);
-		Order askOrder = orderManageService.get(deal.getAskOrderCode());
-		if (askOrder == null) {
-			logger.info("不存在此托单,托单号" + deal.getAskOrderCode());
-			throw new ServiceException("托单不存在");
-		}
-		
-		Order bidOrder = orderManageService.get(deal.getBidOrderCode());
-		if (bidOrder == null) {
-			logger.info("不存在此托单,托单号" + deal.getBidOrderCode());
-			throw new ServiceException("托单不存在");
-		}
-		
-		deal.setTradePairId(askOrder.getTradePairId());
-		
 		if (!save(deal)) {
 			logger.info("此成交信息已处理,交易流水号:" + deal.getTradeCode());
 			throw new ServiceException("重复成交信息");
@@ -148,6 +143,11 @@ public class DealService extends BaseService {
 			throw new IllegalArgumentException("托单成交价格为空");
 		}
 		
+		TradePair tradePair = tradePairService.findTradePairByCoinId(dealNotify.getBaseCurrencyId(), dealNotify.getTargetCurrencyId());
+		if (tradePair == null) {
+			throw new IllegalArgumentException("无效的交易对");
+		}
+		
 		Deal deal = new Deal();
 		askOrder.setDealQuantity(dealNotify.getDealQuantity());
 		bidOrder.setDealQuantity(dealNotify.getDealQuantity());
@@ -163,6 +163,7 @@ public class DealService extends BaseService {
 		deal.setCreatedTime(dealNotify.getCreatedTime());
 		deal.setAskTradeFee(askOrder.getTradeFee());
 		deal.setBidTradeFee(bidOrder.getTradeFee());
+		deal.setTradePairId(tradePair.getId());
 		
 		return deal;
 	}
