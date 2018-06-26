@@ -5,6 +5,7 @@ import com.entrusts.module.dto.result.ResultConstant;
 import com.entrusts.module.dto.result.Results;
 import com.entrusts.module.vo.HistoryOrderView;
 import com.entrusts.service.CurrencyListService;
+import com.entrusts.service.CurrencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +22,8 @@ import java.util.List;
 public class CurrencyListController extends BaseController {
     @Autowired
     private CurrencyListService currencyListService;
-
+    @Autowired
+    private CurrencyService currencyService;
     /**
      * @Description 查询支持的货币 
      * @param 
@@ -91,5 +93,15 @@ public class CurrencyListController extends BaseController {
         }
 
         return Results.ok().putData("entities",currencyMap);
+    }
+
+    /**
+     * 获取所有货币信息
+     * @return
+     */
+    @GetMapping("/getAllCurrencyInfo")
+    public Results getAllCurrencyInfo() {
+        List<CurrencyInfo> allCurrencyInfo = currencyService.getAllCurrencyInfo();
+        return Results.ok().putData("entities", allCurrencyInfo);
     }
 }

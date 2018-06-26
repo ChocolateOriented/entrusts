@@ -219,10 +219,16 @@ public class OrderCancelService {
         freezeDto.setEncryptCurrencyId(encryptCurrencyId);
         freezeDto.setQuantity(lockQuantity);
         logger.info("解冻数据:{}",freezeDto);
-//        return "{\n" +
-//                "  \"code\": 0\n" +
-//                "}";
-        return millstoneClient.unfreezeForOrder(freezeDto);
+        String result = null;
+        try {
+            result = millstoneClient.unfreezeForOrder(freezeDto);
+        } catch (Exception e) {
+            logger.info("解冻异常",e);
+            return null;
+        }
+
+
+        return result;
     }
 
 
