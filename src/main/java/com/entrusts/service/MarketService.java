@@ -50,6 +50,7 @@ public class MarketService extends BaseService {
 			} else {
 				logger.info("交易对{}挂单总量获取缓存", tradePairId);
 				tradePairQuantity = new TradePairQuantity();
+				tradePairQuantity.setTradePairId(tradePairId);
 				tradePairQuantity.setBuyQuantity(new BigDecimal(buyQuantity));
 				tradePairQuantity.setSellQuantity(new BigDecimal(sellQuantity));
 			}
@@ -96,7 +97,8 @@ public class MarketService extends BaseService {
 
 	/**
 	 * 成交时更新用户挂单总量
-	 * @param orders
+	 * @param orderDetail
+     * @param order
 	 */
 	public void updateDelegateTotalQuantityWhenDeal(OrderDealDetail orderDetail, Order order) {
 		String key = userTotalQuantityKey + order.getTradeType();

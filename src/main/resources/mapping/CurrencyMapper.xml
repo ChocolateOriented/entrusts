@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.entrusts.mapper.CurrencyMapper">
+    <select id="getAllCurrency" resultType="com.entrusts.module.dto.CurrencyInfo">
+        SELECT
+            id AS currencyId,
+            `name`,
+            `alias`,
+            `unit`,
+            `service_charge_rate` AS chargeRate
+        FROM
+            digital_currency
+        WHERE
+            is_deleted = 0
+        AND is_supported = 1
+    </select>
+</mapper>
