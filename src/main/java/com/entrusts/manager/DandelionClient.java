@@ -12,6 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "${feignClient.dandelion.name}",path = "${feignClient.dandelion.containerName}")
 public interface DandelionClient {
     String DANDELION_PATH = "/open/api/dandelion/v1/activity/";
-    @RequestMapping(value = DANDELION_PATH + "get_current_price", method = RequestMethod.GET)
+    @RequestMapping(value = DANDELION_PATH + "get_exchange_rate", method = RequestMethod.GET)
     Results getExchangeRate(@RequestParam("digitalCurrencyId") Integer digitalCurrencyId, @RequestParam("legalTenderType") String legalTenderType);
 }
