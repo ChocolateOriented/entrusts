@@ -14,4 +14,18 @@
             is_deleted = 0
         AND is_supported = 1
     </select>
+    <select id="getCurrencyByAlias" resultType="com.entrusts.module.dto.BaseCurrency">
+        SELECT
+            id AS baseCurrencyId,
+            `name`,
+            `alias`,
+            `unit`
+        FROM
+            digital_currency
+        WHERE
+            is_deleted = 0
+        AND is_supported = 1
+        AND `alias` = #{alias}
+        LIMIT 1
+    </select>
 </mapper>

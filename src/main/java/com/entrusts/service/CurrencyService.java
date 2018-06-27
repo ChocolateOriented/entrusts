@@ -1,6 +1,7 @@
 package com.entrusts.service;
 
 import com.entrusts.mapper.CurrencyMapper;
+import com.entrusts.module.dto.BaseCurrency;
 import com.entrusts.module.dto.CurrencyInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -25,5 +26,10 @@ public class CurrencyService {
             currencyInfo.setChargeRate(new BigDecimal(0.2).setScale(2,BigDecimal.ROUND_HALF_UP));
         }
         return allCurrency;
+    }
+
+    @Cacheable(key = "#alian + 'alian'")
+    public BaseCurrency getCurrencyByAlias(String alias) {
+        return currencyMapper.getCurrencyByAlias(alias);
     }
 }

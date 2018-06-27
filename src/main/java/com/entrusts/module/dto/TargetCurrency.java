@@ -14,11 +14,18 @@ public class TargetCurrency {
     private String baseAlias;//基准货币别名
     private BigDecimal todayStartPrice;//当日起始价格
     private BigDecimal currentPrice;//当前最新价格
-
+    private BigDecimal currentCNYPrice;//最新价格对应的人民币价格
     private Integer pricePrecision = 8; //价格精度位数
     private Integer amountPrecision = 8; //数量精度位数
 
 
+    public BigDecimal getCurrentCNYPrice() {
+        return currentCNYPrice;
+    }
+
+    public void setCurrentCNYPrice(BigDecimal currentCNYPrice) {
+        this.currentCNYPrice = currentCNYPrice;
+    }
 
     public Integer getBaseCurrencyId() {
         return baseCurrencyId;

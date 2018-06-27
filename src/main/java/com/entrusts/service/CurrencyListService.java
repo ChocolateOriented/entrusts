@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.entrusts.manager.CandlestickClient;
+import com.entrusts.manager.DandelionClient;
 import com.entrusts.manager.DealmakingClient;
 import com.entrusts.mapper.DealMapper;
 import com.entrusts.mapper.TradePairMapper;
@@ -46,10 +47,14 @@ public class CurrencyListService extends BaseService {
     private TradePairService tradePairService;
     @Autowired
     private DealmakingClient dealmakingClient;
-
+    @Autowired
+    private DandelionClient dandelionClient;
     @Autowired
     private CandlestickClient candlestickClient;
     private static final Logger logger = LoggerFactory.getLogger(CurrencyListService.class);
+
+    private final Integer BASEID = 1;
+    private final String LEGALTENDERTYPE = "CNY";
 
     /**
      * 获取基准货币
@@ -78,19 +83,20 @@ public class CurrencyListService extends BaseService {
      * @return
      */
     @Transactional(readOnly = false)
-    public Page<TargetCurrency> getTargetCurrency(String baseCurrency, Integer value, Integer pageNum, Integer pageSize) {
+    public Page<TargetCurrency> getTargetCurrency(BaseCurrency baseCurrency, Integer value, Integer pageNum, Integer pageSize) {
         String time1 = RedisKeyNameEnum.keyTarget.getValue()+value;
-        String currency1= RedisKeyNameEnum.fieldTarget.getValue()+baseCurrency;
+        String currency1= RedisKeyNameEnum.fieldTarget.getValue()+baseCurrency.getAlias();
         Page<TargetCurrency> page = new Page<>();
         List<TargetCurrency> currencyList = null;
         try{
+            BigDecimal baseCurrencyRate = getBaseCurrencyRate(baseCurrency);
             //获取目标货币
             currencyList = this.getCurrencyList(time1, currency1, TargetCurrency.class);
-            if(currencyList == null){
+            if (currencyList == null) {
                 return page;
             }
             //分页
-            if(pageNum == null || pageNum < 0){
+            if (pageNum == null || pageNum < 0) {
                 pageNum = 1;
             }
             if(pageSize == null || pageSize < 0){
@@ -105,27 +111,31 @@ public class CurrencyListService extends BaseService {
             page.setPageSize(pageSize);
             page.setTotal((long)currencyList.size());
             //获取最新价格
-            String key = RedisKeyNameEnum.keyNow.getValue()+baseCurrency;
+            String key = RedisKeyNameEnum.keyNow.getValue()+baseCurrency.getAlias();
             Map<String, String> map = RedisUtil.getMap(key);
             if(map == null){
                 //从数据库获取最新数据
                 logger.info("缓存中没有最新价格");
                 return page;
             }
-            for(TargetCurrency targetCurrency : page.getEntities()){
-                String currentPrice = map.get(RedisKeyNameEnum.fieldNow.getValue()+targetCurrency.getAlias());
+            for (TargetCurrency targetCurrency : page.getEntities()) {
 
-                if(currentPrice==null){
-                    targetCurrency.setCurrentPrice(new BigDecimal(0));
-                    logger.info("交易对id:"+targetCurrency.getTradePareId()+",没有获取到最新价格");
-                }else {
-                    targetCurrency.setCurrentPrice(new BigDecimal(currentPrice));
+                String currentPrice = map.get(RedisKeyNameEnum.fieldNow.getValue() + targetCurrency.getAlias());
+
+                if (currentPrice == null) {
+                    targetCurrency.setCurrentPrice(BigDecimal.ZERO);
+                    targetCurrency.setCurrentCNYPrice(BigDecimal.ZERO);
+                    logger.info("交易对id:" + targetCurrency.getTradePareId() + ",没有获取到最新价格");
+                } else {
+                    BigDecimal currentPriceBD = new BigDecimal(currentPrice);
+                    targetCurrency.setCurrentPrice(currentPriceBD);
+                    targetCurrency.setCurrentCNYPrice(currentPriceBD.multiply(baseCurrencyRate).setScale(8, BigDecimal.ROUND_HALF_UP));
                 }
                 //设置开盘价
-                String openPriceKey = RedisKeyNameEnum.keyOpenPrice.getValue() + baseCurrency;
+                String openPriceKey = RedisKeyNameEnum.keyOpenPrice.getValue() + baseCurrency.getAlias();
                 String openPriceField = RedisKeyNameEnum.fieldOpenPrice.getValue() + targetCurrency.getAlias();
-                String openPriceStr = this.getOpenPrice(openPriceKey,openPriceField);
-                if(openPriceStr != null){
+                String openPriceStr = this.getOpenPrice(openPriceKey, openPriceField);
+                if (openPriceStr != null) {
                     targetCurrency.setTodayStartPrice(new BigDecimal(openPriceStr));
                 }
             }
@@ -140,6 +150,47 @@ public class CurrencyListService extends BaseService {
         return page;
     }
 
+    private BigDecimal getBaseCurrencyRate(BaseCurrency baseCurrency) {
+        if (baseCurrency.getBaseCurrencyId() == BASEID) {
+            return new BigDecimal(1);
+        } else {
+            BigDecimal currentPrice = getCurrentPrice(baseCurrency);
+            BigDecimal exchangeRate = getExchangeRate(BASEID);
+            return currentPrice.multiply(exchangeRate).setScale(8, BigDecimal.ROUND_HALF_UP);
+        }
+
+    }
+    private BigDecimal getExchangeRate(Integer baseCurrency) {
+        try {
+            Results results = dandelionClient.getExchangeRate(baseCurrency, LEGALTENDERTYPE);
+            logger.info("获取汇率结果:" + results);
+            if (results == null || results.getCode() != 0) {
+                logger.info("获取汇率失败");
+                return BigDecimal.ZERO;
+            }
+            BigDecimal exchangeRate = new BigDecimal(String.valueOf(results.getData().get("price")));
+            return exchangeRate == null ? BigDecimal.ZERO : exchangeRate;
+        } catch (Exception e) {
+            logger.info("获取汇率失败",e);
+            return BigDecimal.ZERO;
+        }
+
+    }
+    private BigDecimal getCurrentPrice(BaseCurrency baseCurrency) {
+        try {
+            Results results = dealmakingClient.getCurrentPrice(BASEID, baseCurrency.getBaseCurrencyId());
+            logger.info("获取BTC对应汇率目标货币汇率结果",results);
+            if (results.getCode() != 0) {
+                logger.info("获取BTC对应汇率目标货币汇率失败");
+                return BigDecimal.ZERO;
+            }
+            BigDecimal currencyPrice = new BigDecimal(String.valueOf(results.getData().get("currentPrice")));
+            return  currencyPrice == null ? BigDecimal.ZERO : currencyPrice;
+        } catch (Exception e) {
+            logger.info("获取BTC对应汇率目标货币汇率结果异常",e);
+            return BigDecimal.ZERO;
+        }
+    }
     /**
      * 获取开盘价格
      * @return
@@ -447,7 +498,7 @@ public class CurrencyListService extends BaseService {
             TargetMapCurrency targetMapCurrency = new TargetMapCurrency();
             targetMapCurrency.setBaseAlias(baseCurrency1.getAlias());
             targetMapCurrency.setBaseCurrencyId(baseCurrency1.getBaseCurrencyId());
-            Page<TargetCurrency> page = getTargetCurrency(baseCurrency1.getAlias(), time,null,null);
+            Page<TargetCurrency> page = getTargetCurrency(baseCurrency1, time,null,null);
             if(page == null ){
                 return null;
             }
@@ -466,7 +517,7 @@ public class CurrencyListService extends BaseService {
      * @param
      * @return
      */
-    public CurrencyMap getHighestAndLowestCurrency(Integer time,Integer baseCurrencyId ) {
+    public CurrencyMap getHighestAndLowestCurrency(Integer time,Integer baseCurrencyId, String today ) {
         CurrencyMap currencyMap = new CurrencyMap();
         currencyMap.setBaseCurrencyId(baseCurrencyId);
         currencyMap.setTicks(new ArrayList<Tick>());
@@ -474,7 +525,7 @@ public class CurrencyListService extends BaseService {
         try{
 
             //调用接口获取所有数据
-            result = candlestickClient.getHighestAndLowestCurrency(time);
+            result = candlestickClient.getHighestAndLowestCurrency(time,today);
         }catch (Exception e){
             logger.info("调用撮单系统获取当日最低最高价格接口异常",e);
             return null;

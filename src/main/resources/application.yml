@@ -126,8 +126,11 @@ feignClient:
     name: bull
     containerName: /bullApi
   candlestick:
-      name: candlestick
-      containerName: /candlestickApi
+    name: candlestick
+    containerName: /candlestickApi
+  dandelion:
+    name: dandelion
+    containerName: /dandelion-bkApi
 sign:
   privateKey: 3B306A12B0D24CAFA191EBD446417CC5
   signEffectiveTime: 180
