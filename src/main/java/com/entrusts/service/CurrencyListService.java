@@ -179,7 +179,7 @@ public class CurrencyListService extends BaseService {
     private BigDecimal getCurrentPrice(BaseCurrency baseCurrency) {
         try {
             Results results = dealmakingClient.getCurrentPrice(BASEID, baseCurrency.getBaseCurrencyId());
-            logger.info("获取BTC对应汇率目标货币汇率结果",results);
+            logger.info("获取BTC对应汇率目标货币汇率结果:{}",results);
             if (results.getCode() != 0) {
                 logger.info("获取BTC对应汇率目标货币汇率失败");
                 return BigDecimal.ZERO;
