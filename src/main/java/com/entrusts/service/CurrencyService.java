@@ -7,6 +7,7 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -19,6 +20,10 @@ public class CurrencyService {
     public CurrencyMapper currencyMapper;
     @Cacheable
     public List<CurrencyInfo> getAllCurrencyInfo() {
-        return currencyMapper.getAllCurrency();
+        List<CurrencyInfo> allCurrency = currencyMapper.getAllCurrency();
+        for (CurrencyInfo currencyInfo :     allCurrency) {
+            currencyInfo.setChargeRate(new BigDecimal(0.2).setScale(2,BigDecimal.ROUND_HALF_UP));
+        }
+        return allCurrency;
     }
 }
