@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface CandlestickClient {
     String CANDLESTICKS = "/api/candlesticks/v1/market/";
     @GetMapping(value = CANDLESTICKS + "detail")
-    String getHighestAndLowestCurrency(@RequestParam("offset") Integer offset);
+    String getHighestAndLowestCurrency(@RequestParam("offset") Integer offset, @RequestParam(value = "today", required = false) String today);
 
 }

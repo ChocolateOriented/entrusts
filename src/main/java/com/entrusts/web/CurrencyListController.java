@@ -45,10 +45,16 @@ public class CurrencyListController extends BaseController {
     }
     @GetMapping("/listTarget")
     public CommonResponse<Page<TargetCurrency>> getTargetCurrency(@RequestParam("baseCurrency") String currency,Integer pageNum, Integer pageSize,@RequestParam("timeZoneOffset") Integer value){
+        CommonResponse<Page<TargetCurrency>> response = new CommonResponse<>();
         //不分时区
         value = 0;
-        Page<TargetCurrency> page = currencyListService.getTargetCurrency(currency,value,pageNum,pageSize);
-        CommonResponse<Page<TargetCurrency>> response = new CommonResponse<>();
+        BaseCurrency baseCurrency = currencyService.getCurrencyByAlias(currency);
+        if (baseCurrency == null) {
+            response.setCode((int)ResultConstant.SYSTEM_BUSY.getFullCode());
+            response.setMessage("没有此基准货币");
+            return response;
+        }
+        Page<TargetCurrency> page = currencyListService.getTargetCurrency(baseCurrency,value,pageNum,pageSize);
         if(page == null){
             response.setCode((int)ResultConstant.SYSTEM_BUSY.getFullCode());
             response.setMessage(ResultConstant.SYSTEM_BUSY.message);
@@ -84,10 +90,10 @@ public class CurrencyListController extends BaseController {
      * @return
      */
     @GetMapping("/getHighestAndLowestCurrency")
-    public Results getHighestAndLowestCurrency(@RequestParam("timeZoneOffset") Integer time,@RequestParam("baseCurrencyId") Integer baseCurrencyId ){
+    public Results getHighestAndLowestCurrency(@RequestParam("timeZoneOffset") Integer time,@RequestParam("baseCurrencyId") Integer baseCurrencyId,
+                                               @RequestParam(value = "today",required = false,defaultValue = "true") String today ){
 
-        CurrencyMap currencyMap = currencyListService.getHighestAndLowestCurrency(time,baseCurrencyId);
-
+        CurrencyMap currencyMap = currencyListService.getHighestAndLowestCurrency(time, baseCurrencyId, today);
         if(currencyMap == null){
             return new Results(ResultConstant.SYSTEM_BUSY);
         }
