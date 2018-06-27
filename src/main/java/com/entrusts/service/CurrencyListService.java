@@ -168,7 +168,7 @@ public class CurrencyListService extends BaseService {
                 logger.info("获取汇率失败");
                 return BigDecimal.ZERO;
             }
-            BigDecimal exchangeRate = new BigDecimal(String.valueOf(results.getData().get("price")));
+            BigDecimal exchangeRate = new BigDecimal(String.valueOf(results.getData().getJSONObject("entity").get("price")));
             return exchangeRate == null ? BigDecimal.ZERO : exchangeRate;
         } catch (Exception e) {
             logger.info("获取汇率失败",e);
