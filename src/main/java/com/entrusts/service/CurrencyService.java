@@ -28,7 +28,7 @@ public class CurrencyService {
         return allCurrency;
     }
 
-    @Cacheable(key = "#alian + 'alian'")
+    @Cacheable(key = "#alias + 'alias'")
     public BaseCurrency getCurrencyByAlias(String alias) {
         return currencyMapper.getCurrencyByAlias(alias);
     }
