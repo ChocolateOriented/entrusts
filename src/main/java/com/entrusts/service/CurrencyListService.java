@@ -17,6 +17,7 @@ import com.entrusts.module.enums.RedisKeyNameEnum;
 import com.entrusts.module.enums.UTCTimeEnum;
 import com.entrusts.util.HttpClientUtil;
 import com.entrusts.util.RedisUtil;
+import com.netflix.discovery.converters.jackson.builder.StringInterningAmazonInfoBuilder;
 import com.sun.org.apache.regexp.internal.RE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +55,9 @@ public class CurrencyListService extends BaseService {
     private static final Logger logger = LoggerFactory.getLogger(CurrencyListService.class);
 
     private final Integer BASEID = 1;
+    private final String BASEALIAS = "BTC";
     private final String LEGALTENDERTYPE = "CNY";
+    private final String EXCLUDECURRENCY = "USDT";
 
     /**
      * 获取基准货币
@@ -145,21 +148,24 @@ public class CurrencyListService extends BaseService {
             logger.info("获取目标货币失败",e);
             return null;
         }
-
-
         return page;
     }
 
     private BigDecimal getBaseCurrencyRate(BaseCurrency baseCurrency) {
-        if (baseCurrency.getBaseCurrencyId() == BASEID) {
-            return new BigDecimal(1);
+        //获取相对于BTC的汇率
+        BigDecimal currentPrice = null;
+        BigDecimal exchangeRate = null;
+        if (baseCurrency.getAlias().equals(EXCLUDECURRENCY) || baseCurrency.getAlias().equals(BASEALIAS)) {
+            return getExchangeRate(baseCurrency.getBaseCurrencyId()).setScale(8,BigDecimal.ROUND_HALF_UP);
         } else {
-            BigDecimal currentPrice = getCurrentPrice(baseCurrency);
-            BigDecimal exchangeRate = getExchangeRate(BASEID);
+            //获取相对于BTC的汇率
+            currentPrice = getCurrentPrice(baseCurrency);
+            //获取BTC相对于CNY的汇率
+            exchangeRate = getExchangeRate(BASEID);
             return currentPrice.multiply(exchangeRate).setScale(8, BigDecimal.ROUND_HALF_UP);
         }
-
     }
+
     private BigDecimal getExchangeRate(Integer baseCurrency) {
         try {
             Results results = dandelionClient.getExchangeRate(baseCurrency, LEGALTENDERTYPE);
@@ -176,6 +182,7 @@ public class CurrencyListService extends BaseService {
         }
 
     }
+
     private BigDecimal getCurrentPrice(BaseCurrency baseCurrency) {
         try {
             Results results = dealmakingClient.getCurrentPrice(BASEID, baseCurrency.getBaseCurrencyId());
