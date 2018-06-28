@@ -151,13 +151,11 @@ public class CurrencyListService extends BaseService {
     }
 
     private BigDecimal getBaseCurrencyRate(BaseCurrency baseCurrency) {
-        if (baseCurrency.getBaseCurrencyId() == BASEID) {
-            return new BigDecimal(1);
-        } else {
+
             BigDecimal currentPrice = getCurrentPrice(baseCurrency);
             BigDecimal exchangeRate = getExchangeRate(BASEID);
             return currentPrice.multiply(exchangeRate).setScale(8, BigDecimal.ROUND_HALF_UP);
-        }
+
 
     }
     private BigDecimal getExchangeRate(Integer baseCurrency) {
@@ -177,6 +175,9 @@ public class CurrencyListService extends BaseService {
 
     }
     private BigDecimal getCurrentPrice(BaseCurrency baseCurrency) {
+        if (baseCurrency.getBaseCurrencyId() == BASEID) {
+            return new BigDecimal(1);
+        }
         try {
             Results results = dealmakingClient.getCurrentPrice(BASEID, baseCurrency.getBaseCurrencyId());
             logger.info("获取BTC对应汇率目标货币汇率结果:{}",results);
