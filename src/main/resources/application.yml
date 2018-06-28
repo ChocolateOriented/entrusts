@@ -129,7 +129,7 @@ feignClient:
     name: candlestick
     containerName: /candlestickApi
   dandelion:
-    name: dandelion
+    name: dandelion-bk
     containerName: /dandelion-bkApi
 sign:
   privateKey: 3B306A12B0D24CAFA191EBD446417CC5
