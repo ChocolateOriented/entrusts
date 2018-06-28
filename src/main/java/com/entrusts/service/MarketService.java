@@ -111,7 +111,7 @@ public class MarketService extends BaseService {
 			double updateNum = -orderDetail.getDealQuantity().doubleValue();
 			jedis.hincrByFloat(key, String.valueOf(order.getTradePairId()), updateNum);
 		} catch (Exception e) {
-			logger.info("获取交易对挂单数量失败：", e);
+			logger.info("成交更新交易对挂单数量失败：", e);
 		} finally {
 			RedisUtil.returnResource(jedis);
 		}

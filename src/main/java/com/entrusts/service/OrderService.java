@@ -1,7 +1,6 @@
 package com.entrusts.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.entrusts.mapper.OrderEventMapper;
 import com.entrusts.mapper.OrderMapper;
 import com.entrusts.module.dto.DelegateEvent;
 import com.entrusts.module.entity.Order;
@@ -91,6 +90,7 @@ public class OrderService extends BaseService {
 		body.put("targetCurrencyId", delegateEvent.getTargetCurrencyId());
 		body.put("tradeType", delegateEvent.getTradeType());
 		body.put("createdTime", delegateEvent.getOrderTime().getTime());
+		body.put("isStrategy", 0);
 
 		//有序队列分区键, 使用交易对+交易类型组成
 		String shardingKey = delegateEvent.getTradePairId() + delegateEvent.getTradeType().name();
