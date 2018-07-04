@@ -23,6 +23,10 @@ public class MarketService extends BaseService {
 	@Autowired
 	private OrderMapper orderMapper;
 
+	private static final int QUANTITY_SCALE = 8;
+
+	private static final BigDecimal SCALE_FACTOR = BigDecimal.valueOf(Math.pow(10, QUANTITY_SCALE));
+
 	private static final String userTotalQuantityKey = "MarketService.userTotalQuantity.";
 
 	/**
@@ -45,14 +49,14 @@ public class MarketService extends BaseService {
 				if (tradePairQuantity == null) {
 					tradePairQuantity = new TradePairQuantity();
 				}
-				jedis.hsetnx(buyKey, field, tradePairQuantity.getBuyQuantity().toString());
-				jedis.hsetnx(sellKey, field, tradePairQuantity.getSellQuantity().toString());
+				jedis.hincrBy(buyKey, field, tradePairQuantity.getBuyQuantity().multiply(SCALE_FACTOR).setScale(0).longValue());
+				jedis.hincrBy(sellKey, field, tradePairQuantity.getSellQuantity().multiply(SCALE_FACTOR).setScale(0).longValue());
 			} else {
 				logger.info("交易对{}挂单总量获取缓存", tradePairId);
 				tradePairQuantity = new TradePairQuantity();
 				tradePairQuantity.setTradePairId(tradePairId);
-				tradePairQuantity.setBuyQuantity(new BigDecimal(buyQuantity));
-				tradePairQuantity.setSellQuantity(new BigDecimal(sellQuantity));
+				tradePairQuantity.setBuyQuantity(new BigDecimal(buyQuantity).divide(SCALE_FACTOR));
+				tradePairQuantity.setSellQuantity(new BigDecimal(sellQuantity).divide(SCALE_FACTOR));
 			}
 		} catch (Exception e) {
 			logger.info("获取交易对挂单数量失败：", e);
@@ -71,23 +75,24 @@ public class MarketService extends BaseService {
 		Jedis jedis = null;
 		try {
 			jedis = RedisUtil.getResource();
-			if (!jedis.exists(key)) {
+			if (!jedis.hexists(key, String.valueOf(order.getTradePairId()))) {
 				return;
 			}
-			double updateNum = 0;
+			BigDecimal updateNum = BigDecimal.ZERO;
 			if (order.getStatus() == OrderStatus.TRADING) {
-				updateNum = order.getQuantity().doubleValue();
+				updateNum = order.getQuantity();
 			} else if (order.getStatus() == OrderStatus.WITHDRAW || order.getStatus() == OrderStatus.WITHDRAW_UNTHAWING) {
 				if (order.getDealQuantity() == null) {
-					updateNum = -order.getQuantity().doubleValue();
+					updateNum = order.getQuantity().negate();
 				} else {
-					updateNum = -order.getQuantity().subtract(order.getDealQuantity()).doubleValue();
+					updateNum = order.getQuantity().subtract(order.getDealQuantity()).negate();
 				}
 			} else {
 				return;
 			}
-			
-			jedis.hincrByFloat(key, String.valueOf(order.getTradePairId()), updateNum);
+			long increment = updateNum.multiply(SCALE_FACTOR).setScale(0).longValue();
+			Long newValue = jedis.hincrBy(key, String.valueOf(order.getTradePairId()), increment);
+			logger.debug("交易对{}挂单总量,变更{},变更为{}", order.getTradePairId(), increment, newValue);
 		} catch (Exception e) {
 			logger.info("更新交易对挂单数量失败：", e);
 		} finally {
@@ -105,11 +110,14 @@ public class MarketService extends BaseService {
 		Jedis jedis = null;
 		try {
 			jedis = RedisUtil.getResource();
-			if (!jedis.exists(key)) {
+			if (!jedis.hexists(key, String.valueOf(order.getTradePairId()))) {
 				return;
 			}
-			double updateNum = -orderDetail.getDealQuantity().doubleValue();
-			jedis.hincrByFloat(key, String.valueOf(order.getTradePairId()), updateNum);
+			BigDecimal updateNum = orderDetail.getDealQuantity().negate();
+			
+			long increment = updateNum.multiply(SCALE_FACTOR).setScale(0).longValue();
+			Long newValue = jedis.hincrBy(key, String.valueOf(order.getTradePairId()), increment);
+			logger.debug("交易对{}挂单总量,变更{},变更为{}", order.getTradePairId(), increment, newValue);
 		} catch (Exception e) {
 			logger.info("成交更新交易对挂单数量失败：", e);
 		} finally {
